@@ -1,6 +1,6 @@
 # Handoff: where the project stands and what comes next
 
-*Last updated: 2026-10-12, 20:35 UTC.*
+*Last updated: 2026-10-12, 23:45 UTC.*
 
 **Goal:** use the GE tool to make the user coins. The user trades sporadically, a
 few check-ins a day, and wants recommendations they can follow plus easy
@@ -42,6 +42,22 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 - **Branch `research/variants`** (not merged yet): strategy variants
   (`lowrisk`, `liquid`, `fastcut`, `patient`), a 5% fill-share run and loss
   diagnostics in `walkforward.py`.
+
+## Validation (backtests) — PASSED, live paper trading pending
+- **Year walk-forward round 2** (`research/reports/walkforward-year-r2.*`), 11 two-week folds:
+  - `production` (low risk + pump guard + patient offers): +121k/day, 11/11 folds positive, worst fold +14k
+  - low risk + guard @5% fill share: +56k/day, 10/11
+  - baselines: −187k / −246k per day, 0/11
+- **5-minute replay** (`research/reports/replay-5m.*`): Aug 13 → Oct 12 2026, real 5-minute fills, model
+  trained only before Aug 13 and never retrained:
+  - `production` @10%: +157k/day (+9.5M), 46/60 days positive, 68% win rate, realised max drawdown 254k
+  - `production` @5%: +98k/day (+6.0M), 55/60 days positive, realised max drawdown 268k
+  - top-3 trades are 3–4% of profit; 4% of exits are cuts; baselines about −31k/day
+  - The 4.45M "mark" drawdown at 10% was one thin hour mispricing a holding; realised and
+    6-hour-median marks both show about 255k.
+- **Live bot:** restarted 23:00 UTC 10-12 with `models/full-year-v1` + `production` preset. Loop:
+  `LIVE_DIR=/home/user/osrs-live research/bot_loop.sh` (watcher: `/home/user/osrs-data/watch_bot.sh`).
+- **Data backed up** on the `data` branch (1h year + 60 days of 5m).
 
 ## Next steps (in order)
 1. Year-long walk-forward with the variants:
