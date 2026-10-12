@@ -16,9 +16,10 @@
     // rounded down, capped at 5M per item. A handful of items are exempt.
     TAX_RATE: 0.02,
     TAX_CAP_PER_ITEM: 5_000_000,
-    // Bond is the important one. The wiki's exemption list also covers some
-    // cheap tools/food; those trade below 50gp where tax rounds to 0 anyway.
-    TAX_EXEMPT_IDS: new Set([13190 /* Old school bond */]),
+    // Exempt from GE tax (OSRS Wiki "Grand Exchange" → Exempt from tax): bonds,
+    // energy potions, low-level ammo/runes/food, teleport tablets, games
+    // necklace(8), ring of dueling(8) and basic tools. Keep in sync with research/backtest.py.
+    TAX_EXEMPT_IDS: new Set([233, 315, 329, 347, 351, 355, 361, 365, 379, 558, 806, 807, 808, 882, 884, 886, 952, 1733, 1735, 1755, 1785, 1891, 2140, 2142, 2309, 2327, 2347, 2552, 3008, 3010, 3012, 3014, 3853, 5325, 5329, 5331, 5341, 5343, 8007, 8008, 8009, 8010, 8011, 8013, 8794, 13190, 28790, 28824]),
 
     BUY_LIMIT_WINDOW_MS: 4 * 60 * 60 * 1000,
     NATURE_RUNE_ID: 561,

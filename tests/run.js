@@ -70,6 +70,8 @@ function series(n, stepSec, fn, now = Date.now()) {
     eq(U.taxPerItem(1001), 20, "tax rounds down");
     eq(U.taxPerItem(1_000_000_000), 5_000_000, "tax capped at 5M per item");
     eq(U.taxPerItem(10_000_000, 13190), 0, "bonds are exempt");
+    eq(U.taxPerItem(500, 8007), 0, "teleport tablets are exempt");
+    eq(U.taxPerItem(150, 379), 0, "lobsters are exempt");
     eq(U.netSellPrice(1000), 980, "net after 2%");
     for (const cost of [1, 49, 50, 99, 1000, 12345, 7_777_777, 400_000_000]) {
       const p = U.breakevenSellPrice(cost);

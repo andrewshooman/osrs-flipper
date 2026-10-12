@@ -25,8 +25,15 @@ import numpy as np
 from panel import Panel, load_panel, synthetic_panel
 
 
-def tax(p):
-    return np.minimum(np.floor(np.asarray(p, dtype=np.float64) * 0.02), 5_000_000)
+# Exempt from GE tax (OSRS Wiki). Keep in sync with js/config.js TAX_EXEMPT_IDS.
+TAX_EXEMPT_IDS = frozenset([233, 315, 329, 347, 351, 355, 361, 365, 379, 558, 806, 807, 808, 882, 884, 886, 952, 1733, 1735, 1755, 1785, 1891, 2140, 2142, 2309, 2327, 2347, 2552, 3008, 3010, 3012, 3014, 3853, 5325, 5329, 5331, 5341, 5343, 8007, 8008, 8009, 8010, 8011, 8013, 8794, 13190, 28790, 28824])
+
+
+def tax(p, item_id=None):
+    t = np.minimum(np.floor(np.asarray(p, dtype=np.float64) * 0.02), 5_000_000)
+    if item_id is not None and int(item_id) in TAX_EXEMPT_IDS:
+        return t * 0
+    return t
 
 
 def breakeven(cost: float) -> float:
@@ -138,7 +145,7 @@ class Sim:
     def _sell_fill(self, t, i, q, price, reason="sell"):
         p = self.pos[i]
         unit_cost = p.cost / p.qty
-        tx = float(tax(price)) * q
+        tx = float(tax(price, self.P.ids[i])) * q
         proceeds = price * q - tx
         cost = unit_cost * q
         self.cash += proceeds
