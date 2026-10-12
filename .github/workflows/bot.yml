@@ -1,11 +1,10 @@
 name: paper-trading bot
 
-# One bot step every ~10 minutes: fill the bot's mock offers against the
-# newest real 5-minute GE trades and, once per hour, let the model decide.
-# State lives on the `live` branch (force-pushed single commit).
+# One bot step on demand: fill the bot's mock offers against the newest real
+# 5-minute GE trades and, once per hour, let the model decide. The bot
+# normally runs continuously via research/bot_loop.sh; this manual trigger is
+# a fallback. Don't run both at once — they share the `live` branch state.
 on:
-  schedule:
-    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 concurrency:
