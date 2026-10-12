@@ -36,9 +36,9 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   The GitHub Actions cron was removed; manual dispatch is the fallback only.
 - **Data** (on the cloud machine, `/home/user/osrs-data`, gone if the machine is
   reclaimed):
-  - Hourly: 2025-10-12 → today, completing about 21:05 UTC on 10-12.
-  - 5-minute: 2026-08-13 → today, completing about 00:00 UTC on 10-13.
-  - **To do:** back both up to an orphan `data` branch once complete.
+  - Hourly: 2025-10-12 → today, complete.
+  - 5-minute: 2026-08-13 → today, complete.
+  - Backed up on the `data` branch.
 - **Branch `research/variants`** (not merged yet): strategy variants
   (`lowrisk`, `liquid`, `fastcut`, `patient`), a 5% fill-share run and loss
   diagnostics in `walkforward.py`.
@@ -60,26 +60,19 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 - **Data backed up** on the `data` branch (1h year + 60 days of 5m).
 
 ## Next steps (in order)
-1. Year-long walk-forward with the variants:
-
-   `python research/walkforward.py --min-train-days 60 --test-days 14 --every-days 28 --out research/reports/walkforward-year.json`
-2. Pick the variant that meets the pre-agreed pass criteria:
-   - profitable in most folds
-   - beats both baselines
-   - still profitable at a 5% fill share
-   - max drawdown ≤ ~550k on 5.5M deployable
-   - top 3 trades < 50% of profit
-   - cuts < 25% of exits
-3. Train the full-year model with that variant and put it on `live` at
-   `data/model`. Reset the bot state and start `bot_loop.sh`.
-4. Run the 5-minute replay (`python research/hybrid.py replay`) and send the
-   user a validation report.
-5. Back up the data to a `data` branch.
-6. **If validation fails:** test more model types and labels side by side.
-7. **After 3–7 days of good live results:**
-   - an app "Do this now" list for sporadic check-ins
-   - logging (the RuneLite website's GE history export no longer exists)
-   - our own RuneLite plugin later
+1. **Live paper trading, 3–7 days.** Watch that its results land inside the replay's range
+   (+98k to +157k per day on 5.5M). If they don't, recalibrate the fill share.
+2. **User trading flow**, built while the bot runs (no real gold until step 1 passes):
+   - Export `full-year-v1` to JSON (`research/export_js.py`) and run it in the app
+     (`js/features.js` + `js/gbm.js`; parity is tested).
+   - A "Do this now" list sized to the user's stack (11M, 50% reserve), built for sporadic
+     check-ins: patient offers that can sit for hours, sell targets that don't need
+     repricing, quantities that fill within about 6 hours.
+   - One-tap logging of the orders the user places. The RuneLite site's GE export no longer
+     exists, so trades are logged manually or via CSV, with our own RuneLite plugin later.
+3. Weekly retrain plus a data-collection job.
+4. RuneLite companion plugin: auto-logs GE fills and shows orders in-game. No automation.
+5. Merge `research/variants` into `main` once the app work lands.
 
 ## Baseline results
 | strategy | period | profit/day | max DD | win rate | trips |
