@@ -1,0 +1,5547 @@
+{
+ "config": {
+  "synthetic": false,
+  "min_train_days": 60,
+  "test_days": 14,
+  "every_days": 28,
+  "rounds": 200,
+  "min_trade_frac": 0.3,
+  "share": 0.1,
+  "before": null,
+  "out": "reports/walkforward-year-r2.json"
+ },
+ "panel": [
+  8780,
+  3429
+ ],
+ "summary": {
+  "baseline_top_margin": {
+   "mean_profit_per_day": -186974,
+   "median_profit_per_day": -171550,
+   "folds_positive": "0/11",
+   "worst_fold": -346872,
+   "max_drawdown": 5494101
+  },
+  "baseline_v0_1": {
+   "mean_profit_per_day": -246345,
+   "median_profit_per_day": -209776,
+   "folds_positive": "0/11",
+   "worst_fold": -470978,
+   "max_drawdown": 7198917
+  },
+  "model": {
+   "mean_profit_per_day": 70451,
+   "median_profit_per_day": 52497,
+   "folds_positive": "9/11",
+   "worst_fold": -26470,
+   "max_drawdown": 2077407
+  },
+  "model_lowrisk": {
+   "mean_profit_per_day": 82727,
+   "median_profit_per_day": 72690,
+   "folds_positive": "11/11",
+   "worst_fold": 46530,
+   "max_drawdown": 1642529
+  },
+  "model_lowrisk_guard": {
+   "mean_profit_per_day": 124474,
+   "median_profit_per_day": 108930,
+   "folds_positive": "11/11",
+   "worst_fold": 7920,
+   "max_drawdown": 2710538
+  },
+  "model_lowrisk_guard_patient": {
+   "mean_profit_per_day": 121243,
+   "median_profit_per_day": 89372,
+   "folds_positive": "11/11",
+   "worst_fold": 14010,
+   "max_drawdown": 736172
+  },
+  "model_patient": {
+   "mean_profit_per_day": 58608,
+   "median_profit_per_day": 63482,
+   "folds_positive": "10/11",
+   "worst_fold": -12281,
+   "max_drawdown": 1478973
+  },
+  "model@5%": {
+   "mean_profit_per_day": 4631,
+   "median_profit_per_day": 8764,
+   "folds_positive": "6/11",
+   "worst_fold": -96607,
+   "max_drawdown": 1765676
+  },
+  "model_lowrisk@5%": {
+   "mean_profit_per_day": 15848,
+   "median_profit_per_day": 17813,
+   "folds_positive": "7/11",
+   "worst_fold": -28634,
+   "max_drawdown": 1494323
+  },
+  "model_lowrisk_guard@5%": {
+   "mean_profit_per_day": 55697,
+   "median_profit_per_day": 48848,
+   "folds_positive": "10/11",
+   "worst_fold": -8063,
+   "max_drawdown": 649236
+  }
+ },
+ "folds": [
+  {
+   "from": 1765411200,
+   "to": 1766617200,
+   "baseline_top_margin": {
+    "profit_per_day": -341806,
+    "max_drawdown": 5494101,
+    "win_rate": 0.397,
+    "trips": 247,
+    "exits": {
+     "sell": 193,
+     "dump": 54
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -470978,
+    "max_drawdown": 7198917,
+    "win_rate": 0.486,
+    "trips": 607,
+    "exits": {
+     "dump": 207,
+     "sell": 400
+    }
+   },
+   "model": {
+    "profit_per_day": 238913,
+    "max_drawdown": 1064772,
+    "win_rate": 0.7,
+    "trips": 584,
+    "exits": {
+     "sell": 557,
+     "dump": 27
+    },
+    "worst_trades": [
+     {
+      "item": "Apple pie",
+      "qty": 753,
+      "buy": 798,
+      "sell": 351.235,
+      "profit": -341685,
+      "hold_h": 3.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ardougne teleport (tablet)",
+      "qty": 1382,
+      "buy": 928,
+      "sell": 688.54,
+      "profit": -330934,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large teak hull parts",
+      "qty": 52,
+      "buy": 15513,
+      "sell": 9917.164999999999,
+      "profit": -301279,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steel dart tip",
+      "qty": 7000,
+      "buy": 138,
+      "sell": 97.51,
+      "profit": -290430,
+      "hold_h": 30.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant dart",
+      "qty": 10705,
+      "buy": 90,
+      "sell": 69.65,
+      "profit": -228552,
+      "hold_h": 8.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.15,
+    "drawdown_at_day": 3.9
+   },
+   "model_lowrisk": {
+    "profit_per_day": 152467,
+    "max_drawdown": 1642529,
+    "win_rate": 0.704,
+    "trips": 611,
+    "exits": {
+     "sell": 580,
+     "dump": 31
+    },
+    "worst_trades": [
+     {
+      "item": "Apple pie",
+      "qty": 809,
+      "buy": 798,
+      "sell": 351.235,
+      "profit": -367096,
+      "hold_h": 3.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Apple pie",
+      "qty": 931,
+      "buy": 481,
+      "sell": 202.98,
+      "profit": -262561,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large teak hull parts",
+      "qty": 45,
+      "buy": 15513,
+      "sell": 9917.164999999999,
+      "profit": -260723,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rune crossbow",
+      "qty": 61,
+      "buy": 13590,
+      "sell": 10300.24,
+      "profit": -213241,
+      "hold_h": 5.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Gryphon feather",
+      "qty": 7732,
+      "buy": 65,
+      "sell": 39.8,
+      "profit": -194846,
+      "hold_h": 6.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.18,
+    "drawdown_at_day": 4.4
+   },
+   "model_lowrisk_guard": {
+    "profit_per_day": 203551,
+    "max_drawdown": 439978,
+    "win_rate": 0.706,
+    "trips": 681,
+    "exits": {
+     "sell": 662,
+     "dump": 19
+    },
+    "worst_trades": [
+     {
+      "item": "Numulite",
+      "qty": 21027,
+      "buy": 25,
+      "sell": 13.93,
+      "profit": -232769,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Grimy guam leaf",
+      "qty": 987,
+      "buy": 689,
+      "sell": 491.53,
+      "profit": -203786,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Quetzal feed",
+      "qty": 80,
+      "buy": 7728,
+      "sell": 6607.795,
+      "profit": -100176,
+      "hold_h": 18.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Frozen tear",
+      "qty": 2982,
+      "buy": 165,
+      "sell": 136.315,
+      "profit": -91503,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bolt rack",
+      "qty": 2115,
+      "buy": 253,
+      "sell": 215.915,
+      "profit": -86895,
+      "hold_h": 17.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.06,
+    "drawdown_at_day": 2.1
+   },
+   "model_lowrisk_guard_patient": {
+    "profit_per_day": 217735,
+    "max_drawdown": 414929,
+    "win_rate": 0.717,
+    "trips": 579,
+    "exits": {
+     "sell": 568,
+     "dump": 11
+    },
+    "worst_trades": [
+     {
+      "item": "Sweetcorn",
+      "qty": 2686,
+      "buy": 236,
+      "sell": 145.27,
+      "profit": -249073,
+      "hold_h": 30.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Sweetcorn",
+      "qty": 3792,
+      "buy": 165,
+      "sell": 122.385,
+      "profit": -169180,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Frozen tear",
+      "qty": 3869,
+      "buy": 163,
+      "sell": 137.31,
+      "profit": -107133,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Iron dart tip",
+      "qty": 8336,
+      "buy": 81,
+      "sell": 74.625,
+      "profit": -61478,
+      "hold_h": 0.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Numulite",
+      "qty": 3858,
+      "buy": 25,
+      "sell": 13.93,
+      "profit": -42708,
+      "hold_h": 10.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.07,
+    "drawdown_at_day": 10.1
+   },
+   "model_patient": {
+    "profit_per_day": 58921,
+    "max_drawdown": 1470301,
+    "win_rate": 0.731,
+    "trips": 506,
+    "exits": {
+     "sell": 480,
+     "dump": 26
+    },
+    "worst_trades": [
+     {
+      "item": "Apple pie",
+      "qty": 1292,
+      "buy": 798,
+      "sell": 351.235,
+      "profit": -586264,
+      "hold_h": 3.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Mushroom",
+      "qty": 1402,
+      "buy": 650,
+      "sell": 270.64,
+      "profit": -538873,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Apple pie",
+      "qty": 1900,
+      "buy": 481,
+      "sell": 202.98,
+      "profit": -535838,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steel dart tip",
+      "qty": 6624,
+      "buy": 138,
+      "sell": 97.51,
+      "profit": -274830,
+      "hold_h": 30.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Numulite",
+      "qty": 30000,
+      "buy": 22,
+      "sell": 14.925,
+      "profit": -212250,
+      "hold_h": 1.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.7,
+    "drawdown_at_day": 4.4
+   },
+   "model@5%": {
+    "profit_per_day": 79859,
+    "max_drawdown": 1193944,
+    "win_rate": 0.636,
+    "trips": 667,
+    "exits": {
+     "sell": 636,
+     "dump": 31
+    },
+    "worst_trades": [
+     {
+      "item": "Apple pie",
+      "qty": 1049,
+      "buy": 798,
+      "sell": 351.235,
+      "profit": -475999,
+      "hold_h": 3.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Salve graveyard teleport (tablet)",
+      "qty": 184,
+      "buy": 4025,
+      "sell": 2289.495,
+      "profit": -327613,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Salve graveyard teleport (tablet)",
+      "qty": 231,
+      "buy": 3575,
+      "sell": 2593.965,
+      "profit": -238400,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 12209,
+      "buy": 99,
+      "sell": 83.58,
+      "profit": -200472,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant dart",
+      "qty": 8187,
+      "buy": 90,
+      "sell": 69.65,
+      "profit": -174792,
+      "hold_h": 8.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.22,
+    "drawdown_at_day": 6.4
+   },
+   "model_lowrisk@5%": {
+    "profit_per_day": 46349,
+    "max_drawdown": 1084933,
+    "win_rate": 0.638,
+    "trips": 636,
+    "exits": {
+     "sell": 608,
+     "dump": 28
+    },
+    "worst_trades": [
+     {
+      "item": "Apple pie",
+      "qty": 1037,
+      "buy": 798,
+      "sell": 351.235,
+      "profit": -470554,
+      "hold_h": 3.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Grimy guam leaf",
+      "qty": 1082,
+      "buy": 687,
+      "sell": 465.66,
+      "profit": -249228,
+      "hold_h": 3.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Grimy guam leaf",
+      "qty": 740,
+      "buy": 725,
+      "sell": 513.42,
+      "profit": -163969,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant dart",
+      "qty": 7519,
+      "buy": 90,
+      "sell": 69.65,
+      "profit": -160531,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Numulite",
+      "qty": 17357,
+      "buy": 23,
+      "sell": 13.93,
+      "profit": -157428,
+      "hold_h": 6.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.26,
+    "drawdown_at_day": 1.8
+   },
+   "model_lowrisk_guard@5%": {
+    "profit_per_day": 83856,
+    "max_drawdown": 383876,
+    "win_rate": 0.635,
+    "trips": 672,
+    "exits": {
+     "sell": 653,
+     "dump": 19
+    },
+    "worst_trades": [
+     {
+      "item": "Numulite",
+      "qty": 17357,
+      "buy": 26,
+      "sell": 13.93,
+      "profit": -209499,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant dart",
+      "qty": 7828,
+      "buy": 95,
+      "sell": 69.65,
+      "profit": -206268,
+      "hold_h": 10.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Raw jumbo squid",
+      "qty": 283,
+      "buy": 2748,
+      "sell": 2255.665,
+      "profit": -152066,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Grimy guam leaf",
+      "qty": 722,
+      "buy": 689,
+      "sell": 491.53,
+      "profit": -149071,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Amethyst broad bolts",
+      "qty": 1589,
+      "buy": 366,
+      "sell": 279.59499999999997,
+      "profit": -145243,
+      "hold_h": 8.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.13,
+    "drawdown_at_day": 1.9
+   }
+  },
+  {
+   "from": 1767830400,
+   "to": 1769036400,
+   "baseline_top_margin": {
+    "profit_per_day": -346872,
+    "max_drawdown": 4955105,
+    "win_rate": 0.425,
+    "trips": 240,
+    "exits": {
+     "sell": 185,
+     "dump": 55
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -457739,
+    "max_drawdown": 6408348,
+    "win_rate": 0.541,
+    "trips": 614,
+    "exits": {
+     "sell": 433,
+     "dump": 181
+    }
+   },
+   "model": {
+    "profit_per_day": -17135,
+    "max_drawdown": 2077407,
+    "win_rate": 0.63,
+    "trips": 583,
+    "exits": {
+     "sell": 552,
+     "dump": 31
+    },
+    "worst_trades": [
+     {
+      "item": "Oak longbow (u)",
+      "qty": 2447,
+      "buy": 470,
+      "sell": 84.575,
+      "profit": -945582,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Oak longbow (u)",
+      "qty": 2649,
+      "buy": 335,
+      "sell": 66.665,
+      "profit": -713468,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Oak longbow (u)",
+      "qty": 1980,
+      "buy": 376,
+      "sell": 199.0,
+      "profit": -356400,
+      "hold_h": 2.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Yew shortbow (u)",
+      "qty": 1732,
+      "buy": 660,
+      "sell": 470.635,
+      "profit": -343568,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Emerald bolts (e)",
+      "qty": 7556,
+      "buy": 106,
+      "sell": 69.65,
+      "profit": -282217,
+      "hold_h": 10.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 11.5
+   },
+   "model_lowrisk": {
+    "profit_per_day": 47118,
+    "max_drawdown": 1451658,
+    "win_rate": 0.689,
+    "trips": 570,
+    "exits": {
+     "sell": 540,
+     "dump": 30
+    },
+    "worst_trades": [
+     {
+      "item": "Oak longbow (u)",
+      "qty": 1560,
+      "buy": 430,
+      "sell": 84.575,
+      "profit": -540423,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Oak longbow (u)",
+      "qty": 2220,
+      "buy": 376,
+      "sell": 199.0,
+      "profit": -399600,
+      "hold_h": 2.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Maple shortbow (u)",
+      "qty": 2683,
+      "buy": 222,
+      "sell": 105.47,
+      "profit": -318016,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant knife",
+      "qty": 1410,
+      "buy": 553,
+      "sell": 356.21,
+      "profit": -287344,
+      "hold_h": 18.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Emerald bolts (e)",
+      "qty": 4606,
+      "buy": 121,
+      "sell": 60.695,
+      "profit": -282371,
+      "hold_h": 5.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.71,
+    "drawdown_at_day": 11.2
+   },
+   "model_lowrisk_guard": {
+    "profit_per_day": 225163,
+    "max_drawdown": 2710538,
+    "win_rate": 0.712,
+    "trips": 764,
+    "exits": {
+     "sell": 746,
+     "dump": 18
+    },
+    "worst_trades": [
+     {
+      "item": "Adamant dart",
+      "qty": 8144,
+      "buy": 99,
+      "sell": 78.605,
+      "profit": -174241,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Emerald bolts (e)",
+      "qty": 6817,
+      "buy": 68,
+      "sell": 44.775,
+      "profit": -158325,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Yew shortbow (u)",
+      "qty": 907,
+      "buy": 494,
+      "sell": 326.36,
+      "profit": -157491,
+      "hold_h": 18.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bass",
+      "qty": 3442,
+      "buy": 156,
+      "sell": 129.35,
+      "profit": -91729,
+      "hold_h": 15.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Divine super attack potion(4)",
+      "qty": 78,
+      "buy": 5067,
+      "sell": 4201.885,
+      "profit": -74031,
+      "hold_h": 19.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.06,
+    "drawdown_at_day": 11.4
+   },
+   "model_lowrisk_guard_patient": {
+    "profit_per_day": 206966,
+    "max_drawdown": 715558,
+    "win_rate": 0.735,
+    "trips": 601,
+    "exits": {
+     "sell": 584,
+     "dump": 17
+    },
+    "worst_trades": [
+     {
+      "item": "Emerald bolts (e)",
+      "qty": 9393,
+      "buy": 68,
+      "sell": 44.775,
+      "profit": -218152,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant dart",
+      "qty": 6038,
+      "buy": 99,
+      "sell": 78.605,
+      "profit": -129183,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Numulite",
+      "qty": 18666,
+      "buy": 34,
+      "sell": 27.86,
+      "profit": -114609,
+      "hold_h": 10.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Unpowered orb",
+      "qty": 10000,
+      "buy": 59,
+      "sell": 47.76,
+      "profit": -112400,
+      "hold_h": 24.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamantite nails",
+      "qty": 4964,
+      "buy": 129,
+      "sell": 112.435,
+      "profit": -92157,
+      "hold_h": 9.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.11,
+    "drawdown_at_day": 11.0
+   },
+   "model_patient": {
+    "profit_per_day": 69276,
+    "max_drawdown": 1478973,
+    "win_rate": 0.663,
+    "trips": 495,
+    "exits": {
+     "sell": 472,
+     "dump": 23
+    },
+    "worst_trades": [
+     {
+      "item": "Oak longbow (u)",
+      "qty": 3587,
+      "buy": 335,
+      "sell": 66.665,
+      "profit": -966105,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Oak longbow (u)",
+      "qty": 2172,
+      "buy": 470,
+      "sell": 84.575,
+      "profit": -839315,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Oak longbow (u)",
+      "qty": 6285,
+      "buy": 152,
+      "sell": 33.83,
+      "profit": -742698,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant dart",
+      "qty": 9832,
+      "buy": 111,
+      "sell": 78.605,
+      "profit": -328340,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Extended antifire(4)",
+      "qty": 553,
+      "buy": 1337,
+      "sell": 908.435,
+      "profit": -246950,
+      "hold_h": 21.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 1.1,
+    "drawdown_at_day": 9.1
+   },
+   "model@5%": {
+    "profit_per_day": -96607,
+    "max_drawdown": 1765676,
+    "win_rate": 0.622,
+    "trips": 625,
+    "exits": {
+     "sell": 593,
+     "dump": 32
+    },
+    "worst_trades": [
+     {
+      "item": "Oak longbow (u)",
+      "qty": 1989,
+      "buy": 335,
+      "sell": 66.665,
+      "profit": -535707,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Oak longbow (u)",
+      "qty": 1181,
+      "buy": 470,
+      "sell": 84.575,
+      "profit": -456368,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Yew shortbow (u)",
+      "qty": 1899,
+      "buy": 660,
+      "sell": 470.635,
+      "profit": -376695,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Iron dart",
+      "qty": 5415,
+      "buy": 96,
+      "sell": 33.83,
+      "profit": -336651,
+      "hold_h": 1.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Mind talisman",
+      "qty": 141,
+      "buy": 7103,
+      "sell": 5135.195,
+      "profit": -291843,
+      "hold_h": 7.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 12.1
+   },
+   "model_lowrisk@5%": {
+    "profit_per_day": -28634,
+    "max_drawdown": 1494323,
+    "win_rate": 0.655,
+    "trips": 644,
+    "exits": {
+     "sell": 613,
+     "dump": 31
+    },
+    "worst_trades": [
+     {
+      "item": "Oak longbow (u)",
+      "qty": 1556,
+      "buy": 430,
+      "sell": 84.575,
+      "profit": -539037,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Iron dart",
+      "qty": 6118,
+      "buy": 96,
+      "sell": 33.83,
+      "profit": -380356,
+      "hold_h": 1.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Oak longbow (u)",
+      "qty": 1771,
+      "buy": 376,
+      "sell": 199.0,
+      "profit": -318780,
+      "hold_h": 2.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Maple shortbow (u)",
+      "qty": 1946,
+      "buy": 222,
+      "sell": 105.47,
+      "profit": -230659,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Iron dart",
+      "qty": 7000,
+      "buy": 51,
+      "sell": 18.905,
+      "profit": -224665,
+      "hold_h": 4.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 11.2
+   },
+   "model_lowrisk_guard@5%": {
+    "profit_per_day": 86178,
+    "max_drawdown": 397485,
+    "win_rate": 0.662,
+    "trips": 718,
+    "exits": {
+     "sell": 692,
+     "dump": 26
+    },
+    "worst_trades": [
+     {
+      "item": "Adamant dart",
+      "qty": 5707,
+      "buy": 119,
+      "sell": 86.565,
+      "profit": -190814,
+      "hold_h": 4.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Lava rune",
+      "qty": 18000,
+      "buy": 24,
+      "sell": 14.925,
+      "profit": -163350,
+      "hold_h": 2.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Elder chaos hood",
+      "qty": 3,
+      "buy": 162225,
+      "sell": 126567.98,
+      "profit": -114564,
+      "hold_h": 5.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Warrior ring",
+      "qty": 6,
+      "buy": 69092,
+      "sell": 53059.37,
+      "profit": -102562,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamantite nails",
+      "qty": 5174,
+      "buy": 129,
+      "sell": 112.435,
+      "profit": -96055,
+      "hold_h": 6.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.13,
+    "drawdown_at_day": 14.0
+   }
+  },
+  {
+   "from": 1770249600,
+   "to": 1771455600,
+   "baseline_top_margin": {
+    "profit_per_day": -115409,
+    "max_drawdown": 1748330,
+    "win_rate": 0.52,
+    "trips": 296,
+    "exits": {
+     "sell": 252,
+     "dump": 44
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -168396,
+    "max_drawdown": 2400458,
+    "win_rate": 0.523,
+    "trips": 495,
+    "exits": {
+     "sell": 377,
+     "dump": 118
+    }
+   },
+   "model": {
+    "profit_per_day": 61994,
+    "max_drawdown": 619728,
+    "win_rate": 0.631,
+    "trips": 544,
+    "exits": {
+     "sell": 525,
+     "dump": 19
+    },
+    "worst_trades": [
+     {
+      "item": "Large mithril keel parts",
+      "qty": 39,
+      "buy": 33098,
+      "sell": 24952.61,
+      "profit": -337131,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steam rune",
+      "qty": 6755,
+      "buy": 129,
+      "sell": 101.49,
+      "profit": -199340,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bronze arrowtips",
+      "qty": 7998,
+      "buy": 32,
+      "sell": 7.96,
+      "profit": -192272,
+      "hold_h": 4.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large mithril keel parts",
+      "qty": 29,
+      "buy": 28922,
+      "sell": 23128.775,
+      "profit": -181402,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Papaya sapling",
+      "qty": 200,
+      "buy": 3418,
+      "sell": 2827.79,
+      "profit": -129242,
+      "hold_h": 4.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.24,
+    "drawdown_at_day": 10.9
+   },
+   "model_lowrisk": {
+    "profit_per_day": 72690,
+    "max_drawdown": 328992,
+    "win_rate": 0.681,
+    "trips": 502,
+    "exits": {
+     "sell": 482,
+     "dump": 20
+    },
+    "worst_trades": [
+     {
+      "item": "Lava rune",
+      "qty": 15059,
+      "buy": 41,
+      "sell": 26.865,
+      "profit": -212859,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large mithril keel parts",
+      "qty": 24,
+      "buy": 33098,
+      "sell": 24952.61,
+      "profit": -207465,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bronze arrowtips",
+      "qty": 7998,
+      "buy": 32,
+      "sell": 7.96,
+      "profit": -192272,
+      "hold_h": 4.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large mithril keel parts",
+      "qty": 23,
+      "buy": 28922,
+      "sell": 23128.775,
+      "profit": -143870,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Shark lure",
+      "qty": 3705,
+      "buy": 207,
+      "sell": 175.12,
+      "profit": -129230,
+      "hold_h": 6.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.17,
+    "drawdown_at_day": 8.6
+   },
+   "model_lowrisk_guard": {
+    "profit_per_day": 108930,
+    "max_drawdown": 223539,
+    "win_rate": 0.615,
+    "trips": 540,
+    "exits": {
+     "sell": 524,
+     "dump": 16
+    },
+    "worst_trades": [
+     {
+      "item": "Grand seed pod",
+      "qty": 2,
+      "buy": 233522,
+      "sell": 150065.9,
+      "profit": -172914,
+      "hold_h": 28.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Shark lure",
+      "qty": 3705,
+      "buy": 207,
+      "sell": 175.12,
+      "profit": -129230,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steam rune",
+      "qty": 4005,
+      "buy": 129,
+      "sell": 101.49,
+      "profit": -118188,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Redwood sapling",
+      "qty": 15,
+      "buy": 29998,
+      "sell": 24909.825,
+      "profit": -83793,
+      "hold_h": 30.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Guthan's platebody",
+      "qty": 2,
+      "buy": 210292,
+      "sell": 187259.995,
+      "profit": -53554,
+      "hold_h": 13.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.14,
+    "drawdown_at_day": 1.3
+   },
+   "model_lowrisk_guard_patient": {
+    "profit_per_day": 63220,
+    "max_drawdown": 383490,
+    "win_rate": 0.617,
+    "trips": 486,
+    "exits": {
+     "sell": 465,
+     "dump": 21
+    },
+    "worst_trades": [
+     {
+      "item": "Grand seed pod",
+      "qty": 2,
+      "buy": 233522,
+      "sell": 150065.9,
+      "profit": -172914,
+      "hold_h": 28.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Oranges(5)",
+      "qty": 177,
+      "buy": 1558,
+      "sell": 1012.91,
+      "profit": -100021,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Oranges(5)",
+      "qty": 244,
+      "buy": 1817,
+      "sell": 1481.555,
+      "profit": -88925,
+      "hold_h": 15.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Shark lure",
+      "qty": 2354,
+      "buy": 207,
+      "sell": 175.12,
+      "profit": -82108,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Efh salt",
+      "qty": 4222,
+      "buy": 131,
+      "sell": 119.4,
+      "profit": -57419,
+      "hold_h": 17.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.18,
+    "drawdown_at_day": 8.0
+   },
+   "model_patient": {
+    "profit_per_day": -12281,
+    "max_drawdown": 697398,
+    "win_rate": 0.643,
+    "trips": 446,
+    "exits": {
+     "sell": 419,
+     "dump": 27
+    },
+    "worst_trades": [
+     {
+      "item": "Black nails",
+      "qty": 166,
+      "buy": 5197,
+      "sell": 1988.01,
+      "profit": -539166,
+      "hold_h": 14.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steam rune",
+      "qty": 6908,
+      "buy": 129,
+      "sell": 101.49,
+      "profit": -203855,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Lava rune",
+      "qty": 13911,
+      "buy": 41,
+      "sell": 26.865,
+      "profit": -196632,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Basalt",
+      "qty": 903,
+      "buy": 1025,
+      "sell": 848.735,
+      "profit": -173615,
+      "hold_h": 10.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant bolts(unf)",
+      "qty": 3204,
+      "buy": 238,
+      "sell": 188.055,
+      "profit": -169636,
+      "hold_h": 30.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 4.0
+   },
+   "model@5%": {
+    "profit_per_day": -13009,
+    "max_drawdown": 851458,
+    "win_rate": 0.584,
+    "trips": 524,
+    "exits": {
+     "sell": 497,
+     "dump": 27
+    },
+    "worst_trades": [
+     {
+      "item": "Adamant arrowtips",
+      "qty": 6329,
+      "buy": 158,
+      "sell": 115.42,
+      "profit": -282147,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large mithril keel parts",
+      "qty": 32,
+      "buy": 33098,
+      "sell": 24952.61,
+      "profit": -276620,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ruby bolts",
+      "qty": 2223,
+      "buy": 427,
+      "sell": 313.425,
+      "profit": -265815,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Shark lure",
+      "qty": 4616,
+      "buy": 218,
+      "sell": 175.12,
+      "profit": -211782,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamantite nails",
+      "qty": 5842,
+      "buy": 168,
+      "sell": 144.275,
+      "profit": -150285,
+      "hold_h": 17.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 11.7
+   },
+   "model_lowrisk@5%": {
+    "profit_per_day": -10577,
+    "max_drawdown": 484112,
+    "win_rate": 0.605,
+    "trips": 544,
+    "exits": {
+     "sell": 518,
+     "dump": 26
+    },
+    "worst_trades": [
+     {
+      "item": "Forester's ration",
+      "qty": 6000,
+      "buy": 81,
+      "sell": 44.775,
+      "profit": -217350,
+      "hold_h": 0.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant arrowtips",
+      "qty": 4501,
+      "buy": 158,
+      "sell": 115.42,
+      "profit": -200655,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large mithril keel parts",
+      "qty": 21,
+      "buy": 33098,
+      "sell": 24952.61,
+      "profit": -181532,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large mithril keel parts",
+      "qty": 22,
+      "buy": 28922,
+      "sell": 23128.775,
+      "profit": -137615,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Forester's ration",
+      "qty": 6000,
+      "buy": 61,
+      "sell": 38.805,
+      "profit": -133170,
+      "hold_h": 20.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 5.2
+   },
+   "model_lowrisk_guard@5%": {
+    "profit_per_day": 61409,
+    "max_drawdown": 316246,
+    "win_rate": 0.549,
+    "trips": 668,
+    "exits": {
+     "sell": 646,
+     "dump": 22
+    },
+    "worst_trades": [
+     {
+      "item": "Adamant arrowtips",
+      "qty": 4655,
+      "buy": 158,
+      "sell": 115.42,
+      "profit": -207520,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bronze bar",
+      "qty": 8534,
+      "buy": 51,
+      "sell": 36.815,
+      "profit": -121055,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steam rune",
+      "qty": 6361,
+      "buy": 118,
+      "sell": 101.49,
+      "profit": -117742,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large mithril keel parts",
+      "qty": 25,
+      "buy": 28697,
+      "sell": 24998.38,
+      "profit": -104940,
+      "hold_h": 18.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Redwood sapling",
+      "qty": 13,
+      "buy": 29998,
+      "sell": 24909.825,
+      "profit": -72620,
+      "hold_h": 30.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.13,
+    "drawdown_at_day": 3.1
+   }
+  },
+  {
+   "from": 1772668800,
+   "to": 1773874800,
+   "baseline_top_margin": {
+    "profit_per_day": -143628,
+    "max_drawdown": 2186400,
+    "win_rate": 0.49,
+    "trips": 261,
+    "exits": {
+     "sell": 216,
+     "dump": 45
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -214335,
+    "max_drawdown": 3000691,
+    "win_rate": 0.488,
+    "trips": 461,
+    "exits": {
+     "dump": 138,
+     "sell": 323
+    }
+   },
+   "model": {
+    "profit_per_day": 76982,
+    "max_drawdown": 385836,
+    "win_rate": 0.63,
+    "trips": 554,
+    "exits": {
+     "sell": 535,
+     "dump": 19
+    },
+    "worst_trades": [
+     {
+      "item": "Iron dart tip",
+      "qty": 12370,
+      "buy": 64,
+      "sell": 40.795,
+      "profit": -287046,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ironwood logs",
+      "qty": 9410,
+      "buy": 141,
+      "sell": 120.395,
+      "profit": -212713,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Babydragon bones",
+      "qty": 933,
+      "buy": 778,
+      "sell": 607.945,
+      "profit": -169857,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Camphor hull parts",
+      "qty": 56,
+      "buy": 10337,
+      "sell": 7742.095,
+      "profit": -153939,
+      "hold_h": 36.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Basalt",
+      "qty": 1232,
+      "buy": 685,
+      "sell": 584.0649999999999,
+      "profit": -137904,
+      "hold_h": 19.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.21,
+    "drawdown_at_day": 10.8
+   },
+   "model_lowrisk": {
+    "profit_per_day": 73357,
+    "max_drawdown": 308770,
+    "win_rate": 0.663,
+    "trips": 525,
+    "exits": {
+     "sell": 502,
+     "dump": 23
+    },
+    "worst_trades": [
+     {
+      "item": "Iron dart tip",
+      "qty": 9966,
+      "buy": 64,
+      "sell": 40.795,
+      "profit": -231261,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Kourend castle teleport (tablet)",
+      "qty": 278,
+      "buy": 1475,
+      "sell": 808.935,
+      "profit": -185166,
+      "hold_h": 17.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Babydragon bones",
+      "qty": 878,
+      "buy": 778,
+      "sell": 607.945,
+      "profit": -159844,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Iron dart tip",
+      "qty": 10144,
+      "buy": 62,
+      "sell": 50.745,
+      "profit": -124315,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "West ardougne teleport (tablet)",
+      "qty": 125,
+      "buy": 2877,
+      "sell": 1984.03,
+      "profit": -116496,
+      "hold_h": 17.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.29,
+    "drawdown_at_day": 6.1
+   },
+   "model_lowrisk_guard": {
+    "profit_per_day": 7920,
+    "max_drawdown": 660843,
+    "win_rate": 0.633,
+    "trips": 610,
+    "exits": {
+     "sell": 590,
+     "dump": 20
+    },
+    "worst_trades": [
+     {
+      "item": "Narwhal horn",
+      "qty": 1,
+      "buy": 648946,
+      "sell": 11343.0,
+      "profit": -637829,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Iron dart tip",
+      "qty": 7332,
+      "buy": 64,
+      "sell": 40.795,
+      "profit": -170139,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Spirit shield",
+      "qty": 8,
+      "buy": 68406,
+      "sell": 53446.425,
+      "profit": -128221,
+      "hold_h": 10.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Basalt",
+      "qty": 1058,
+      "buy": 685,
+      "sell": 584.0649999999999,
+      "profit": -118427,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Dagon'hai robe bottom",
+      "qty": 1,
+      "buy": 506296,
+      "sell": 424595.355,
+      "profit": -90192,
+      "hold_h": 29.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.94,
+    "drawdown_at_day": 14.0
+   },
+   "model_lowrisk_guard_patient": {
+    "profit_per_day": 59797,
+    "max_drawdown": 307355,
+    "win_rate": 0.638,
+    "trips": 506,
+    "exits": {
+     "sell": 492,
+     "dump": 14
+    },
+    "worst_trades": [
+     {
+      "item": "Iron dart tip",
+      "qty": 8843,
+      "buy": 64,
+      "sell": 40.795,
+      "profit": -205202,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Mahogany hull parts",
+      "qty": 98,
+      "buy": 3833,
+      "sell": 2595.955,
+      "profit": -126228,
+      "hold_h": 23.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Amethyst bolt tips",
+      "qty": 3121,
+      "buy": 183,
+      "sell": 156.215,
+      "profit": -92959,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Dagon'hai robe bottom",
+      "qty": 1,
+      "buy": 506296,
+      "sell": 424595.355,
+      "profit": -90192,
+      "hold_h": 29.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ironwood sapling",
+      "qty": 20,
+      "buy": 30679,
+      "sell": 27884.875,
+      "profit": -67022,
+      "hold_h": 24.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.16,
+    "drawdown_at_day": 6.7
+   },
+   "model_patient": {
+    "profit_per_day": 74329,
+    "max_drawdown": 796989,
+    "win_rate": 0.676,
+    "trips": 490,
+    "exits": {
+     "sell": 466,
+     "dump": 24
+    },
+    "worst_trades": [
+     {
+      "item": "Kourend castle teleport (tablet)",
+      "qty": 616,
+      "buy": 1427,
+      "sell": 808.935,
+      "profit": -380728,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large steel keel parts",
+      "qty": 32,
+      "buy": 29371,
+      "sell": 21716.87,
+      "profit": -258820,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant knife",
+      "qty": 1689,
+      "buy": 359,
+      "sell": 285.565,
+      "profit": -132477,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Granite ring",
+      "qty": 16,
+      "buy": 31612,
+      "sell": 24377.5,
+      "profit": -123544,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Amethyst bolt tips",
+      "qty": 3824,
+      "buy": 183,
+      "sell": 156.215,
+      "profit": -113898,
+      "hold_h": 26.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.28,
+    "drawdown_at_day": 7.0
+   },
+   "model@5%": {
+    "profit_per_day": -13190,
+    "max_drawdown": 528374,
+    "win_rate": 0.608,
+    "trips": 554,
+    "exits": {
+     "sell": 525,
+     "dump": 29
+    },
+    "worst_trades": [
+     {
+      "item": "Narwhal horn",
+      "qty": 1,
+      "buy": 702476,
+      "sell": 11343.0,
+      "profit": -691359,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large mahogany hull parts",
+      "qty": 21,
+      "buy": 32333,
+      "sell": 24530.73,
+      "profit": -174138,
+      "hold_h": 14.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Kourend castle teleport (tablet)",
+      "qty": 255,
+      "buy": 1475,
+      "sell": 808.935,
+      "profit": -169847,
+      "hold_h": 17.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Camphor hull parts",
+      "qty": 50,
+      "buy": 10337,
+      "sell": 7742.095,
+      "profit": -137445,
+      "hold_h": 36.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Guthix rest(4)",
+      "qty": 210,
+      "buy": 3636,
+      "sell": 3280.515,
+      "profit": -88302,
+      "hold_h": 25.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 14.0
+   },
+   "model_lowrisk@5%": {
+    "profit_per_day": -27150,
+    "max_drawdown": 670637,
+    "win_rate": 0.608,
+    "trips": 541,
+    "exits": {
+     "sell": 515,
+     "dump": 26
+    },
+    "worst_trades": [
+     {
+      "item": "Narwhal horn",
+      "qty": 1,
+      "buy": 702476,
+      "sell": 11343.0,
+      "profit": -691359,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Redwood sapling",
+      "qty": 21,
+      "buy": 35382,
+      "sell": 23179.52,
+      "profit": -265975,
+      "hold_h": 36.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Kourend castle teleport (tablet)",
+      "qty": 416,
+      "buy": 1095,
+      "sell": 845.75,
+      "profit": -103688,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Babydragon bones",
+      "qty": 466,
+      "buy": 778,
+      "sell": 607.945,
+      "profit": -84838,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Basalt",
+      "qty": 616,
+      "buy": 685,
+      "sell": 584.0649999999999,
+      "profit": -68952,
+      "hold_h": 19.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 14.0
+   },
+   "model_lowrisk_guard@5%": {
+    "profit_per_day": -8063,
+    "max_drawdown": 649236,
+    "win_rate": 0.592,
+    "trips": 583,
+    "exits": {
+     "sell": 559,
+     "dump": 24
+    },
+    "worst_trades": [
+     {
+      "item": "Narwhal horn",
+      "qty": 1,
+      "buy": 648946,
+      "sell": 11343.0,
+      "profit": -637829,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Iron dart tip",
+      "qty": 6185,
+      "buy": 64,
+      "sell": 40.795,
+      "profit": -143523,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Kourend castle teleport (tablet)",
+      "qty": 416,
+      "buy": 1095,
+      "sell": 845.75,
+      "profit": -103688,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ruby bolts (e)",
+      "qty": 3877,
+      "buy": 182,
+      "sell": 165.17,
+      "profit": -76881,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Basalt",
+      "qty": 616,
+      "buy": 685,
+      "sell": 584.0649999999999,
+      "profit": -68952,
+      "hold_h": 19.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 14.0
+   }
+  },
+  {
+   "from": 1775088000,
+   "to": 1776294000,
+   "baseline_top_margin": {
+    "profit_per_day": -175370,
+    "max_drawdown": 2756269,
+    "win_rate": 0.423,
+    "trips": 274,
+    "exits": {
+     "sell": 228,
+     "dump": 46
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -289275,
+    "max_drawdown": 4049850,
+    "win_rate": 0.444,
+    "trips": 453,
+    "exits": {
+     "dump": 158,
+     "sell": 295
+    }
+   },
+   "model": {
+    "profit_per_day": 19056,
+    "max_drawdown": 736909,
+    "win_rate": 0.619,
+    "trips": 506,
+    "exits": {
+     "sell": 478,
+     "dump": 28
+    },
+    "worst_trades": [
+     {
+      "item": "Tai bwo wannai teleport",
+      "qty": 211,
+      "buy": 4089,
+      "sell": 2408.895,
+      "profit": -364630,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Gryphon feather",
+      "qty": 8963,
+      "buy": 61,
+      "sell": 29.85,
+      "profit": -279197,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Kovac's grog",
+      "qty": 5,
+      "buy": 131084,
+      "sell": 79235.83,
+      "profit": -267161,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rosewood pyre logs",
+      "qty": 200,
+      "buy": 4528,
+      "sell": 3980.995,
+      "profit": -125201,
+      "hold_h": 35.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Iron dart tip",
+      "qty": 10320,
+      "buy": 51,
+      "sell": 39.8,
+      "profit": -115584,
+      "hold_h": 6.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.62,
+    "drawdown_at_day": 4.1
+   },
+   "model_lowrisk": {
+    "profit_per_day": 70777,
+    "max_drawdown": 613156,
+    "win_rate": 0.689,
+    "trips": 530,
+    "exits": {
+     "sell": 508,
+     "dump": 22
+    },
+    "worst_trades": [
+     {
+      "item": "Gryphon feather",
+      "qty": 8963,
+      "buy": 61,
+      "sell": 29.85,
+      "profit": -279197,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bolt rack",
+      "qty": 3962,
+      "buy": 182,
+      "sell": 126.365,
+      "profit": -228350,
+      "hold_h": 14.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Iron dart tip",
+      "qty": 10320,
+      "buy": 51,
+      "sell": 39.8,
+      "profit": -115584,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bolt rack",
+      "qty": 5223,
+      "buy": 131,
+      "sell": 113.42999999999999,
+      "profit": -102214,
+      "hold_h": 15.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rosewood pyre logs",
+      "qty": 160,
+      "buy": 4528,
+      "sell": 3980.995,
+      "profit": -100161,
+      "hold_h": 35.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.17,
+    "drawdown_at_day": 12.3
+   },
+   "model_lowrisk_guard": {
+    "profit_per_day": 93579,
+    "max_drawdown": 560265,
+    "win_rate": 0.66,
+    "trips": 606,
+    "exits": {
+     "sell": 588,
+     "dump": 18
+    },
+    "worst_trades": [
+     {
+      "item": "Super hunter potion(4)",
+      "qty": 1396,
+      "buy": 424,
+      "sell": 187.06,
+      "profit": -334956,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Iron dart tip",
+      "qty": 10320,
+      "buy": 51,
+      "sell": 39.8,
+      "profit": -115584,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ruby bolts (e)",
+      "qty": 3330,
+      "buy": 217,
+      "sell": 186.065,
+      "profit": -113004,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bolt rack",
+      "qty": 4547,
+      "buy": 131,
+      "sell": 113.42999999999999,
+      "profit": -88985,
+      "hold_h": 15.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bolt rack",
+      "qty": 1604,
+      "buy": 172,
+      "sell": 126.365,
+      "profit": -76407,
+      "hold_h": 12.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.1,
+    "drawdown_at_day": 9.7
+   },
+   "model_lowrisk_guard_patient": {
+    "profit_per_day": 135494,
+    "max_drawdown": 185690,
+    "win_rate": 0.686,
+    "trips": 516,
+    "exits": {
+     "sell": 500,
+     "dump": 16
+    },
+    "worst_trades": [
+     {
+      "item": "Lava rune",
+      "qty": 18000,
+      "buy": 37,
+      "sell": 32.835,
+      "profit": -74970,
+      "hold_h": 5.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bolt rack",
+      "qty": 5519,
+      "buy": 102,
+      "sell": 91.54,
+      "profit": -63248,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Spirit shield",
+      "qty": 4,
+      "buy": 99552,
+      "sell": 86399.83,
+      "profit": -59517,
+      "hold_h": 15.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Narwhal horn",
+      "qty": 1,
+      "buy": 72223,
+      "sell": 57212.5,
+      "profit": -16154,
+      "hold_h": 29.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Guthix d'hide boots",
+      "qty": 2,
+      "buy": 205984,
+      "sell": 203229.745,
+      "profit": -13637,
+      "hold_h": 1.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.1,
+    "drawdown_at_day": 12.0
+   },
+   "model_patient": {
+    "profit_per_day": 38926,
+    "max_drawdown": 880083,
+    "win_rate": 0.662,
+    "trips": 467,
+    "exits": {
+     "sell": 443,
+     "dump": 24
+    },
+    "worst_trades": [
+     {
+      "item": "Cemetery teleport (tablet)",
+      "qty": 154,
+      "buy": 5002,
+      "sell": 3084.5,
+      "profit": -304689,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Gryphon feather",
+      "qty": 8963,
+      "buy": 61,
+      "sell": 29.85,
+      "profit": -279197,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Raw summer pie",
+      "qty": 251,
+      "buy": 2473,
+      "sell": 1462.65,
+      "profit": -260877,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Cemetery teleport (tablet)",
+      "qty": 160,
+      "buy": 2969,
+      "sell": 1691.5,
+      "profit": -209680,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Mithril arrowtips",
+      "qty": 8100,
+      "buy": 59,
+      "sell": 43.78,
+      "profit": -123282,
+      "hold_h": 38.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.3,
+    "drawdown_at_day": 9.5
+   },
+   "model@5%": {
+    "profit_per_day": 19549,
+    "max_drawdown": 463102,
+    "win_rate": 0.581,
+    "trips": 616,
+    "exits": {
+     "sell": 596,
+     "dump": 20
+    },
+    "worst_trades": [
+     {
+      "item": "Civitas illa fortis teleport",
+      "qty": 828,
+      "buy": 1314,
+      "sell": 1105.445,
+      "profit": -172684,
+      "hold_h": 14.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Gryphon feather",
+      "qty": 4481,
+      "buy": 61,
+      "sell": 29.85,
+      "profit": -139583,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Kovac's grog",
+      "qty": 2,
+      "buy": 158462,
+      "sell": 90656.44,
+      "profit": -139237,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Sulphur blades",
+      "qty": 7,
+      "buy": 98399,
+      "sell": 84030.735,
+      "profit": -112338,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bolt rack",
+      "qty": 1801,
+      "buy": 190,
+      "sell": 136.315,
+      "profit": -100289,
+      "hold_h": 21.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.33,
+    "drawdown_at_day": 3.1
+   },
+   "model_lowrisk@5%": {
+    "profit_per_day": 23336,
+    "max_drawdown": 450008,
+    "win_rate": 0.587,
+    "trips": 603,
+    "exits": {
+     "sell": 584,
+     "dump": 19
+    },
+    "worst_trades": [
+     {
+      "item": "Tai bwo wannai teleport",
+      "qty": 111,
+      "buy": 4089,
+      "sell": 2408.895,
+      "profit": -191820,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Lava rune",
+      "qty": 17457,
+      "buy": 35,
+      "sell": 25.87,
+      "profit": -159382,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Gryphon feather",
+      "qty": 4481,
+      "buy": 61,
+      "sell": 29.85,
+      "profit": -139583,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Kovac's grog",
+      "qty": 2,
+      "buy": 158462,
+      "sell": 90656.44,
+      "profit": -139237,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bolt rack",
+      "qty": 1219,
+      "buy": 190,
+      "sell": 136.315,
+      "profit": -67880,
+      "hold_h": 21.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.36,
+    "drawdown_at_day": 4.1
+   },
+   "model_lowrisk_guard@5%": {
+    "profit_per_day": 25033,
+    "max_drawdown": 477843,
+    "win_rate": 0.572,
+    "trips": 607,
+    "exits": {
+     "sell": 588,
+     "dump": 19
+    },
+    "worst_trades": [
+     {
+      "item": "Lava rune",
+      "qty": 15282,
+      "buy": 35,
+      "sell": 25.87,
+      "profit": -139525,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ruby bolts (e)",
+      "qty": 3123,
+      "buy": 217,
+      "sell": 186.065,
+      "profit": -105979,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Diamond bolt tips",
+      "qty": 3711,
+      "buy": 184,
+      "sell": 163.18,
+      "profit": -88396,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Mithril nails",
+      "qty": 6296,
+      "buy": 82,
+      "sell": 70.645,
+      "profit": -77787,
+      "hold_h": 10.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Lava rune",
+      "qty": 18000,
+      "buy": 37,
+      "sell": 32.835,
+      "profit": -74970,
+      "hold_h": 5.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.26,
+    "drawdown_at_day": 4.1
+   }
+  },
+  {
+   "from": 1777507200,
+   "to": 1778713200,
+   "baseline_top_margin": {
+    "profit_per_day": -125114,
+    "max_drawdown": 1789661,
+    "win_rate": 0.452,
+    "trips": 290,
+    "exits": {
+     "sell": 238,
+     "dump": 52
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -203844,
+    "max_drawdown": 2906791,
+    "win_rate": 0.388,
+    "trips": 451,
+    "exits": {
+     "sell": 318,
+     "dump": 133
+    }
+   },
+   "model": {
+    "profit_per_day": 38082,
+    "max_drawdown": 580524,
+    "win_rate": 0.602,
+    "trips": 591,
+    "exits": {
+     "sell": 568,
+     "dump": 23
+    },
+    "worst_trades": [
+     {
+      "item": "Smoke rune",
+      "qty": 12149,
+      "buy": 107,
+      "sell": 89.55,
+      "profit": -224149,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 9750,
+      "buy": 100,
+      "sell": 85.57,
+      "profit": -150443,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large steel keel parts",
+      "qty": 27,
+      "buy": 22397,
+      "sell": 17576.675,
+      "profit": -139626,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bloodbark helm",
+      "qty": 3,
+      "buy": 120109,
+      "sell": 77836.86,
+      "profit": -131484,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant cannonball",
+      "qty": 3166,
+      "buy": 310,
+      "sell": 273.625,
+      "profit": -130993,
+      "hold_h": 20.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.44,
+    "drawdown_at_day": 9.3
+   },
+   "model_lowrisk": {
+    "profit_per_day": 67734,
+    "max_drawdown": 366419,
+    "win_rate": 0.655,
+    "trips": 559,
+    "exits": {
+     "sell": 539,
+     "dump": 20
+    },
+    "worst_trades": [
+     {
+      "item": "Large steel keel parts",
+      "qty": 27,
+      "buy": 22397,
+      "sell": 17576.675,
+      "profit": -139626,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bloodbark helm",
+      "qty": 3,
+      "buy": 120109,
+      "sell": 77836.86,
+      "profit": -131484,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Te salt",
+      "qty": 8559,
+      "buy": 82,
+      "sell": 68.655,
+      "profit": -122779,
+      "hold_h": 2.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 7537,
+      "buy": 100,
+      "sell": 85.57,
+      "profit": -116296,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bolt rack",
+      "qty": 4248,
+      "buy": 116,
+      "sell": 94.525,
+      "profit": -95474,
+      "hold_h": 8.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.15,
+    "drawdown_at_day": 7.3
+   },
+   "model_lowrisk_guard": {
+    "profit_per_day": 99227,
+    "max_drawdown": 244833,
+    "win_rate": 0.65,
+    "trips": 635,
+    "exits": {
+     "sell": 621,
+     "dump": 14
+    },
+    "worst_trades": [
+     {
+      "item": "Quetzal feed",
+      "qty": 100,
+      "buy": 5374,
+      "sell": 4204.87,
+      "profit": -125313,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Te salt",
+      "qty": 8559,
+      "buy": 82,
+      "sell": 68.655,
+      "profit": -122779,
+      "hold_h": 2.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 7160,
+      "buy": 100,
+      "sell": 85.57,
+      "profit": -110479,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Spirit shield",
+      "qty": 7,
+      "buy": 90770,
+      "sell": 84051.63,
+      "profit": -58796,
+      "hold_h": 0.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Sulphur blades",
+      "qty": 6,
+      "buy": 85404,
+      "sell": 77300.555,
+      "profit": -57897,
+      "hold_h": 21.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.13,
+    "drawdown_at_day": 7.2
+   },
+   "model_lowrisk_guard_patient": {
+    "profit_per_day": 89372,
+    "max_drawdown": 320752,
+    "win_rate": 0.668,
+    "trips": 560,
+    "exits": {
+     "sell": 545,
+     "dump": 15
+    },
+    "worst_trades": [
+     {
+      "item": "Te salt",
+      "qty": 7054,
+      "buy": 82,
+      "sell": 68.655,
+      "profit": -101190,
+      "hold_h": 2.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 4933,
+      "buy": 105,
+      "sell": 89.55,
+      "profit": -81148,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Guthix d'hide boots",
+      "qty": 3,
+      "buy": 202383,
+      "sell": 183392.43,
+      "profit": -67973,
+      "hold_h": 23.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Karil's coif",
+      "qty": 2,
+      "buy": 82535,
+      "sell": 51479.31,
+      "profit": -64169,
+      "hold_h": 30.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steel ring",
+      "qty": 2,
+      "buy": 204167,
+      "sell": 176154.8,
+      "profit": -63070,
+      "hold_h": 36.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.1,
+    "drawdown_at_day": 11.0
+   },
+   "model_patient": {
+    "profit_per_day": 78123,
+    "max_drawdown": 456533,
+    "win_rate": 0.628,
+    "trips": 511,
+    "exits": {
+     "sell": 487,
+     "dump": 24
+    },
+    "worst_trades": [
+     {
+      "item": "Smoke rune",
+      "qty": 9750,
+      "buy": 100,
+      "sell": 85.57,
+      "profit": -150443,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large steel keel parts",
+      "qty": 27,
+      "buy": 22397,
+      "sell": 17576.675,
+      "profit": -139626,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bloodbark helm",
+      "qty": 3,
+      "buy": 120109,
+      "sell": 77836.86,
+      "profit": -131484,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Te salt",
+      "qty": 8559,
+      "buy": 82,
+      "sell": 68.655,
+      "profit": -122779,
+      "hold_h": 2.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Zombie helmet",
+      "qty": 2,
+      "buy": 297080,
+      "sell": 251319.09,
+      "profit": -101574,
+      "hold_h": 15.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.21,
+    "drawdown_at_day": 9.3
+   },
+   "model@5%": {
+    "profit_per_day": 8764,
+    "max_drawdown": 595259,
+    "win_rate": 0.583,
+    "trips": 568,
+    "exits": {
+     "sell": 540,
+     "dump": 28
+    },
+    "worst_trades": [
+     {
+      "item": "Smoke rune",
+      "qty": 8953,
+      "buy": 115,
+      "sell": 95.52,
+      "profit": -183357,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bloodbark legs",
+      "qty": 4,
+      "buy": 220713,
+      "sell": 184203.355,
+      "profit": -160775,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Mud rune",
+      "qty": 9539,
+      "buy": 115,
+      "sell": 103.48,
+      "profit": -128967,
+      "hold_h": 15.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 12273,
+      "buy": 94,
+      "sell": 86.565,
+      "profit": -103523,
+      "hold_h": 14.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant cannonball",
+      "qty": 1892,
+      "buy": 310,
+      "sell": 273.625,
+      "profit": -78282,
+      "hold_h": 20.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 1.73,
+    "drawdown_at_day": 13.0
+   },
+   "model_lowrisk@5%": {
+    "profit_per_day": 17813,
+    "max_drawdown": 640743,
+    "win_rate": 0.563,
+    "trips": 577,
+    "exits": {
+     "sell": 556,
+     "dump": 21
+    },
+    "worst_trades": [
+     {
+      "item": "Forester's ration",
+      "qty": 6000,
+      "buy": 72,
+      "sell": 45.77,
+      "profit": -157380,
+      "hold_h": 0.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Lead bar",
+      "qty": 333,
+      "buy": 1214,
+      "sell": 858.685,
+      "profit": -123981,
+      "hold_h": 28.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bloodbark legs",
+      "qty": 3,
+      "buy": 220713,
+      "sell": 184203.355,
+      "profit": -120581,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant cannonball",
+      "qty": 1892,
+      "buy": 310,
+      "sell": 273.625,
+      "profit": -78282,
+      "hold_h": 20.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 4875,
+      "buy": 100,
+      "sell": 85.57,
+      "profit": -75221,
+      "hold_h": 25.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.84,
+    "drawdown_at_day": 13.0
+   },
+   "model_lowrisk_guard@5%": {
+    "profit_per_day": 38686,
+    "max_drawdown": 181474,
+    "win_rate": 0.561,
+    "trips": 661,
+    "exits": {
+     "sell": 641,
+     "dump": 20
+    },
+    "worst_trades": [
+     {
+      "item": "Smoke rune",
+      "qty": 6950,
+      "buy": 107,
+      "sell": 89.55,
+      "profit": -128228,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 4875,
+      "buy": 100,
+      "sell": 85.57,
+      "profit": -75221,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Te salt",
+      "qty": 4279,
+      "buy": 82,
+      "sell": 68.655,
+      "profit": -61382,
+      "hold_h": 2.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Dragon mace",
+      "qty": 21,
+      "buy": 31284,
+      "sell": 29033.105,
+      "profit": -59449,
+      "hold_h": 27.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Blighted anglerfish",
+      "qty": 4753,
+      "buy": 129,
+      "sell": 119.4,
+      "profit": -55135,
+      "hold_h": 16.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.19,
+    "drawdown_at_day": 11.1
+   }
+  },
+  {
+   "from": 1779926400,
+   "to": 1781132400,
+   "baseline_top_margin": {
+    "profit_per_day": -171550,
+    "max_drawdown": 2545706,
+    "win_rate": 0.454,
+    "trips": 273,
+    "exits": {
+     "sell": 229,
+     "dump": 44
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -200352,
+    "max_drawdown": 2955743,
+    "win_rate": 0.5,
+    "trips": 460,
+    "exits": {
+     "sell": 331,
+     "dump": 129
+    }
+   },
+   "model": {
+    "profit_per_day": -26470,
+    "max_drawdown": 912081,
+    "win_rate": 0.611,
+    "trips": 458,
+    "exits": {
+     "sell": 423,
+     "dump": 35
+    },
+    "worst_trades": [
+     {
+      "item": "Rubium splinters",
+      "qty": 6146,
+      "buy": 137,
+      "sell": 82.585,
+      "profit": -340581,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Draynor manor teleport (tablet)",
+      "qty": 253,
+      "buy": 3250,
+      "sell": 1952.19,
+      "profit": -338213,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Vampyre dust",
+      "qty": 304,
+      "buy": 2843,
+      "sell": 1822.84,
+      "profit": -321073,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bandos d'hide body",
+      "qty": 4,
+      "buy": 118864,
+      "sell": 88347.045,
+      "profit": -129132,
+      "hold_h": 17.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Phrin remains",
+      "qty": 92,
+      "buy": 4101,
+      "sell": 2936.245,
+      "profit": -112493,
+      "hold_h": 34.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 12.9
+   },
+   "model_lowrisk": {
+    "profit_per_day": 46530,
+    "max_drawdown": 676417,
+    "win_rate": 0.631,
+    "trips": 502,
+    "exits": {
+     "sell": 478,
+     "dump": 24
+    },
+    "worst_trades": [
+     {
+      "item": "Draynor manor teleport (tablet)",
+      "qty": 223,
+      "buy": 3250,
+      "sell": 1952.19,
+      "profit": -298109,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Vampyre dust",
+      "qty": 256,
+      "buy": 2843,
+      "sell": 1822.84,
+      "profit": -270377,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rubium splinters",
+      "qty": 5600,
+      "buy": 111,
+      "sell": 82.585,
+      "profit": -164724,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bandos d'hide body",
+      "qty": 4,
+      "buy": 118864,
+      "sell": 88347.045,
+      "profit": -129132,
+      "hold_h": 17.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Phrin remains",
+      "qty": 92,
+      "buy": 4101,
+      "sell": 2936.245,
+      "profit": -112493,
+      "hold_h": 34.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.43,
+    "drawdown_at_day": 12.9
+   },
+   "model_lowrisk_guard": {
+    "profit_per_day": 159155,
+    "max_drawdown": 345403,
+    "win_rate": 0.626,
+    "trips": 567,
+    "exits": {
+     "sell": 547,
+     "dump": 20
+    },
+    "worst_trades": [
+     {
+      "item": "Mahogany hull parts",
+      "qty": 88,
+      "buy": 6413,
+      "sell": 4509.34,
+      "profit": -175442,
+      "hold_h": 27.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rubium splinters",
+      "qty": 5892,
+      "buy": 111,
+      "sell": 82.585,
+      "profit": -173313,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Lead bar",
+      "qty": 442,
+      "buy": 1546,
+      "sell": 1303.45,
+      "profit": -118699,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bones to peaches (tablet)",
+      "qty": 620,
+      "buy": 1236,
+      "sell": 1085.545,
+      "profit": -106302,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant arrowtips",
+      "qty": 3842,
+      "buy": 135,
+      "sell": 118.405,
+      "profit": -71442,
+      "hold_h": 12.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.61,
+    "drawdown_at_day": 6.8
+   },
+   "model_lowrisk_guard_patient": {
+    "profit_per_day": 83623,
+    "max_drawdown": 736172,
+    "win_rate": 0.746,
+    "trips": 508,
+    "exits": {
+     "sell": 493,
+     "dump": 15
+    },
+    "worst_trades": [
+     {
+      "item": "Rubium splinters",
+      "qty": 4596,
+      "buy": 122,
+      "sell": 82.585,
+      "profit": -185747,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Mithril nails",
+      "qty": 8802,
+      "buy": 81,
+      "sell": 71.64,
+      "profit": -91189,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Saradomin d'hide boots",
+      "qty": 3,
+      "buy": 206919,
+      "sell": 182460.115,
+      "profit": -84324,
+      "hold_h": 30.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant arrowtips",
+      "qty": 3576,
+      "buy": 135,
+      "sell": 118.405,
+      "profit": -66496,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Black d'hide shield",
+      "qty": 16,
+      "buy": 23058,
+      "sell": 19380.61,
+      "profit": -65030,
+      "hold_h": 22.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.11,
+    "drawdown_at_day": 1.1
+   },
+   "model_patient": {
+    "profit_per_day": 19629,
+    "max_drawdown": 845113,
+    "win_rate": 0.659,
+    "trips": 457,
+    "exits": {
+     "sell": 434,
+     "dump": 23
+    },
+    "worst_trades": [
+     {
+      "item": "Draynor manor teleport (tablet)",
+      "qty": 243,
+      "buy": 3250,
+      "sell": 1952.19,
+      "profit": -324845,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Vampyre dust",
+      "qty": 278,
+      "buy": 2843,
+      "sell": 1822.84,
+      "profit": -293612,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bloodbark boots",
+      "qty": 9,
+      "buy": 78094,
+      "sell": 53678.26,
+      "profit": -229399,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rubium splinters",
+      "qty": 7682,
+      "buy": 111,
+      "sell": 82.585,
+      "profit": -225966,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Saradomin sword",
+      "qty": 3,
+      "buy": 238834,
+      "sell": 194109.575,
+      "profit": -145819,
+      "hold_h": 31.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.88,
+    "drawdown_at_day": 12.9
+   },
+   "model@5%": {
+    "profit_per_day": -28012,
+    "max_drawdown": 720364,
+    "win_rate": 0.575,
+    "trips": 513,
+    "exits": {
+     "sell": 482,
+     "dump": 31
+    },
+    "worst_trades": [
+     {
+      "item": "Rubium splinters",
+      "qty": 6673,
+      "buy": 137,
+      "sell": 82.585,
+      "profit": -369784,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Draynor manor teleport (tablet)",
+      "qty": 126,
+      "buy": 3250,
+      "sell": 1952.19,
+      "profit": -168438,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Vampyre dust",
+      "qty": 152,
+      "buy": 2843,
+      "sell": 1822.84,
+      "profit": -160536,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Raw dashing kebbit",
+      "qty": 282,
+      "buy": 2974,
+      "sell": 2581.03,
+      "profit": -125200,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Shark lure",
+      "qty": 2354,
+      "buy": 459,
+      "sell": 416.905,
+      "profit": -117924,
+      "hold_h": 9.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 8.9
+   },
+   "model_lowrisk@5%": {
+    "profit_per_day": 2679,
+    "max_drawdown": 453324,
+    "win_rate": 0.556,
+    "trips": 475,
+    "exits": {
+     "sell": 443,
+     "dump": 32
+    },
+    "worst_trades": [
+     {
+      "item": "Rubium splinters",
+      "qty": 4691,
+      "buy": 137,
+      "sell": 82.585,
+      "profit": -259952,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Draynor manor teleport (tablet)",
+      "qty": 126,
+      "buy": 3250,
+      "sell": 1952.19,
+      "profit": -168438,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steel arrowtips",
+      "qty": 3788,
+      "buy": 41,
+      "sell": 22.885,
+      "profit": -68620,
+      "hold_h": 14.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bandos d'hide body",
+      "qty": 2,
+      "buy": 118864,
+      "sell": 88347.045,
+      "profit": -64566,
+      "hold_h": 17.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Runite bolts (unf)",
+      "qty": 3473,
+      "buy": 163,
+      "sell": 147.26,
+      "profit": -61611,
+      "hold_h": 21.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 5.19,
+    "drawdown_at_day": 11.0
+   },
+   "model_lowrisk_guard@5%": {
+    "profit_per_day": 28071,
+    "max_drawdown": 412769,
+    "win_rate": 0.556,
+    "trips": 602,
+    "exits": {
+     "sell": 579,
+     "dump": 23
+    },
+    "worst_trades": [
+     {
+      "item": "Rubium splinters",
+      "qty": 5327,
+      "buy": 127,
+      "sell": 82.585,
+      "profit": -241926,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Runite bolts (unf)",
+      "qty": 3473,
+      "buy": 163,
+      "sell": 147.26,
+      "profit": -61611,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Teleport to boat",
+      "qty": 629,
+      "buy": 923,
+      "sell": 844.755,
+      "profit": -59280,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Annakarl teleport (tablet)",
+      "qty": 113,
+      "buy": 3139,
+      "sell": 2677.545,
+      "profit": -58133,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Amethyst broad bolts",
+      "qty": 1693,
+      "buy": 212,
+      "sell": 184.075,
+      "profit": -52356,
+      "hold_h": 22.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.24,
+    "drawdown_at_day": 2.1
+   }
+  },
+  {
+   "from": 1782345600,
+   "to": 1783551600,
+   "baseline_top_margin": {
+    "profit_per_day": -128870,
+    "max_drawdown": 1976268,
+    "win_rate": 0.452,
+    "trips": 270,
+    "exits": {
+     "sell": 234,
+     "dump": 36
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -209776,
+    "max_drawdown": 3028176,
+    "win_rate": 0.441,
+    "trips": 488,
+    "exits": {
+     "sell": 350,
+     "dump": 138
+    }
+   },
+   "model": {
+    "profit_per_day": 178369,
+    "max_drawdown": 533379,
+    "win_rate": 0.685,
+    "trips": 536,
+    "exits": {
+     "sell": 511,
+     "dump": 25
+    },
+    "worst_trades": [
+     {
+      "item": "West ardougne teleport (tablet)",
+      "qty": 284,
+      "buy": 3356,
+      "sell": 2414.865,
+      "profit": -280914,
+      "hold_h": 23.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rosewood plank",
+      "qty": 117,
+      "buy": 6928,
+      "sell": 5053.605,
+      "profit": -231121,
+      "hold_h": 17.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant arrowtips",
+      "qty": 5388,
+      "buy": 162,
+      "sell": 129.35,
+      "profit": -186694,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant arrowtips",
+      "qty": 6465,
+      "buy": 120,
+      "sell": 100.495,
+      "profit": -139030,
+      "hold_h": 10.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Amethyst broad bolts",
+      "qty": 4863,
+      "buy": 215,
+      "sell": 191.04,
+      "profit": -131106,
+      "hold_h": 24.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.48,
+    "drawdown_at_day": 9.7
+   },
+   "model_lowrisk": {
+    "profit_per_day": 134115,
+    "max_drawdown": 439896,
+    "win_rate": 0.656,
+    "trips": 509,
+    "exits": {
+     "sell": 483,
+     "dump": 26
+    },
+    "worst_trades": [
+     {
+      "item": "West ardougne teleport (tablet)",
+      "qty": 253,
+      "buy": 3356,
+      "sell": 2414.865,
+      "profit": -250251,
+      "hold_h": 23.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant bolts(unf)",
+      "qty": 3366,
+      "buy": 247,
+      "sell": 179.1,
+      "profit": -238649,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rosewood plank",
+      "qty": 117,
+      "buy": 6928,
+      "sell": 5053.605,
+      "profit": -231121,
+      "hold_h": 17.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Dragon sword",
+      "qty": 8,
+      "buy": 101847,
+      "sell": 85378.96,
+      "profit": -145400,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Kovac's grog",
+      "qty": 5,
+      "buy": 112748,
+      "sell": 89623.63,
+      "profit": -124582,
+      "hold_h": 8.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.62,
+    "drawdown_at_day": 9.7
+   },
+   "model_lowrisk_guard": {
+    "profit_per_day": 234823,
+    "max_drawdown": 252652,
+    "win_rate": 0.661,
+    "trips": 623,
+    "exits": {
+     "sell": 608,
+     "dump": 15
+    },
+    "worst_trades": [
+     {
+      "item": "Cadantine seed",
+      "qty": 82,
+      "buy": 7741,
+      "sell": 6529.19,
+      "profit": -110028,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Irit tar",
+      "qty": 9438,
+      "buy": 26,
+      "sell": 15.92,
+      "profit": -95135,
+      "hold_h": 30.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Cooked chicken",
+      "qty": 2752,
+      "buy": 83,
+      "sell": 57.71,
+      "profit": -69598,
+      "hold_h": 33.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Kharyrll teleport (tablet)",
+      "qty": 152,
+      "buy": 2547,
+      "sell": 2135.27,
+      "profit": -68967,
+      "hold_h": 31.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Maple longbow (u)",
+      "qty": 5860,
+      "buy": 82,
+      "sell": 73.63,
+      "profit": -54908,
+      "hold_h": 6.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.33,
+    "drawdown_at_day": 5.7
+   },
+   "model_lowrisk_guard_patient": {
+    "profit_per_day": 225126,
+    "max_drawdown": 320121,
+    "win_rate": 0.678,
+    "trips": 597,
+    "exits": {
+     "sell": 583,
+     "dump": 14
+    },
+    "worst_trades": [
+     {
+      "item": "Drift net",
+      "qty": 251,
+      "buy": 1916,
+      "sell": 1695.48,
+      "profit": -63634,
+      "hold_h": 23.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Nickel ore",
+      "qty": 277,
+      "buy": 1651,
+      "sell": 1495.485,
+      "profit": -51111,
+      "hold_h": 43.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Maple longbow (u)",
+      "qty": 2939,
+      "buy": 79,
+      "sell": 65.67,
+      "profit": -42116,
+      "hold_h": 26.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Jangerberries",
+      "qty": 374,
+      "buy": 424,
+      "sell": 325.365,
+      "profit": -39133,
+      "hold_h": 33.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Maple longbow (u)",
+      "qty": 3805,
+      "buy": 82,
+      "sell": 73.63,
+      "profit": -35653,
+      "hold_h": 6.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.35,
+    "drawdown_at_day": 5.6
+   },
+   "model_patient": {
+    "profit_per_day": 96375,
+    "max_drawdown": 416227,
+    "win_rate": 0.687,
+    "trips": 450,
+    "exits": {
+     "sell": 427,
+     "dump": 23
+    },
+    "worst_trades": [
+     {
+      "item": "Rosewood plank",
+      "qty": 156,
+      "buy": 6928,
+      "sell": 5053.605,
+      "profit": -308162,
+      "hold_h": 17.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rosewood hull parts",
+      "qty": 28,
+      "buy": 13125,
+      "sell": 7827.665,
+      "profit": -152693,
+      "hold_h": 48.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant arrowtips",
+      "qty": 5467,
+      "buy": 120,
+      "sell": 100.495,
+      "profit": -117568,
+      "hold_h": 10.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Raw dashing kebbit",
+      "qty": 91,
+      "buy": 2462,
+      "sell": 1324.345,
+      "profit": -105893,
+      "hold_h": 44.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Irit tar",
+      "qty": 9438,
+      "buy": 26,
+      "sell": 15.92,
+      "profit": -95135,
+      "hold_h": 30.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.29,
+    "drawdown_at_day": 3.1
+   },
+   "model@5%": {
+    "profit_per_day": 52240,
+    "max_drawdown": 520015,
+    "win_rate": 0.602,
+    "trips": 591,
+    "exits": {
+     "sell": 567,
+     "dump": 24
+    },
+    "worst_trades": [
+     {
+      "item": "Kovac's grog",
+      "qty": 6,
+      "buy": 112748,
+      "sell": 89623.63,
+      "profit": -149498,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant arrowtips",
+      "qty": 4314,
+      "buy": 162,
+      "sell": 129.35,
+      "profit": -149480,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rosewood plank",
+      "qty": 58,
+      "buy": 6928,
+      "sell": 5053.605,
+      "profit": -114573,
+      "hold_h": 17.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Amethyst broad bolts",
+      "qty": 4211,
+      "buy": 215,
+      "sell": 191.04,
+      "profit": -113529,
+      "hold_h": 24.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Contract of Bloodied Blows",
+      "qty": 10,
+      "buy": 46015,
+      "sell": 37314.49,
+      "profit": -94465,
+      "hold_h": 24.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.23,
+    "drawdown_at_day": 6.0
+   },
+   "model_lowrisk@5%": {
+    "profit_per_day": 76870,
+    "max_drawdown": 408646,
+    "win_rate": 0.626,
+    "trips": 625,
+    "exits": {
+     "sell": 605,
+     "dump": 20
+    },
+    "worst_trades": [
+     {
+      "item": "Adamant arrowtips",
+      "qty": 4299,
+      "buy": 162,
+      "sell": 129.35,
+      "profit": -148960,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rosewood plank",
+      "qty": 58,
+      "buy": 6928,
+      "sell": 5053.605,
+      "profit": -114573,
+      "hold_h": 17.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Kovac's grog",
+      "qty": 4,
+      "buy": 112748,
+      "sell": 89623.63,
+      "profit": -99665,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Amethyst broad bolts",
+      "qty": 3199,
+      "buy": 215,
+      "sell": 191.04,
+      "profit": -86245,
+      "hold_h": 24.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ruby bolts",
+      "qty": 1258,
+      "buy": 273,
+      "sell": 208.95,
+      "profit": -85607,
+      "hold_h": 22.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.15,
+    "drawdown_at_day": 5.8
+   },
+   "model_lowrisk_guard@5%": {
+    "profit_per_day": 115467,
+    "max_drawdown": 245661,
+    "win_rate": 0.586,
+    "trips": 623,
+    "exits": {
+     "sell": 600,
+     "dump": 23
+    },
+    "worst_trades": [
+     {
+      "item": "Smoke rune",
+      "qty": 9638,
+      "buy": 76,
+      "sell": 58.705,
+      "profit": -176327,
+      "hold_h": 20.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Sunfire rune",
+      "qty": 4640,
+      "buy": 141,
+      "sell": 115.42,
+      "profit": -127971,
+      "hold_h": 29.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rune arrowtips",
+      "qty": 3353,
+      "buy": 227,
+      "sell": 192.035,
+      "profit": -127297,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Amethyst broad bolts",
+      "qty": 3280,
+      "buy": 215,
+      "sell": 191.04,
+      "profit": -88429,
+      "hold_h": 24.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ruby bolts",
+      "qty": 1258,
+      "buy": 273,
+      "sell": 208.95,
+      "profit": -85607,
+      "hold_h": 22.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.38,
+    "drawdown_at_day": 6.9
+   }
+  },
+  {
+   "from": 1784764800,
+   "to": 1785970800,
+   "baseline_top_margin": {
+    "profit_per_day": -190312,
+    "max_drawdown": 2687977,
+    "win_rate": 0.423,
+    "trips": 248,
+    "exits": {
+     "sell": 195,
+     "dump": 53
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -212770,
+    "max_drawdown": 3032635,
+    "win_rate": 0.471,
+    "trips": 471,
+    "exits": {
+     "sell": 338,
+     "dump": 133
+    }
+   },
+   "model": {
+    "profit_per_day": 52497,
+    "max_drawdown": 570623,
+    "win_rate": 0.621,
+    "trips": 528,
+    "exits": {
+     "sell": 502,
+     "dump": 26
+    },
+    "worst_trades": [
+     {
+      "item": "Super hunter potion(4)",
+      "qty": 799,
+      "buy": 701,
+      "sell": 348.25,
+      "profit": -286641,
+      "hold_h": 24.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Contract of Glyphic Attenuation",
+      "qty": 6,
+      "buy": 146046,
+      "sell": 108312.715,
+      "profit": -239396,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Contract of Bloodied Blows",
+      "qty": 9,
+      "buy": 56436,
+      "sell": 39501.5,
+      "profit": -159520,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Stew",
+      "qty": 874,
+      "buy": 313,
+      "sell": 142.285,
+      "profit": -150953,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ape atoll teleport (tablet)",
+      "qty": 59,
+      "buy": 6359,
+      "sell": 4101.39,
+      "profit": -138037,
+      "hold_h": 42.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.35,
+    "drawdown_at_day": 12.2
+   },
+   "model_lowrisk": {
+    "profit_per_day": 84223,
+    "max_drawdown": 604253,
+    "win_rate": 0.628,
+    "trips": 538,
+    "exits": {
+     "sell": 515,
+     "dump": 23
+    },
+    "worst_trades": [
+     {
+      "item": "Super hunter potion(4)",
+      "qty": 799,
+      "buy": 701,
+      "sell": 348.25,
+      "profit": -286641,
+      "hold_h": 24.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ape atoll teleport (tablet)",
+      "qty": 59,
+      "buy": 6359,
+      "sell": 4101.39,
+      "profit": -138037,
+      "hold_h": 42.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Yew shortbow (u)",
+      "qty": 9740,
+      "buy": 87,
+      "sell": 74.625,
+      "profit": -130272,
+      "hold_h": 23.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Oranges(5)",
+      "qty": 276,
+      "buy": 1632,
+      "sell": 1201.96,
+      "profit": -125315,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bloodbark boots",
+      "qty": 5,
+      "buy": 63621,
+      "sell": 46267.5,
+      "profit": -91392,
+      "hold_h": 21.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.19,
+    "drawdown_at_day": 12.2
+   },
+   "model_lowrisk_guard": {
+    "profit_per_day": 129481,
+    "max_drawdown": 394710,
+    "win_rate": 0.654,
+    "trips": 616,
+    "exits": {
+     "sell": 594,
+     "dump": 22
+    },
+    "worst_trades": [
+     {
+      "item": "Yew shortbow (u)",
+      "qty": 10000,
+      "buy": 87,
+      "sell": 74.625,
+      "profit": -133750,
+      "hold_h": 23.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Zamorak d'hide body",
+      "qty": 3,
+      "buy": 138984,
+      "sell": 123043.69,
+      "profit": -55201,
+      "hold_h": 33.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Archer helm",
+      "qty": 9,
+      "buy": 43715,
+      "sell": 40182.08,
+      "profit": -39023,
+      "hold_h": 28.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Chromium ingot",
+      "qty": 2,
+      "buy": 55318,
+      "sell": 37810.0,
+      "profit": -36528,
+      "hold_h": 24.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steel ring",
+      "qty": 1,
+      "buy": 168207,
+      "sell": 135896.105,
+      "profit": -35028,
+      "hold_h": 29.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.11,
+    "drawdown_at_day": 7.9
+   },
+   "model_lowrisk_guard_patient": {
+    "profit_per_day": 151536,
+    "max_drawdown": 266051,
+    "win_rate": 0.71,
+    "trips": 551,
+    "exits": {
+     "sell": 537,
+     "dump": 14
+    },
+    "worst_trades": [
+     {
+      "item": "Yew shortbow (u)",
+      "qty": 9536,
+      "buy": 87,
+      "sell": 74.625,
+      "profit": -127544,
+      "hold_h": 23.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Grimy tarromin",
+      "qty": 2948,
+      "buy": 160,
+      "sell": 129.35,
+      "profit": -96252,
+      "hold_h": 42.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Granite body",
+      "qty": 8,
+      "buy": 67202,
+      "sell": 62209.39,
+      "profit": -49893,
+      "hold_h": 19.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Gryphon feather",
+      "qty": 9308,
+      "buy": 32,
+      "sell": 26.865,
+      "profit": -47797,
+      "hold_h": 14.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ogre arrow",
+      "qty": 2844,
+      "buy": 164,
+      "sell": 152.23499999999999,
+      "profit": -41992,
+      "hold_h": 7.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.08,
+    "drawdown_at_day": 9.7
+   },
+   "model_patient": {
+    "profit_per_day": 149436,
+    "max_drawdown": 360891,
+    "win_rate": 0.67,
+    "trips": 442,
+    "exits": {
+     "sell": 425,
+     "dump": 17
+    },
+    "worst_trades": [
+     {
+      "item": "Ape atoll teleport (tablet)",
+      "qty": 114,
+      "buy": 6359,
+      "sell": 4101.39,
+      "profit": -266716,
+      "hold_h": 42.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant bolts(unf)",
+      "qty": 3916,
+      "buy": 240,
+      "sell": 187.06,
+      "profit": -219061,
+      "hold_h": 15.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large steel keel parts",
+      "qty": 7,
+      "buy": 33573,
+      "sell": 25484.935,
+      "profit": -60179,
+      "hold_h": 29.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Runite bolts (unf)",
+      "qty": 8591,
+      "buy": 125,
+      "sell": 121.39,
+      "profit": -48196,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ogre arrow",
+      "qty": 2844,
+      "buy": 164,
+      "sell": 152.23499999999999,
+      "profit": -41992,
+      "hold_h": 7.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.14,
+    "drawdown_at_day": 1.7
+   },
+   "model@5%": {
+    "profit_per_day": 14966,
+    "max_drawdown": 426714,
+    "win_rate": 0.58,
+    "trips": 581,
+    "exits": {
+     "sell": 550,
+     "dump": 31
+    },
+    "worst_trades": [
+     {
+      "item": "Contract of Glyphic Attenuation",
+      "qty": 4,
+      "buy": 225390,
+      "sell": 170354.945,
+      "profit": -233768,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Runite bolts (unf)",
+      "qty": 6945,
+      "buy": 140,
+      "sell": 116.415,
+      "profit": -177688,
+      "hold_h": 3.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large steel keel parts",
+      "qty": 30,
+      "buy": 29423,
+      "sell": 24467.05,
+      "profit": -163348,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Mithril nails",
+      "qty": 11047,
+      "buy": 85,
+      "sell": 75.62,
+      "profit": -114668,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Mithril nails",
+      "qty": 7875,
+      "buy": 86,
+      "sell": 72.635,
+      "profit": -113124,
+      "hold_h": 5.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 1.14,
+    "drawdown_at_day": 9.8
+   },
+   "model_lowrisk@5%": {
+    "profit_per_day": 39669,
+    "max_drawdown": 419561,
+    "win_rate": 0.595,
+    "trips": 551,
+    "exits": {
+     "sell": 523,
+     "dump": 28
+    },
+    "worst_trades": [
+     {
+      "item": "Contract of Glyphic Attenuation",
+      "qty": 4,
+      "buy": 146046,
+      "sell": 108312.715,
+      "profit": -159597,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Runite bolts (unf)",
+      "qty": 5033,
+      "buy": 140,
+      "sell": 116.415,
+      "profit": -128769,
+      "hold_h": 3.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ironwood logs",
+      "qty": 5572,
+      "buy": 111,
+      "sell": 94.525,
+      "profit": -97371,
+      "hold_h": 1.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Adamant bolts(unf)",
+      "qty": 1579,
+      "buy": 240,
+      "sell": 187.06,
+      "profit": -88329,
+      "hold_h": 15.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Mithril nails",
+      "qty": 6017,
+      "buy": 86,
+      "sell": 72.635,
+      "profit": -86434,
+      "hold_h": 5.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.43,
+    "drawdown_at_day": 9.7
+   },
+   "model_lowrisk_guard@5%": {
+    "profit_per_day": 86444,
+    "max_drawdown": 221220,
+    "win_rate": 0.607,
+    "trips": 697,
+    "exits": {
+     "sell": 677,
+     "dump": 20
+    },
+    "worst_trades": [
+     {
+      "item": "Ape atoll teleport (tablet)",
+      "qty": 67,
+      "buy": 6233,
+      "sell": 4101.39,
+      "profit": -148312,
+      "hold_h": 29.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large steel keel parts",
+      "qty": 26,
+      "buy": 29423,
+      "sell": 24467.05,
+      "profit": -141569,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Large mithril keel parts",
+      "qty": 23,
+      "buy": 35522,
+      "sell": 30852.96,
+      "profit": -121579,
+      "hold_h": 16.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ironwood logs",
+      "qty": 6743,
+      "buy": 111,
+      "sell": 94.525,
+      "profit": -117834,
+      "hold_h": 1.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Atlatl dart",
+      "qty": 5975,
+      "buy": 115,
+      "sell": 100.495,
+      "profit": -98617,
+      "hold_h": 15.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.17,
+    "drawdown_at_day": 6.6
+   }
+  },
+  {
+   "from": 1787184000,
+   "to": 1788390000,
+   "baseline_top_margin": {
+    "profit_per_day": -101908,
+    "max_drawdown": 1426706,
+    "win_rate": 0.444,
+    "trips": 279,
+    "exits": {
+     "sell": 226,
+     "dump": 53
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -84606,
+    "max_drawdown": 1378624,
+    "win_rate": 0.543,
+    "trips": 475,
+    "exits": {
+     "dump": 115,
+     "sell": 360
+    }
+   },
+   "model": {
+    "profit_per_day": 109877,
+    "max_drawdown": 491713,
+    "win_rate": 0.65,
+    "trips": 606,
+    "exits": {
+     "sell": 582,
+     "dump": 24
+    },
+    "worst_trades": [
+     {
+      "item": "Bounty supply crate (anglerfish)",
+      "qty": 91,
+      "buy": 6984,
+      "sell": 5162.06,
+      "profit": -175170,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 6471,
+      "buy": 76,
+      "sell": 57.71,
+      "profit": -124826,
+      "hold_h": 29.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Guthix d'hide boots",
+      "qty": 3,
+      "buy": 156080,
+      "sell": 123948.145,
+      "profit": -103830,
+      "hold_h": 24.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bale of flax",
+      "qty": 6598,
+      "buy": 115,
+      "sell": 102.485,
+      "profit": -95770,
+      "hold_h": 49.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Dagon'hai robe top",
+      "qty": 1,
+      "buy": 467117,
+      "sell": 391035.0,
+      "profit": -83902,
+      "hold_h": 24.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.15,
+    "drawdown_at_day": 12.1
+   },
+   "model_lowrisk": {
+    "profit_per_day": 98134,
+    "max_drawdown": 261949,
+    "win_rate": 0.667,
+    "trips": 546,
+    "exits": {
+     "sell": 525,
+     "dump": 21
+    },
+    "worst_trades": [
+     {
+      "item": "Bounty supply crate (anglerfish)",
+      "qty": 91,
+      "buy": 6984,
+      "sell": 5162.06,
+      "profit": -175170,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Demonic tallow",
+      "qty": 2347,
+      "buy": 230,
+      "sell": 180.095,
+      "profit": -124168,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Tai bwo wannai teleport",
+      "qty": 35,
+      "buy": 7108,
+      "sell": 4352.13,
+      "profit": -99500,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Basalt",
+      "qty": 168,
+      "buy": 1943,
+      "sell": 1498.47,
+      "profit": -79553,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rangers' tights",
+      "qty": 2,
+      "buy": 131974,
+      "sell": 95396.62,
+      "profit": -76969,
+      "hold_h": 31.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.17,
+    "drawdown_at_day": 5.1
+   },
+   "model_lowrisk_guard": {
+    "profit_per_day": 13744,
+    "max_drawdown": 414093,
+    "win_rate": 0.606,
+    "trips": 538,
+    "exits": {
+     "sell": 513,
+     "dump": 25
+    },
+    "worst_trades": [
+     {
+      "item": "Basalt",
+      "qty": 318,
+      "buy": 2120,
+      "sell": 1526.33,
+      "profit": -198327,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bounty supply crate (anglerfish)",
+      "qty": 92,
+      "buy": 6984,
+      "sell": 5162.06,
+      "profit": -177094,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 9343,
+      "buy": 70,
+      "sell": 57.71,
+      "profit": -124168,
+      "hold_h": 14.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ancient d'hide body",
+      "qty": 5,
+      "buy": 101188,
+      "sell": 81286.525,
+      "profit": -107632,
+      "hold_h": 20.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Efh salt",
+      "qty": 5099,
+      "buy": 135,
+      "sell": 122.385,
+      "profit": -74522,
+      "hold_h": 4.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.6,
+    "drawdown_at_day": 8.0
+   },
+   "model_lowrisk_guard_patient": {
+    "profit_per_day": 14010,
+    "max_drawdown": 553220,
+    "win_rate": 0.64,
+    "trips": 478,
+    "exits": {
+     "sell": 452,
+     "dump": 26
+    },
+    "worst_trades": [
+     {
+      "item": "Smoke rune",
+      "qty": 9049,
+      "buy": 71,
+      "sell": 57.71,
+      "profit": -129310,
+      "hold_h": 15.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Iron dart tip",
+      "qty": 6576,
+      "buy": 70,
+      "sell": 51.74,
+      "profit": -126654,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Marrentill",
+      "qty": 2097,
+      "buy": 282,
+      "sell": 228.85,
+      "profit": -119844,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Anguish ornament kit",
+      "qty": 2,
+      "buy": 196920,
+      "sell": 145451.09,
+      "profit": -108756,
+      "hold_h": 48.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ancient d'hide body",
+      "qty": 5,
+      "buy": 101188,
+      "sell": 81286.525,
+      "profit": -107632,
+      "hold_h": 20.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.62,
+    "drawdown_at_day": 8.9
+   },
+   "model_patient": {
+    "profit_per_day": 63482,
+    "max_drawdown": 385512,
+    "win_rate": 0.692,
+    "trips": 506,
+    "exits": {
+     "sell": 485,
+     "dump": 21
+    },
+    "worst_trades": [
+     {
+      "item": "Iron dart tip",
+      "qty": 5370,
+      "buy": 95,
+      "sell": 54.725,
+      "profit": -221647,
+      "hold_h": 28.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 14722,
+      "buy": 70,
+      "sell": 57.71,
+      "profit": -195655,
+      "hold_h": 14.0,
+      "reason": "dump"
+     },
+     {
+      "item": "King worm",
+      "qty": 563,
+      "buy": 717,
+      "sell": 415.91,
+      "profit": -174018,
+      "hold_h": 37.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Marrentill",
+      "qty": 2530,
+      "buy": 282,
+      "sell": 228.85,
+      "profit": -144590,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Tai bwo wannai teleport",
+      "qty": 63,
+      "buy": 7186,
+      "sell": 5246.635,
+      "profit": -128732,
+      "hold_h": 7.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.23,
+    "drawdown_at_day": 8.9
+   },
+   "model@5%": {
+    "profit_per_day": 76199,
+    "max_drawdown": 463014,
+    "win_rate": 0.653,
+    "trips": 634,
+    "exits": {
+     "sell": 617,
+     "dump": 17
+    },
+    "worst_trades": [
+     {
+      "item": "Basalt",
+      "qty": 480,
+      "buy": 2120,
+      "sell": 1526.33,
+      "profit": -299362,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Basalt",
+      "qty": 401,
+      "buy": 1691,
+      "sell": 1393.995,
+      "profit": -129926,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Iron dart tip",
+      "qty": 2344,
+      "buy": 111,
+      "sell": 65.67,
+      "profit": -108598,
+      "hold_h": 18.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Efh salt",
+      "qty": 1165,
+      "buy": 187,
+      "sell": 110.445,
+      "profit": -91517,
+      "hold_h": 29.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Magic pyre logs",
+      "qty": 107,
+      "buy": 4800,
+      "sell": 4347.155,
+      "profit": -57656,
+      "hold_h": 37.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.26,
+    "drawdown_at_day": 5.7
+   },
+   "model_lowrisk@5%": {
+    "profit_per_day": 34643,
+    "max_drawdown": 432267,
+    "win_rate": 0.623,
+    "trips": 615,
+    "exits": {
+     "sell": 593,
+     "dump": 22
+    },
+    "worst_trades": [
+     {
+      "item": "Salve graveyard teleport (tablet)",
+      "qty": 220,
+      "buy": 3312,
+      "sell": 2605.905,
+      "profit": -166781,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Annakarl teleport (tablet)",
+      "qty": 160,
+      "buy": 4384,
+      "sell": 3688.465,
+      "profit": -122966,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Rune dart",
+      "qty": 2992,
+      "buy": 268,
+      "sell": 232.83,
+      "profit": -117197,
+      "hold_h": 4.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 7798,
+      "buy": 70,
+      "sell": 57.71,
+      "profit": -103635,
+      "hold_h": 17.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Dagon'hai robe bottom",
+      "qty": 1,
+      "buy": 399123,
+      "sell": 351278.77999999997,
+      "profit": -54869,
+      "hold_h": 48.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.27,
+    "drawdown_at_day": 3.6
+   },
+   "model_lowrisk_guard@5%": {
+    "profit_per_day": 48848,
+    "max_drawdown": 221046,
+    "win_rate": 0.573,
+    "trips": 640,
+    "exits": {
+     "sell": 617,
+     "dump": 23
+    },
+    "worst_trades": [
+     {
+      "item": "Smoke rune",
+      "qty": 7492,
+      "buy": 71,
+      "sell": 57.71,
+      "profit": -107061,
+      "hold_h": 15.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bounty supply crate (anglerfish)",
+      "qty": 46,
+      "buy": 6984,
+      "sell": 5162.06,
+      "profit": -88547,
+      "hold_h": 13.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Marrentill",
+      "qty": 860,
+      "buy": 282,
+      "sell": 228.85,
+      "profit": -49149,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Bale of flax",
+      "qty": 3300,
+      "buy": 115,
+      "sell": 102.485,
+      "profit": -47900,
+      "hold_h": 49.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Grimy harralander",
+      "qty": 1537,
+      "buy": 312,
+      "sell": 295.515,
+      "profit": -33022,
+      "hold_h": 48.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.17,
+    "drawdown_at_day": 0.3
+   }
+  },
+  {
+   "from": 1789603200,
+   "to": 1790809200,
+   "baseline_top_margin": {
+    "profit_per_day": -215884,
+    "max_drawdown": 3089469,
+    "win_rate": 0.436,
+    "trips": 275,
+    "exits": {
+     "sell": 222,
+     "dump": 53
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -197726,
+    "max_drawdown": 2795616,
+    "win_rate": 0.511,
+    "trips": 481,
+    "exits": {
+     "dump": 129,
+     "sell": 352
+    }
+   },
+   "model": {
+    "profit_per_day": 42802,
+    "max_drawdown": 896215,
+    "win_rate": 0.683,
+    "trips": 504,
+    "exits": {
+     "sell": 478,
+     "dump": 26
+    },
+    "worst_trades": [
+     {
+      "item": "Guam leaf",
+      "qty": 1598,
+      "buy": 665,
+      "sell": 396.01,
+      "profit": -441032,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Lava rune",
+      "qty": 14720,
+      "buy": 49,
+      "sell": 32.835,
+      "profit": -237949,
+      "hold_h": 4.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Yew roots",
+      "qty": 2022,
+      "buy": 309,
+      "sell": 199.0,
+      "profit": -228486,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "West ardougne teleport (tablet)",
+      "qty": 108,
+      "buy": 4614,
+      "sell": 3287.48,
+      "profit": -150284,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Smoke rune",
+      "qty": 16108,
+      "buy": 73,
+      "sell": 66.665,
+      "profit": -118152,
+      "hold_h": 1.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.67,
+    "drawdown_at_day": 6.5
+   },
+   "model_lowrisk": {
+    "profit_per_day": 62857,
+    "max_drawdown": 611061,
+    "win_rate": 0.683,
+    "trips": 520,
+    "exits": {
+     "sell": 501,
+     "dump": 19
+    },
+    "worst_trades": [
+     {
+      "item": "Guam leaf",
+      "qty": 959,
+      "buy": 665,
+      "sell": 396.01,
+      "profit": -264674,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Lava rune",
+      "qty": 14720,
+      "buy": 49,
+      "sell": 32.835,
+      "profit": -237949,
+      "hold_h": 4.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Yew roots",
+      "qty": 2022,
+      "buy": 309,
+      "sell": 199.0,
+      "profit": -228486,
+      "hold_h": 9.0,
+      "reason": "dump"
+     },
+     {
+      "item": "West ardougne teleport (tablet)",
+      "qty": 108,
+      "buy": 4614,
+      "sell": 3287.48,
+      "profit": -150284,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Contract of Bloodied Blows",
+      "qty": 14,
+      "buy": 44817,
+      "sell": 38713.46,
+      "profit": -96286,
+      "hold_h": 8.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.39,
+    "drawdown_at_day": 0.2
+   },
+   "model_lowrisk_guard": {
+    "profit_per_day": 93644,
+    "max_drawdown": 433792,
+    "win_rate": 0.621,
+    "trips": 551,
+    "exits": {
+     "sell": 534,
+     "dump": 17
+    },
+    "worst_trades": [
+     {
+      "item": "Ironwood logs",
+      "qty": 5693,
+      "buy": 110,
+      "sell": 100.495,
+      "profit": -65498,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Yellow fin",
+      "qty": 2624,
+      "buy": 176,
+      "sell": 154.225,
+      "profit": -65010,
+      "hold_h": 48.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Molten glass",
+      "qty": 7586,
+      "buy": 84,
+      "sell": 76.615,
+      "profit": -63609,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Dagon'hai hat",
+      "qty": 2,
+      "buy": 315926,
+      "sell": 295331.92,
+      "profit": -53000,
+      "hold_h": 23.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steel ring",
+      "qty": 2,
+      "buy": 136681,
+      "sell": 112435.0,
+      "profit": -52988,
+      "hold_h": 38.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.15,
+    "drawdown_at_day": 6.5
+   },
+   "model_lowrisk_guard_patient": {
+    "profit_per_day": 86795,
+    "max_drawdown": 352127,
+    "win_rate": 0.658,
+    "trips": 441,
+    "exits": {
+     "sell": 427,
+     "dump": 14
+    },
+    "worst_trades": [
+     {
+      "item": "Contract of Bloodied Blows",
+      "qty": 14,
+      "buy": 44817,
+      "sell": 38713.46,
+      "profit": -96286,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Zombie helmet",
+      "qty": 3,
+      "buy": 249934,
+      "sell": 225105.815,
+      "profit": -87991,
+      "hold_h": 21.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Armadyl chaps",
+      "qty": 3,
+      "buy": 158689,
+      "sell": 133922.025,
+      "profit": -82335,
+      "hold_h": 20.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ironwood logs",
+      "qty": 6764,
+      "buy": 110,
+      "sell": 100.495,
+      "profit": -77820,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Spirit shield",
+      "qty": 4,
+      "buy": 94035,
+      "sell": 82951.16,
+      "profit": -50971,
+      "hold_h": 33.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.16,
+    "drawdown_at_day": 6.3
+   },
+   "model_patient": {
+    "profit_per_day": 8475,
+    "max_drawdown": 737741,
+    "win_rate": 0.67,
+    "trips": 427,
+    "exits": {
+     "sell": 403,
+     "dump": 24
+    },
+    "worst_trades": [
+     {
+      "item": "Draynor manor teleport (tablet)",
+      "qty": 40,
+      "buy": 11636,
+      "sell": 4309.345,
+      "profit": -296506,
+      "hold_h": 10.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Lava rune",
+      "qty": 14720,
+      "buy": 49,
+      "sell": 32.835,
+      "profit": -237949,
+      "hold_h": 4.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Guam leaf",
+      "qty": 1297,
+      "buy": 553,
+      "sell": 420.885,
+      "profit": -181729,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "West ardougne teleport (tablet)",
+      "qty": 115,
+      "buy": 4614,
+      "sell": 3287.48,
+      "profit": -160025,
+      "hold_h": 12.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ent branch",
+      "qty": 220,
+      "buy": 3374,
+      "sell": 2885.5,
+      "profit": -120010,
+      "hold_h": 22.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 1.42,
+    "drawdown_at_day": 7.1
+   },
+   "model@5%": {
+    "profit_per_day": -49815,
+    "max_drawdown": 789869,
+    "win_rate": 0.615,
+    "trips": 561,
+    "exits": {
+     "sell": 527,
+     "dump": 34
+    },
+    "worst_trades": [
+     {
+      "item": "Draynor manor teleport (tablet)",
+      "qty": 50,
+      "buy": 11305,
+      "sell": 4309.345,
+      "profit": -354083,
+      "hold_h": 3.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Guam leaf",
+      "qty": 1219,
+      "buy": 665,
+      "sell": 396.01,
+      "profit": -336432,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ape atoll teleport (tablet)",
+      "qty": 54,
+      "buy": 12252,
+      "sell": 7889.355,
+      "profit": -244061,
+      "hold_h": 6.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steam rune",
+      "qty": 5276,
+      "buy": 108,
+      "sell": 84.575,
+      "profit": -128866,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Ancient brew(4)",
+      "qty": 174,
+      "buy": 3881,
+      "sell": 3231.7599999999998,
+      "profit": -124104,
+      "hold_h": 20.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 13.8
+   },
+   "model_lowrisk@5%": {
+    "profit_per_day": -666,
+    "max_drawdown": 551414,
+    "win_rate": 0.641,
+    "trips": 523,
+    "exits": {
+     "sell": 495,
+     "dump": 28
+    },
+    "worst_trades": [
+     {
+      "item": "Draynor manor teleport (tablet)",
+      "qty": 50,
+      "buy": 11305,
+      "sell": 4309.345,
+      "profit": -354083,
+      "hold_h": 3.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Guam leaf",
+      "qty": 1106,
+      "buy": 665,
+      "sell": 396.01,
+      "profit": -305245,
+      "hold_h": 8.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steam rune",
+      "qty": 5177,
+      "buy": 108,
+      "sell": 84.575,
+      "profit": -126448,
+      "hold_h": 7.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Lava rune",
+      "qty": 7360,
+      "buy": 49,
+      "sell": 32.835,
+      "profit": -118974,
+      "hold_h": 4.0,
+      "reason": "dump"
+     },
+     {
+      "item": "West ardougne teleport (tablet)",
+      "qty": 54,
+      "buy": 4614,
+      "sell": 3287.48,
+      "profit": -75142,
+      "hold_h": 12.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": null,
+    "drawdown_at_day": 3.9
+   },
+   "model_lowrisk_guard@5%": {
+    "profit_per_day": 46740,
+    "max_drawdown": 286401,
+    "win_rate": 0.531,
+    "trips": 550,
+    "exits": {
+     "sell": 526,
+     "dump": 24
+    },
+    "worst_trades": [
+     {
+      "item": "Raw dashing kebbit",
+      "qty": 278,
+      "buy": 1850,
+      "sell": 1641.75,
+      "profit": -66790,
+      "hold_h": 22.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Guthix rest(4)",
+      "qty": 159,
+      "buy": 3439,
+      "sell": 3200.915,
+      "profit": -48032,
+      "hold_h": 25.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Steam rune",
+      "qty": 4990,
+      "buy": 105,
+      "sell": 97.51,
+      "profit": -42365,
+      "hold_h": 24.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Molten glass",
+      "qty": 4890,
+      "buy": 84,
+      "sell": 76.615,
+      "profit": -41003,
+      "hold_h": 11.0,
+      "reason": "dump"
+     },
+     {
+      "item": "Swordfish",
+      "qty": 1345,
+      "buy": 243,
+      "sell": 225.865,
+      "profit": -28427,
+      "hold_h": 16.0,
+      "reason": "dump"
+     }
+    ],
+    "top3_share_of_profit": 0.21,
+    "drawdown_at_day": 12.9
+   }
+  }
+ ]
+}

@@ -21,6 +21,16 @@ import numpy as np
 from backtest import Base, breakeven, tax
 
 
+# Named settings. "production" won the year-long walk-forward (round 2):
+# +121k/day on 5.5M, positive in 11/11 two-week folds, max drawdown 0.74M;
+# the same settings without patient offers made +56k/day at a 5% fill share.
+PRESETS = {
+    "base": {},
+    "production": {"kelly_frac": 0.15, "max_item_frac": 0.15, "min_exp_ret": 0.005,
+                   "guard": True, "buy_wait_h": 6.0},
+}
+
+
 class ModelStrategy(Base):
     name = "model"
     buy_wait_h = 2.0

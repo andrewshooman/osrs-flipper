@@ -26,7 +26,7 @@ from backtest import Config, tax
 from features import features
 from hybrid import HybridSim
 from panel import DATA, panel_from_df
-from strategy_model import ModelStrategy
+from strategy_model import PRESETS, ModelStrategy
 from train import FlipModel
 
 LIVE = DATA / "live"
@@ -43,8 +43,9 @@ def last_completed(step: int, lag: int) -> int:
 
 
 class Live:
-    def __init__(self, model_dir: Path, cfg: Config):
+    def __init__(self, model_dir: Path, cfg: Config, variant: str = "production"):
         LIVE.mkdir(parents=True, exist_ok=True)
+        self.variant = variant
         self.model = FlipModel.load(model_dir)
         self.model_dir = str(model_dir)
         self.mapping = {m["id"]: m for m in json.loads((DATA / "mapping.json").read_text())}
@@ -111,7 +112,7 @@ class Live:
         P.highalch = np.array([meta.get(int(i), {}).get("highalch", 0) or 0 for i in P.ids], dtype=np.float64)
         P.names = [meta.get(int(i), {}).get("name", str(i)) for i in P.ids]
         F = features(P)
-        strat = ModelStrategy(self.model, F)
+        strat = ModelStrategy(self.model, F, name=f"model-{self.variant}", **PRESETS[self.variant])
         strat.max_hold_h = 7 * 24  # multi-day holds allowed; the model's exit rules decide
         sim = self.s["sim"]
         if sim is None:
@@ -158,6 +159,7 @@ class Live:
         rep = {
             "updated": now(), "started": self.s["started"], "bankroll": self.cfg.bankroll,
             "reserve_pct": self.cfg.reserve, "share_of_volume": self.cfg.share, "model": self.model_dir,
+            "variant": self.variant,
             "realised": round(sim.realised), "unrealised": round(unreal), "tax_paid": round(sim.tax_paid),
             "profit": round(sim.realised + unreal), "equity_at_cost": round(equity_cost), "cash": round(sim.cash),
             "in_buy_offers": round(sim.in_offers()), "positions": held, "offers": offers, "trades": trips,
@@ -191,8 +193,9 @@ def main():
     ap.add_argument("--once", action="store_true")
     ap.add_argument("--bankroll", type=float, default=11_000_000)
     ap.add_argument("--share", type=float, default=0.10)
+    ap.add_argument("--variant", default="production", choices=sorted(PRESETS))
     a = ap.parse_args()
-    bot = Live(Path(a.model), Config(bankroll=a.bankroll, share=a.share))
+    bot = Live(Path(a.model), Config(bankroll=a.bankroll, share=a.share), variant=a.variant)
     while True:
         try:
             bot.step()
