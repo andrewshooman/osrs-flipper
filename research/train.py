@@ -51,6 +51,15 @@ class FlipModel:
         out["exp_ret"] = p * out["ret"]
         return out
 
+    @classmethod
+    def load(cls, path: Path) -> "FlipModel":
+        import lightgbm as lgb
+
+        meta = json.loads((Path(path) / "meta.json").read_text())
+        names = meta.pop("features")
+        b = {p.stem: lgb.Booster(model_file=str(p)) for p in Path(path).glob("*.txt")}
+        return cls(names, b, meta)
+
     def save(self, path: Path):
         path.mkdir(parents=True, exist_ok=True)
         for k, b in self.b.items():
