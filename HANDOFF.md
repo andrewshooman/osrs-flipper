@@ -1,86 +1,73 @@
 # Handoff: where the project stands and what comes next
 
-*Last updated: 2026-10-12.*
+*Last updated: 2026-10-12, 20:35 UTC.*
 
-## Done
-- **v0.1 web app** (`index.html`, `js/`): explainable picks, practice and real
-  ledgers, slot/holding/offer advice, profit tracking. `npm test` runs 82 checks
-  on synthetic data.
-- **Research pipeline** (`research/`):
-  - `collect.py`: resumable whole-market snapshot collector for `/1h` and `/5m`,
-    writing parquet files to `$OSF_DATA` (default `/home/user/osrs-data`).
-  - `panel.py`: loads snapshots into dense time × item arrays; also generates
-    a synthetic panel for tests.
-  - `backtest.py`: event-driven GE simulator. No look-ahead; models tax, buy
-    limits, slots, locked gold and the reserve. Includes two baselines:
-    `top_margin` (what most tools do) and `v0_1` (the app's current model).
-  - `test_research.py`: checks cash conservation, buy limits, no look-ahead
-    and the tax rules.
+**Goal:** use the GE tool to make the user coins. The user trades sporadically, a
+few check-ins a day, and wants recommendations they can follow plus easy
+logging. Nothing places offers automatically, because that gets accounts banned.
 
-## Blocked on
-1. **Network:** this session's sandbox still cannot reach `prices.runescape.wiki`
-   or `api.weirdgloop.org`. The setting may only apply to a new session.
-2. **Repo:** `andrewshooman/osrs-flipper` doesn't exist or isn't shared with the
-   Claude app. Until it is, the code exists only in this container and in the
-   zip sent in chat.
+## Current state
+- **App:** live on GitHub Pages from `main`.
+  - Tabs: Bot (default), Picks (v0.1 heuristic, which **loses** in backtests, so
+    use it for practice only), Slots, Holdings, Profit, Settings.
+  - GE tax uses the wiki's full exemption list (48 items).
+- **Research** (`research/`):
+  - `collect.py`: downloads snapshots.
+  - `panel.py`: builds the time × item price panel.
+  - `features.py`: 42 features that use only past data.
+  - `train.py`: the LightGBM models.
+  - `backtest.py`: GE simulator with tax, buy limits, slots and reserve.
+  - `hybrid.py`: hourly decisions with fills on real 5-minute volume.
+  - `walkforward.py`: compares model variants plus a 5% fill check.
+  - `live.py` and `bot_loop.sh`: paper-trading bot.
+  - `recipes.py`: decanting and processing arbitrage.
+  - `test_research.py` and `test_parity.py`: tests.
+- **Results so far:**
+  - **Walk-forward, Oct 2025 – Jan 2026** (4 folds): model averages +104k/day and
+    is positive in 3 of 4 folds. Both baselines are about −400k/day in every fold.
+    **Max drawdown was 1.84M**, against a limit of 550k. Fix this next.
+  - **First 40-day test:** top_margin −253k/day, v0_1 −399k/day, model +28k/day.
+- **Live bot:** the state is on the `live` branch. It was run briefly with an
+  Oct–Dec model (`data/model`). Restart it with the full-year model and a reset
+  state:
 
-## Resume here (in order)
-1. Check the API works: `curl -A test https://prices.runescape.wiki/api/v1/osrs/latest`.
-   Then confirm the open questions from v0.1: does `/24h` exist, does the API
-   allow browser requests (CORS), and how far back does `?timestamp=` history go?
-2. Install the research libraries: `pip install pandas pyarrow lightgbm scikit-learn`.
-3. Collect data:
-   - `python research/collect.py --step 1h --days 365` (about 8.8k requests, ~2.5h)
-   - `python research/collect.py --step 5m --days 60` (about 17k requests, ~5h)
+  `LIVE_DIR=<checkout of live> research/bot_loop.sh`
 
-   Run both in the background. The container is temporary, so push data
-   summaries and models, not raw data.
-4. Run the baselines on real data: `python research/backtest.py --step 1h`.
-   Record the results below. These are the bar to beat. Also check how
-   sensitive they are to `--share` (0.05 / 0.1 / 0.2).
-5. Build `research/features.py` and `research/labels.py`. Every feature must
-   use only data up to and including time t.
-   - **Features:**
-     - spread
-     - buy/sell volume imbalance
-     - volatility over several windows
-     - z-scores against 24h and 7d averages
-     - mean-reversion half-life (Ornstein–Uhlenbeck fit) and Hurst / variance-ratio
-       regime tests
-     - hour-of-week
-     - item price level and buy limit
-     - a market-wide index and its return
-   - **Labels:**
-     - did a bid at `al+1+k` fill within h hours?
-     - forward instant-buy/instant-sell price quantiles at 1, 4, 12 and 24 hours
-     - forward net round-trip profit after tax
-6. Train with LightGBM:
-   - a fill / time-to-fill model
-   - quantile price forecasts
-   - a regime classifier
-   - validate walk-forward by month
-7. Build the decision engine as a new strategy:
-   - expected value of buy / sell / hold / cut / reprice / cancel / alch
-   - bid/ask placement chosen from the fill model
-   - quarter-Kelly sizing
-   - volatility-based stops, clamped to 2–8%
-   - cap of 40% on items that move together
-   - market brake when the whole GE index is falling
-   - set and potion-dose arbitrage scanner
-   - multi-day holds of up to 7 days, at most 30% of deployable gold, only
-     where the backtest shows they make money
-8. **Gate:** ship only if it beats both baselines on held-out months, measured
-   by profit after tax and max drawdown.
-9. Ship it:
-   - export the models to JSON
-   - JS inference in the app
-   - a "Do this now" action queue
-   - calibration from the user's fills (Thompson sampling)
-   - a GitHub Action for daily collection and weekly retraining
-10. **Rollout:** about 1 week in practice → review → real with 2M → scale up.
+  The GitHub Actions cron was removed; manual dispatch is the fallback only.
+- **Data** (on the cloud machine, `/home/user/osrs-data`, gone if the machine is
+  reclaimed):
+  - Hourly: 2025-10-12 → today, completing about 21:05 UTC on 10-12.
+  - 5-minute: 2026-08-13 → today, completing about 00:00 UTC on 10-13.
+  - **To do:** back both up to an orphan `data` branch once complete.
+- **Branch `research/variants`** (not merged yet): strategy variants
+  (`lowrisk`, `liquid`, `fastcut`, `patient`), a 5% fill-share run and loss
+  diagnostics in `walkforward.py`.
 
-## Baseline results (fill in at step 4)
+## Next steps (in order)
+1. Year-long walk-forward with the variants:
+
+   `python research/walkforward.py --min-train-days 60 --test-days 14 --every-days 28 --out research/reports/walkforward-year.json`
+2. Pick the variant that meets the pre-agreed pass criteria:
+   - profitable in most folds
+   - beats both baselines
+   - still profitable at a 5% fill share
+   - max drawdown ≤ ~550k on 5.5M deployable
+   - top 3 trades < 50% of profit
+   - cuts < 25% of exits
+3. Train the full-year model with that variant and put it on `live` at
+   `data/model`. Reset the bot state and start `bot_loop.sh`.
+4. Run the 5-minute replay (`python research/hybrid.py replay`) and send the
+   user a validation report.
+5. Back up the data to a `data` branch.
+6. **If validation fails:** test more model types and labels side by side.
+7. **After 3–7 days of good live results:**
+   - an app "Do this now" list for sporadic check-ins
+   - logging (the RuneLite website's GE history export no longer exists)
+   - our own RuneLite plugin later
+
+## Baseline results
 | strategy | period | profit/day | max DD | win rate | trips |
 |---|---|---|---|---|---|
-| top_margin | | | | | |
-| v0_1 | | | | | |
+| top_margin | Oct–Jan WF | −372k | 6.0M | — | — |
+| v0_1 | Oct–Jan WF | −437k | 6.5M | — | — |
+| model | Oct–Jan WF | +104k | 1.84M | — | — |

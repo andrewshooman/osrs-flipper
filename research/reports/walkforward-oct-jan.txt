@@ -1,0 +1,31 @@
+panel 2688 bars x 3634 items
+features ready (47s)
+fold 2025-11-26: baseline_top_margin=-429,621/d  baseline_v0_1=-466,736/d  model=+126,593/d  (162s)
+fold 2025-12-10: baseline_top_margin=-309,834/d  baseline_v0_1=-435,429/d  model=+215,783/d  (305s)
+fold 2025-12-24: baseline_top_margin=-380,051/d  baseline_v0_1=-420,105/d  model=+105,884/d  (486s)
+fold 2026-01-07: baseline_top_margin=-369,460/d  baseline_v0_1=-427,115/d  model=-33,526/d  (696s)
+{
+ "baseline_top_margin": {
+  "mean_profit_per_day": -372241,
+  "median_profit_per_day": -374755,
+  "folds_positive": "0/4",
+  "worst_fold": -429621,
+  "max_drawdown": 6014693
+ },
+ "baseline_v0_1": {
+  "mean_profit_per_day": -437346,
+  "median_profit_per_day": -431272,
+  "folds_positive": "0/4",
+  "worst_fold": -466736,
+  "max_drawdown": 6549999
+ },
+ "model": {
+  "mean_profit_per_day": 103683,
+  "median_profit_per_day": 116238,
+  "folds_positive": "3/4",
+  "worst_fold": -33526,
+  "max_drawdown": 1837053
+ }
+}
+
+[exited with code 0]
