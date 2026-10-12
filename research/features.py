@@ -80,14 +80,15 @@ def features(P: Panel) -> dict[str, np.ndarray]:
     F["margin_vs_median"] = F["net_margin_rel"] - F["margin_median_rel_24h"]
     F["active_24h"] = _df(both_now.astype(f32)).rolling(_bars(P, 24), min_periods=1).mean().values
 
-    # Market-wide context: median return across liquid items.
+    # Market-wide context: median h-hour return across liquid items (the app
+    # computes the same thing from two /1h snapshots).
     liquid = (lv.rolling(_bars(P, 24), min_periods=1).mean() > 5).values
-    r = np.where(liquid, ret1.values, np.nan)
-    with np.errstate(all="ignore"):
-        mkt = np.nanmedian(r, axis=1)
-    mkt = pd.Series(mkt).fillna(0)
     for h in (1, 24):
-        F[f"mkt_ret_{h}h"] = np.broadcast_to(mkt.rolling(_bars(P, h), min_periods=1).sum().values[:, None], P.ah.shape)
+        r = np.where(liquid, F[f"ret_{h}h"], np.nan)
+        with np.errstate(all="ignore"), __import__("warnings").catch_warnings():
+            __import__("warnings").simplefilter("ignore")
+            mkt = np.nan_to_num(np.nanmedian(r, axis=1))
+        F[f"mkt_ret_{h}h"] = np.broadcast_to(mkt[:, None], P.ah.shape)
 
     hours = (P.ts // 3600) % 24
     dow = (P.ts // 86400 + 4) % 7  # 1970-01-01 was a Thursday
