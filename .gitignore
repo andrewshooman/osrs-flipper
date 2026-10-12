@@ -13,3 +13,4 @@ node_modules/
 # research data / caches
 research/__pycache__/
 *.parquet
+research/models/
