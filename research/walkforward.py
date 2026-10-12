@@ -32,11 +32,19 @@ def main():
     ap.add_argument("--rounds", type=int, default=200)
     ap.add_argument("--min-trade-frac", type=float, default=0.2)
     ap.add_argument("--share", type=float, default=0.10)
+    ap.add_argument("--before", default=None, help="only use hourly data before this date (YYYY-MM-DD)")
     ap.add_argument("--out", default=str(ROOT / "reports" / "walkforward.json"))
     a = ap.parse_args()
 
     t0 = time.time()
-    P = synthetic_panel(T=24 * 150) if a.synthetic else load_panel("1h", min_trade_frac=a.min_trade_frac)
+    if a.synthetic:
+        P = synthetic_panel(T=24 * 150)
+    else:
+        from panel import panel_from_df, read_days
+        df = read_days("1h")
+        if a.before:
+            df = df[df.ts < int(time.mktime(time.strptime(a.before, "%Y-%m-%d"))) - time.timezone]
+        P = panel_from_df(df, "1h", min_trade_frac=a.min_trade_frac)
     bars_day = int(86400 // P.step)
     print(f"panel {P.T} bars x {P.N} items", flush=True)
     F = features(P)
