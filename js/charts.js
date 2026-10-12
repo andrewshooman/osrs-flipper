@@ -195,5 +195,54 @@
     canvas.addEventListener("mouseleave", () => { draw(null); tip.classList.add("hidden"); });
   }
 
-  OSF.charts = { priceChart, barChart };
+  /** Single-series line over time. pts: [[unixSeconds, value]]. */
+  function lineChart(container, pts, opts = {}) {
+    const H = 180, padL = 60, padR = 10, padT = 10, padB = 22;
+    const { canvas, tip, ctx, w } = setup(container, H);
+    if (pts.length < 2) {
+      ctx.fillStyle = css("--text-muted"); ctx.font = "13px system-ui";
+      ctx.fillText(opts.empty || "Not enough points yet", padL, 40);
+      return;
+    }
+    const c1 = css("--series-1"), grid = css("--grid"), muted = css("--text-muted"), surface = css("--surface-1");
+    const t0 = pts[0][0], t1 = pts[pts.length - 1][0], span = t1 - t0 || 1;
+    const vals = pts.map((p) => p[1]).concat(opts.baseline != null ? [opts.baseline] : []);
+    let lo = Math.min(...vals), hi = Math.max(...vals);
+    const pad = (hi - lo) * 0.1 || Math.abs(hi) * 0.01 || 1; lo -= pad; hi += pad;
+    const X = (t) => padL + ((t - t0) / span) * (w - padL - padR);
+    const Y = (v) => padT + (1 - (v - lo) / (hi - lo)) * (H - padT - padB);
+    function draw(hi_) {
+      ctx.clearRect(0, 0, w, H);
+      ctx.font = "11px system-ui"; ctx.textBaseline = "middle";
+      for (const v of niceTicks(lo, hi)) {
+        ctx.strokeStyle = grid; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(padL, Y(v)); ctx.lineTo(w - padR, Y(v)); ctx.stroke();
+        ctx.fillStyle = muted; ctx.textAlign = "right"; ctx.fillText(U.gp(v), padL - 6, Y(v));
+      }
+      ctx.textAlign = "center";
+      for (let i = 0; i <= 3; i++) { const t = t0 + (span * i) / 3; ctx.fillStyle = muted; ctx.fillText(fmtTime(t, span), Math.min(Math.max(X(t), padL + 20), w - padR - 20), H - 8); }
+      if (opts.baseline != null) {
+        ctx.setLineDash([4, 4]); ctx.strokeStyle = muted; ctx.beginPath(); ctx.moveTo(padL, Y(opts.baseline)); ctx.lineTo(w - padR, Y(opts.baseline)); ctx.stroke(); ctx.setLineDash([]);
+      }
+      ctx.strokeStyle = c1; ctx.lineWidth = 2; ctx.lineJoin = "round"; ctx.beginPath();
+      pts.forEach((p, i) => (i ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1]))));
+      ctx.stroke();
+      if (hi_ != null) {
+        const p = pts[hi_];
+        ctx.fillStyle = c1; ctx.strokeStyle = surface; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), 4.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      }
+    }
+    draw(null);
+    canvas.addEventListener("mousemove", (ev) => {
+      const r = canvas.getBoundingClientRect(), x = ev.clientX - r.left;
+      const t = t0 + ((x - padL) / (w - padL - padR)) * span;
+      let best = 0;
+      for (let i = 1; i < pts.length; i++) if (Math.abs(pts[i][0] - t) < Math.abs(pts[best][0] - t)) best = i;
+      draw(best);
+      showTip(tip, `<div class="muted">${new Date(pts[best][0] * 1000).toLocaleString()}</div><div>${U.full(pts[best][1])} gp</div>`, x, ev.clientY - r.top, w);
+    });
+    canvas.addEventListener("mouseleave", () => { draw(null); tip.classList.add("hidden"); });
+  }
+
+  OSF.charts = { priceChart, barChart, lineChart };
 })(window.OSF = window.OSF || {});

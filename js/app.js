@@ -12,7 +12,8 @@
     error: null,
     loading: false,
     progress: "",
-    view: "picks",
+    view: "bot",
+    bot: { data: null, error: null, at: 0 },
     sort: "perHour",
     ticks: 0,
   };
@@ -74,9 +75,13 @@
     $("#practice-banner").classList.toggle("hidden", !isPractice());
     document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("on", b.dataset.view === S.view));
     document.querySelectorAll(".view").forEach((v) => v.classList.toggle("on", v.id === "view-" + S.view));
+    const botView = S.view === "bot";
+    $("#capital").classList.toggle("hidden", botView);
+    if (botView) $("#practice-banner").classList.add("hidden");
+    $(".mode-switch").classList.toggle("hidden", botView); // the bot has its own mock stack
     renderCapital();
     renderBadges();
-    ({ picks: renderPicks, slots: renderSlots, holdings: renderHoldings, profit: renderProfit, settings: renderSettings })[S.view]();
+    ({ bot: renderBot, picks: renderPicks, slots: renderSlots, holdings: renderHoldings, profit: renderProfit, settings: renderSettings })[S.view]();
   }
 
   function renderCapital() {
@@ -177,6 +182,74 @@
           <td class="r">${U.pct(r.roi, 2)}</td><td class="r good">${U.gp(r.expected, { plus: true })}</td>
           <td class="r">${U.duration(r.hours)}</td><td class="r">${U.gp(r.perHour)}</td><td class="r">${U.gp(r.vol.daily)}</td></tr>`).join("")}
         </tbody></table></div>`;
+  }
+
+  // ---------------------------------------------------------------- bot (paper trading)
+  async function fetchBot() {
+    try {
+      const res = await fetch(C.BOT_STATE_URL + "?t=" + Date.now(), { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      S.bot.data = await res.json();
+      S.bot.error = null;
+    } catch (e) {
+      S.bot.error = e.message || String(e);
+    }
+    S.bot.at = Date.now();
+    if (S.view === "bot") renderBot();
+  }
+
+  const actionLabel = { buy: "Buy offer", sell: "Sell offer", cut: "Cut loss" };
+  const reasonLabel = { sell: "sold at target", dump: "cut / sold at market", buy: "buy" };
+
+  function renderBot() {
+    const root = $("#view-bot");
+    const d = S.bot.data;
+    const head = `<div class="section-head"><h2>Bot — paper trading</h2>
+      <span class="small muted">${d ? `updated ${U.ago(d.updated * 1000)} · running since ${new Date(d.started * 1000).toLocaleString()}` : ""}</span>
+      <span class="spacer"></span><button class="btn sm" id="bot-refresh">Refresh</button></div>
+      <p class="small secondary" style="margin-top:0">The bot decides every buy, hold, sell and cut itself and trades a mock
+      ${d ? U.gp(d.bankroll) : "11M"} stack (${d ? Math.round(d.reserve_pct * 100) : 50}% kept in reserve) against the live Grand Exchange.
+      Offers only fill when real trades happen at its price, and only up to ${d ? Math.round(d.share_of_volume * 100) : 10}% of the real volume. No real gold is used.</p>`;
+    if (!d) {
+      root.innerHTML = head + `<div class="card empty-state">${S.bot.error ? `Couldn't load bot state (${esc(S.bot.error)}). Is the bot running?` : `<span class="spinner"></span> Loading…`}</div>`;
+      return;
+    }
+    const tile = (label, value, sub, cls = "") => `<div class="stat"><div class="label">${label}</div><div class="value ${cls}">${value}</div><div class="sub">${sub}</div></div>`;
+    const pos = [...d.positions].sort((a, b) => b.qty * b.avg_cost - a.qty * a.avg_cost);
+    const plan = (p) => {
+      if (!p.plan) return "Holding";
+      const e = p.plan;
+      if (e.action === "cut") return `Cutting: selling at market (${U.full(e.price)})`;
+      if (e.action === "sell") return `Listed to sell at ${U.full(e.price)}`;
+      return `Bought @ ${U.full(e.price)}`;
+    };
+    root.innerHTML = head + `
+      <div class="capital" style="padding:0;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
+        ${tile("Profit", U.gp(d.profit, { plus: true }), "realised + if sold now", signClass(d.profit))}
+        ${tile("Realised", U.gp(d.realised, { plus: true }), `after ${U.gp(d.tax_paid)} tax`, signClass(d.realised))}
+        ${tile("Open P/L", U.gp(d.unrealised, { plus: true }), `${d.positions.length} items held`, signClass(d.unrealised))}
+        ${tile("Free cash", U.gp(d.cash), `${U.gp(d.in_buy_offers)} in buy offers`)}
+      </div>
+      <div class="section-head"><h2>Stack value</h2><span class="small muted">hourly, if everything were sold instantly after tax</span></div>
+      <div class="card"><div id="bot-equity"></div></div>
+      <div class="section-head"><h2>Holding now</h2></div>
+      <div class="card table-wrap">${pos.length ? `<table class="list"><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Avg cost</th><th class="r">Sells at</th><th class="r">P/L if sold</th><th class="r">Held</th><th>Plan</th></tr></thead><tbody>
+        ${pos.map((p) => `<tr><td class="name" data-item="${p.id}">${esc(p.name)}</td><td class="r">${U.full(p.qty)}</td><td class="r">${U.full(p.avg_cost)}</td>
+          <td class="r">${U.full(p.market_sell)}</td><td class="r ${signClass(p.pnl_if_sold)}">${U.gp(p.pnl_if_sold, { plus: true })}</td>
+          <td class="r">${U.duration(p.held_h)}</td><td class="small">${esc(plan(p))}</td></tr>`).join("")}</tbody></table>` : `<div class="empty-state">Nothing held right now.</div>`}</div>
+      <div class="section-head"><h2>Open offers</h2><span class="small muted">${d.offers.length}/8 slots</span></div>
+      <div class="card table-wrap">${d.offers.length ? `<table class="list"><tbody>
+        ${d.offers.map((o) => `<tr><td><span class="side ${o.side}">${o.reason === "dump" ? "CUT" : o.side.toUpperCase()}</span></td><td class="name" data-item="${o.id}">${esc(o.name)}</td>
+          <td class="r">${U.full(o.filled)}/${U.full(o.qty)} @ ${U.full(o.price)}</td><td class="r muted">${o.placed ? U.ago(o.placed * 1000) : ""}</td></tr>`).join("")}</tbody></table>` : `<div class="empty-state">No open offers.</div>`}</div>
+      <div class="section-head"><h2>Closed trades</h2><span class="small muted">${d.trades.length} sells</span></div>
+      <div class="card table-wrap">${d.trades.length ? `<table class="list"><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Bought</th><th class="r">Sold</th><th class="r">Profit</th><th class="r">Held</th><th>Exit</th></tr></thead><tbody>
+        ${[...d.trades].reverse().map((t) => `<tr><td class="name" data-item="${t.id}">${esc(t.name)}</td><td class="r">${U.full(t.qty)}</td><td class="r">${U.full(t.buy)}</td><td class="r">${U.full(t.sell)}</td>
+          <td class="r ${signClass(t.profit)}">${U.gp(t.profit, { plus: true })}</td><td class="r">${U.duration(t.hold)}</td><td class="small muted">${esc(reasonLabel[t.reason] || t.reason)}</td></tr>`).join("")}</tbody></table>` : `<div class="empty-state">No completed sells yet.</div>`}</div>
+      <div class="section-head"><h2>Decision log</h2></div>
+      <div class="card table-wrap">${d.events.length ? `<table class="list"><tbody>
+        ${[...d.events].reverse().slice(0, 80).map((e) => `<tr><td class="muted">${new Date(e.ts * 1000).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
+          <td>${esc(actionLabel[e.action] || e.action)}</td><td class="name" data-item="${e.item}">${esc(e.name)}</td><td class="r">${U.full(e.qty)} @ ${U.full(e.price)}</td></tr>`).join("")}</tbody></table>` : `<div class="empty-state">No decisions yet.</div>`}</div>`;
+    CH.lineChart($("#bot-equity"), d.equity, { baseline: d.bankroll });
   }
 
   // ---------------------------------------------------------------- slots
@@ -590,7 +663,7 @@
       const t = e.target.closest("button, [data-item], [data-new-offer], label.btn");
       if (!t) return;
       const d = t.dataset;
-      if (d.view) { S.view = d.view; renderAll(); window.scrollTo(0, 0); return; }
+      if (d.view) { S.view = d.view; renderAll(); window.scrollTo(0, 0); if (d.view === "bot") fetchBot(); return; }
       if (d.mode) { if (S.state.mode !== d.mode) { S.state.mode = d.mode; save(); renderAll(); refresh({ quiet: true }); } return; }
       if (d.strategy) { settings().strategy = d.strategy; save(); renderPicks(); refresh(); return; }
       if (d.sort) { S.sort = d.sort; renderPicks(); return; }
@@ -615,6 +688,7 @@
       if (d.unexclude) { settings().excludedIds = settings().excludedIds.filter((x) => x !== +d.unexclude); save(); renderSettings(); refresh({ quiet: true }); return; }
       if (d.item && !t.matches("button.btn.primary")) return itemDialog(+d.item);
       switch (t.id) {
+        case "bot-refresh": return fetchBot();
         case "refresh": case "retry": return refresh({ force: true });
         case "sync": return refresh({ quiet: true });
         case "export-csv": return download(`ge-flipper-${S.state.mode}-trades.csv`, L.toCSV(ledger(), S.items), "text/csv");
@@ -647,12 +721,16 @@
   let timer = null;
   function restartTimer() {
     clearInterval(timer);
-    timer = setInterval(() => { if (!document.hidden) refresh({ quiet: true }); }, Math.max(30, settings().refreshSeconds) * 1000);
+    timer = setInterval(() => {
+      if (document.hidden) return;
+      if (S.view === "bot") fetchBot(); else refresh({ quiet: true });
+    }, Math.max(30, settings().refreshSeconds) * 1000);
   }
 
   function init() {
     bind();
     renderAll();
+    fetchBot();
     refresh();
     restartTimer();
   }

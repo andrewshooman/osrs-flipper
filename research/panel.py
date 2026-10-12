@@ -46,20 +46,38 @@ class Panel:
                      self.limit, self.highalch, self.names)
 
 
-def load_panel(step: str = "1h", days: int | None = None, min_trade_frac: float = 0.05) -> Panel:
+def read_days(step: str = "1h", days: int | None = None, since: str | None = None):
     import pandas as pd
 
     files = sorted((DATA / step).glob("*.parquet"))
+    if since:
+        files = [f for f in files if f.stem >= since]
     if days:
         files = files[-days:]
     if not files:
         raise FileNotFoundError(f"no data in {DATA / step} - run research/collect.py first")
-    df = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+    return pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+
+
+def load_panel(step: str = "1h", days: int | None = None, min_trade_frac: float = 0.05, since: str | None = None) -> Panel:
+    return panel_from_df(read_days(step, days, since), step, min_trade_frac=min_trade_frac)
+
+
+def panel_from_df(df, step: str = "1h", ids=None, ts_from: int | None = None, ts_to: int | None = None,
+                  min_trade_frac: float = 0.05) -> Panel:
+    """Dense panel from snapshot rows. Pass `ids` (and a ts range) to get a
+    panel whose item order and time index are fixed — the live runner needs
+    that so positions keep their indices as the panel grows."""
     sec = {"5m": 300, "1h": 3600}[step]
-    ts = np.arange(df.ts.min(), df.ts.max() + sec, sec, dtype=np.int64)
-    # Keep items that trade in a reasonable share of buckets.
-    counts = df.groupby("id").size()
-    ids = np.sort(counts[counts >= min_trade_frac * len(ts)].index.values.astype(np.int32))
+    t0 = int(df.ts.min()) if ts_from is None else ts_from
+    t1 = int(df.ts.max()) if ts_to is None else ts_to
+    ts = np.arange(t0, t1 + sec, sec, dtype=np.int64)
+    df = df[(df.ts >= t0) & (df.ts <= t1)]
+    if ids is None:
+        # Keep items that trade in a reasonable share of buckets.
+        counts = df.groupby("id").size()
+        ids = counts[counts >= min_trade_frac * len(ts)].index.values
+    ids = np.sort(np.asarray(ids).astype(np.int32))
     df = df[df.id.isin(ids)]
     ti = ((df.ts.values - ts[0]) // sec).astype(np.int64)
     ii = np.searchsorted(ids, df.id.values)

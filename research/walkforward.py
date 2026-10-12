@@ -1,0 +1,85 @@
+"""Walk-forward evaluation: for each fold, train on everything before it
+(with an embargo so labels can't leak), then backtest the fold with the
+model and both baselines. Results across many folds are what count — one
+lucky week proves nothing.
+
+    python research/walkforward.py --min-train-days 60 --test-days 14 --every-days 28
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import time
+from pathlib import Path
+
+import numpy as np
+
+from backtest import STRATEGIES, Config, Sim
+from features import features, flip_labels, forward_returns
+from panel import load_panel, synthetic_panel
+from strategy_model import ModelStrategy
+from train import candidate_mask, fit
+
+ROOT = Path(__file__).resolve().parent
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--synthetic", action="store_true")
+    ap.add_argument("--min-train-days", type=int, default=60)
+    ap.add_argument("--test-days", type=int, default=14)
+    ap.add_argument("--every-days", type=int, default=28)
+    ap.add_argument("--rounds", type=int, default=200)
+    ap.add_argument("--min-trade-frac", type=float, default=0.2)
+    ap.add_argument("--share", type=float, default=0.10)
+    ap.add_argument("--out", default=str(ROOT / "reports" / "walkforward.json"))
+    a = ap.parse_args()
+
+    t0 = time.time()
+    P = synthetic_panel(T=24 * 150) if a.synthetic else load_panel("1h", min_trade_frac=a.min_trade_frac)
+    bars_day = int(86400 // P.step)
+    print(f"panel {P.T} bars x {P.N} items", flush=True)
+    F = features(P)
+    Y = flip_labels(P)
+    Q = forward_returns(P)
+    names = sorted(F)
+    mask = candidate_mask(P, F)
+    embargo = int((2 + 24) * 3600 // P.step) + 1
+    print(f"features ready ({time.time() - t0:.0f}s)", flush=True)
+
+    folds = []
+    start = a.min_train_days * bars_day
+    while start + a.test_days * bars_day <= P.T:
+        end = start + a.test_days * bars_day
+        tm = mask.copy()
+        tm[start - embargo:] = False
+        model = fit(F, Y, Q, tm, names, rounds=a.rounds)
+        warm = start - 8 * bars_day
+        test = P.slice(warm, end)
+        Ft = {k: v[warm:end] for k, v in F.items()}
+        row = {"from": int(P.ts[start]), "to": int(P.ts[end - 1])}
+        for S in [STRATEGIES["top_margin"](), STRATEGIES["v0_1"](), ModelStrategy(model, Ft)]:
+            r = Sim(test, Config(share=a.share), S).run(start=start - warm)
+            row[r["strategy"]] = {k: r[k] for k in ("profit_per_day", "max_drawdown", "win_rate", "trips", "exits")}
+        folds.append(row)
+        day = time.strftime("%Y-%m-%d", time.gmtime(row["from"]))
+        print(f"fold {day}: " + "  ".join(f"{k}={v['profit_per_day']:+,}/d" for k, v in row.items() if isinstance(v, dict))
+              + f"  ({time.time() - t0:.0f}s)", flush=True)
+        start += a.every_days * bars_day
+
+    summary = {}
+    for k in ("baseline_top_margin", "baseline_v0_1", "model"):
+        ppd = np.array([f[k]["profit_per_day"] for f in folds])
+        summary[k] = {"mean_profit_per_day": int(ppd.mean()) if len(ppd) else None,
+                      "median_profit_per_day": int(np.median(ppd)) if len(ppd) else None,
+                      "folds_positive": f"{int((ppd > 0).sum())}/{len(ppd)}",
+                      "worst_fold": int(ppd.min()) if len(ppd) else None,
+                      "max_drawdown": int(max(f[k]["max_drawdown"] for f in folds)) if folds else None}
+    out = {"config": vars(a), "panel": [P.T, P.N], "summary": summary, "folds": folds}
+    Path(a.out).parent.mkdir(parents=True, exist_ok=True)
+    Path(a.out).write_text(json.dumps(out, indent=1))
+    print(json.dumps(summary, indent=1))
+
+
+if __name__ == "__main__":
+    main()
