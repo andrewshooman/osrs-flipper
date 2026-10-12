@@ -9,3 +9,7 @@ desktop.ini
 # Logs / temp
 *.log
 node_modules/
+
+# research data / caches
+research/__pycache__/
+*.parquet
