@@ -22,6 +22,15 @@ from train import candidate_mask, fit
 
 ROOT = Path(__file__).resolve().parent
 
+# Strategy variants evaluated side by side on the same folds with the same trained model.
+VARIANTS = {
+    "model": {},
+    "model_lowrisk": {"kelly_frac": 0.15, "max_item_frac": 0.15, "min_exp_ret": 0.005},
+    "model_liquid": {"min_daily_volume": 20_000},
+    "model_fastcut": {"fast_cut": True},
+    "model_patient": {"buy_wait_h": 6.0},
+}
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -66,9 +75,24 @@ def main():
         test = P.slice(warm, end)
         Ft = {k: v[warm:end] for k, v in F.items()}
         row = {"from": int(P.ts[start]), "to": int(P.ts[end - 1])}
-        for S in [STRATEGIES["top_margin"](), STRATEGIES["v0_1"](), ModelStrategy(model, Ft)]:
-            r = Sim(test, Config(share=a.share), S).run(start=start - warm)
-            row[r["strategy"]] = {k: r[k] for k in ("profit_per_day", "max_drawdown", "win_rate", "trips", "exits")}
+        runs = [(STRATEGIES["top_margin"](), a.share), (STRATEGIES["v0_1"](), a.share)]
+        runs += [(ModelStrategy(model, Ft, name=vname, **kw), a.share) for vname, kw in VARIANTS.items()]
+        # The base model again at a cautious 5% fill share: does the edge survive?
+        runs.append((ModelStrategy(model, Ft, name="model@5%"), 0.05))
+        for S, share in runs:
+            sim = Sim(test, Config(share=share), S)
+            r = sim.run(start=start - warm)
+            res = {k: r[k] for k in ("profit_per_day", "max_drawdown", "win_rate", "trips", "exits")}
+            if r["strategy"].startswith("model"):
+                # Diagnostics: where did the losses come from, and is profit concentrated?
+                prof = np.array([x["profit"] for x in sim.trips]) if sim.trips else np.zeros(0)
+                res["worst_trades"] = [{"item": test.names[x["item"]], "qty": x["qty"], "buy": round(x["buy"]),
+                                        "sell": x["sell"], "profit": round(x["profit"]), "hold_h": round(x["hold"], 1),
+                                        "reason": x["reason"]} for x in sorted(sim.trips, key=lambda x: x["profit"])[:5]]
+                res["top3_share_of_profit"] = round(float(np.sort(prof)[-3:].sum() / prof.sum()), 2) if prof.sum() > 0 else None
+                eq = np.array(sim.equity)
+                res["drawdown_at_day"] = round(float(np.argmax(np.maximum.accumulate(eq) - eq)) / bars_day, 1)
+            row[r["strategy"]] = res
         folds.append(row)
         day = time.strftime("%Y-%m-%d", time.gmtime(row["from"]))
         print(f"fold {day}: " + "  ".join(f"{k}={v['profit_per_day']:+,}/d" for k, v in row.items() if isinstance(v, dict))
@@ -76,7 +100,7 @@ def main():
         start += a.every_days * bars_day
 
     summary = {}
-    for k in ("baseline_top_margin", "baseline_v0_1", "model"):
+    for k in ([k for k in folds[0] if isinstance(folds[0][k], dict)] if folds else []):
         ppd = np.array([f[k]["profit_per_day"] for f in folds])
         summary[k] = {"mean_profit_per_day": int(ppd.mean()) if len(ppd) else None,
                       "median_profit_per_day": int(np.median(ppd)) if len(ppd) else None,
