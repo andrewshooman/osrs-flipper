@@ -1,0 +1,46 @@
+name: paper-trading bot
+
+# One bot step every ~10 minutes: fill the bot's mock offers against the
+# newest real 5-minute GE trades and, once per hour, let the model decide.
+# State lives on the `live` branch (force-pushed single commit).
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: paper-trading-bot
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  step:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: live
+          path: live
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: research/requirements.txt
+      - run: pip install -r research/requirements.txt
+      - name: Bot step
+        env:
+          OSF_DATA: ${{ github.workspace }}/live/data
+        run: python research/live.py --once --model live/data/model
+      - name: Publish state
+        working-directory: live
+        run: |
+          cp data/live/state.json state.json
+          git config user.name "osrs-flipper-bot"
+          git config user.email "osrs-flipper-bot@users.noreply.github.com"
+          git add -A
+          git commit -q --amend -m "Bot state" || exit 0
+          git push -q -f origin live
