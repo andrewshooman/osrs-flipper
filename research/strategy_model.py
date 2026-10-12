@@ -32,6 +32,13 @@ class ModelStrategy(Base):
     min_daily_volume = 0          # skip items trading less than this per day (both sides)
     max_item_frac = None          # cap per item (fraction of deployable); None = Config default
     fast_cut = False              # cut as soon as the median forecast says it falls further
+    # Pump-and-dump guard: skip items whose price just spiked or whose margin is
+    # implausibly wide — the pattern behind the biggest historical losses.
+    guard = False
+    guard_max_margin = 0.15       # net margin / bid
+    guard_max_ret_24h = 0.25      # log return over 24h
+    guard_max_z_168h = 3.0
+    guard_min_active = 0.5        # share of the last 24h with trades on both sides
 
     def __init__(self, model, F, name=None, **kw):
         self.m, self.F = model, F
@@ -104,6 +111,12 @@ class ModelStrategy(Base):
         P, F = self.P, self.F
         cand = (np.isfinite(P.ah[t]) & np.isfinite(P.al[t]) & (F["net_margin_rel"][t] > 0)
                 & (F["log_vol_buy_6h"][t] > math.log1p(2)) & (F["log_vol_sell_6h"][t] > math.log1p(2)))
+        if self.guard:
+            with np.errstate(invalid="ignore"):
+                cand &= ~(F["net_margin_rel"][t] > self.guard_max_margin)
+                cand &= ~(F["ret_24h"][t] > self.guard_max_ret_24h)
+                cand &= ~(F["z_168h"][t] > self.guard_max_z_168h)
+                cand &= F["active_24h"][t] >= self.guard_min_active
         if self.min_daily_volume:
             per_day = np.expm1(F["log_vol_buy_24h"][t]) * 24 + np.expm1(F["log_vol_sell_24h"][t]) * 24
             cand &= per_day >= self.min_daily_volume

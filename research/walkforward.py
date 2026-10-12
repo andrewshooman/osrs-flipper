@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 
 from backtest import STRATEGIES, Config, Sim
-from features import features, flip_labels, forward_returns
+from features import features_chunked, labels_chunked
 from panel import load_panel, synthetic_panel
 from strategy_model import ModelStrategy
 from train import candidate_mask, fit
@@ -23,13 +23,16 @@ from train import candidate_mask, fit
 ROOT = Path(__file__).resolve().parent
 
 # Strategy variants evaluated side by side on the same folds with the same trained model.
+LOWRISK = {"kelly_frac": 0.15, "max_item_frac": 0.15, "min_exp_ret": 0.005}
 VARIANTS = {
     "model": {},
-    "model_lowrisk": {"kelly_frac": 0.15, "max_item_frac": 0.15, "min_exp_ret": 0.005},
-    "model_liquid": {"min_daily_volume": 20_000},
-    "model_fastcut": {"fast_cut": True},
+    "model_lowrisk": LOWRISK,
+    "model_lowrisk_guard": {**LOWRISK, "guard": True},
+    "model_lowrisk_guard_patient": {**LOWRISK, "guard": True, "buy_wait_h": 6.0},
     "model_patient": {"buy_wait_h": 6.0},
 }
+# Variants also run at a cautious 5% share of real volume.
+AT_5PCT = ["model", "model_lowrisk", "model_lowrisk_guard"]
 
 
 def main():
@@ -56,9 +59,8 @@ def main():
         P = panel_from_df(df, "1h", min_trade_frac=a.min_trade_frac)
     bars_day = int(86400 // P.step)
     print(f"panel {P.T} bars x {P.N} items", flush=True)
-    F = features(P)
-    Y = flip_labels(P)
-    Q = forward_returns(P)
+    F = features_chunked(P)
+    Y, Q = labels_chunked(P)
     names = sorted(F)
     mask = candidate_mask(P, F)
     embargo = int((2 + 24) * 3600 // P.step) + 1
@@ -70,15 +72,22 @@ def main():
         end = start + a.test_days * bars_day
         tm = mask.copy()
         tm[start - embargo:] = False
-        model = fit(F, Y, Q, tm, names, rounds=a.rounds)
+        # Trained fold models are cached: variant re-runs only re-simulate.
+        cache = ROOT / "models" / "wf-cache" / f"{a.min_trade_frac}-{a.rounds}-{int(P.ts[start])}"
+        if (cache / "meta.json").exists():
+            from train import FlipModel
+            model = FlipModel.load(cache)
+        else:
+            model = fit(F, Y, Q, tm, names, rounds=a.rounds)
+            model.save(cache)
         warm = start - 8 * bars_day
         test = P.slice(warm, end)
         Ft = {k: v[warm:end] for k, v in F.items()}
         row = {"from": int(P.ts[start]), "to": int(P.ts[end - 1])}
         runs = [(STRATEGIES["top_margin"](), a.share), (STRATEGIES["v0_1"](), a.share)]
         runs += [(ModelStrategy(model, Ft, name=vname, **kw), a.share) for vname, kw in VARIANTS.items()]
-        # The base model again at a cautious 5% fill share: does the edge survive?
-        runs.append((ModelStrategy(model, Ft, name="model@5%"), 0.05))
+        # Cautious 5% fill share: does the edge survive?
+        runs += [(ModelStrategy(model, Ft, name=f"{v}@5%", **VARIANTS[v]), 0.05) for v in AT_5PCT]
         for S, share in runs:
             sim = Sim(test, Config(share=share), S)
             r = sim.run(start=start - warm)

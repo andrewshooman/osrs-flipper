@@ -14,3 +14,4 @@ node_modules/
 research/__pycache__/
 *.parquet
 research/models/
+research/models/wf-cache/
