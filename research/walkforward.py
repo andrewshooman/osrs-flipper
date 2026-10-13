@@ -51,13 +51,17 @@ ROUNDS = {
         "prod_hourly": PROD,
         "prod_checkin3_cap10": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
     }, ["prod_hourly", "prod_checkin3_cap10"]),
-    # Round 5: free a slot for sells by cancelling the least-filled buy offer.
+    # Round 5: free a slot for sells by cancelling the least-filled buy offer;
+    # also try listing above market when the forecast is rising.
     "r5": ({
         "prod_hourly": PROD,
         "prod_hourly_sellprio": {**PROD, "sell_priority": True},
         "prod_checkin3_cap10": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
         "prod_checkin3_cap10_sellprio": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10,
                                          "sell_priority": True},
+        "prod_hourly_sellprio_uplift": {**PROD, "sell_priority": True, "sell_uplift": True},
+        "prod_checkin3_cap10_sellprio_uplift": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10,
+                                                "sell_priority": True, "sell_uplift": True},
     }, ["prod_hourly_sellprio", "prod_checkin3_cap10_sellprio"]),
 }
 

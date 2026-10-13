@@ -59,6 +59,9 @@ class ModelStrategy(Base):
     # When all 8 slots are taken, cancel the least-filled buy offer so a holding
     # can be listed (otherwise profitable items sit unsold behind dead offers).
     sell_priority = False
+    # List profitable holdings above market by the median 4h forecast (capped at 3%)
+    # instead of at instant-buy - 1; aimed at check-in play where sells sit for hours.
+    sell_uplift = False
 
     def __init__(self, model, F, name=None, **kw):
         self.m, self.F = model, F
@@ -123,6 +126,8 @@ class ModelStrategy(Base):
                 target = ask                # forecast falling: take the profit at market now
             else:
                 target = max(ask, min(be * 1.0, ask * math.exp(max(q50, 0))))
+                if self.sell_uplift:        # forecast rising: ask for some of the rise (max 3%)
+                    target = ask * math.exp(min(max(q50, 0.0), 0.03))
             target = round(target)
             if listed:
                 o = listed[0]
