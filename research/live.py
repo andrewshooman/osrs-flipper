@@ -198,8 +198,12 @@ def main():
     while True:
         try:
             bot.step()
-        except Exception as e:  # keep running through transient API errors
+        except (OSError, json.JSONDecodeError) as e:  # network trouble (URLError, timeouts): next run catches up
             print(f"step failed: {e!r}", flush=True)
+        except Exception as e:
+            print(f"step failed: {e!r}", flush=True)
+            if a.once:
+                raise  # a bug, not the network: fail the scheduled run so it shows up red
         if a.once:
             break
         time.sleep(60)

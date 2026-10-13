@@ -29,20 +29,17 @@ Record results in HANDOFF.md.
 - 0.4.1: fixes from a code review for in-game behaviour (no Leagues/DMM/beta trades
   in the history, safe trade-file loading, slots re-read when turned on, noted items,
   setup price, a responsive panel, the `fp` search alongside the core GE plugin).
+- Re-pricing stale buys instead of cancelling them: tested in the 5-minute replay
+  (r13), no gain (worse at a 5% share), so not shipped. See HANDOFF.md.
 
 ## Queue
-1. **Re-pricing instead of only cancelling (research first).** In the 5-minute replay
-   (`research/hybrid.py`), test: if a buy hasn't filled after N minutes and the live
-   instant-sell has moved above our bid, raise it to instant-sell + 1, as long as the
-   model's expected return still clears the minimum. Compare with cancel-after-6h. Ship
-   it as a MODIFY next action only if it wins.
-2. **Opportunity alerts (research first).** Use the 5-minute data to find sharp drops on
+1. **Opportunity alerts (research first).** Use the 5-minute data to find sharp drops on
    liquid items that revert within hours. Backtest it. Ship as an optional alert only
    if it's profitable after tax in the replay.
-3. **Weekly retrain.** Run `research/retrain.py`, export the model to
+2. **Weekly retrain.** Run `research/retrain.py`, export the model to
    `models/flip-model.js` and the plugin's `flip-model.json`, regenerate the parity
    fixtures, and release.
-4. **Keep iterating** on whatever the user reports from in-game testing. The GE
+3. **Keep iterating** on whatever the user reports from in-game testing. The GE
    highlights, slot timers, tooltips, the menu option and the GP drop haven't been checked in-game
    yet, so those reports come first.
 

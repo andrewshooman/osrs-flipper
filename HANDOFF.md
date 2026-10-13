@@ -1,6 +1,6 @@
 # Handoff: where the project stands and what comes next
 
-*Last updated: 2026-10-13, evening UTC.*
+*Last updated: 2026-10-13, 22:45 UTC.*
 
 **Goal:** use the GE tool to make the user coins by **flipping**: buying and
 selling on the GE only. Decanting, processing and alching are money-making
@@ -61,7 +61,11 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   121 closed trades).
   - **Since 2026-10-13 ~08:40 UTC it runs on GitHub Actions** (`.github/workflows/bot.yml`).
     It has a 10-minute schedule, which GitHub started firing at 18:14 UTC on
-    10-13 (before that, runs were dispatched by hand). The bot
+    10-13 (before that, runs were dispatched by hand).
+  - **Stalled 17:53–22:45 UTC on 10-13:** round 12 added click counters to `Sim`, and
+    the bot's saved state predated them, so every order failed while the runs showed
+    green (#38). Since then, a run that hits anything other than a network error fails
+    visibly (red). The bot
     loses nothing between runs, but its hourly decisions only happen when a run
     does. The cloud session's container is shut down a few minutes
     after the session goes idle, which stopped the local loop (03:54–04:53 and
@@ -120,6 +124,22 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   here, +10% over the year). It's kept on for lower risk: more winning days and
   a smaller drawdown at the bot's 10% share, and a worst year fold of +60k
   instead of +14k. The live bot's results will settle it.
+
+  **Re-pricing stale buys (r13 replay, 2026-10-13): no.** At each check-in, an open
+  buy older than N hours, under 50% filled, whose item the model still wants, was
+  re-placed at the model's current price instead of waiting for the 6h cancel.
+
+  | `checkin` variant | 10% share | 5% share |
+  |---|---|---|
+  | cancel after 6h (current) | +78.9k/day, 43/60 days, DD 307k | +53.0k/day, 48/60 days, DD 150k |
+  | re-price up (N = 1–3h, identical) | +77.2k/day, 44/60 days, DD 278k | +48.4k/day, 43/60 days, DD 140k |
+  | re-price up or down (N = 1h) | +79.0k/day, 43/60 days, DD 278k | +45.2k/day, 43/60 days, DD 140k |
+
+  - Re-pricing fires only 0.5–0.9 times a day and saves no clicks.
+  - At 10% it's within noise; at 5% it loses 9–15%.
+  - So the plugin keeps "cancel after 6h" and gets no "modify offer" action.
+  - The baseline is lower than the earlier +83k because it now includes the 10k minimum per order.
+  - The experiment code was not merged.
 
 ## Running things on the cloud machine
 - **The bot is not run here any more** (see above: GitHub Actions). Never run
