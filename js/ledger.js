@@ -223,6 +223,35 @@
     }
     return out.sort((a, b) => a.ts - b.ts);
   }
+  // ---- RuneLite: the GE Flipper plugin's trade file ---------------------------
+  // <data folder>/<account>.json holds the plugin's ledger in this app's shape:
+  // trades (fills, each with offerId) and offers (status open/done/cancelled).
+  // Each finished offer becomes one imported offer at its average fill price,
+  // so it lines up with an offer logged here and offers still running wait.
+  function fromGeFlipperPlugin(data) {
+    const lg = data && data.ledger;
+    if (!data || data.app !== "ge-flipper-plugin" || !lg || !Array.isArray(lg.trades) || !Array.isArray(lg.offers))
+      throw new Error("Not a GE Flipper plugin trade file");
+    const fills = new Map();
+    const out = [];
+    for (const t of lg.trades) {
+      const qty = Number(t.qty), price = Number(t.price), ts = Number(t.ts), itemId = Number(t.itemId);
+      if (!(qty > 0) || !(price > 0) || !isFinite(ts) || !(itemId > 0) || (t.side !== "buy" && t.side !== "sell")) continue;
+      if (!t.offerId) { out.push({ itemId, side: t.side, qty, price, ts, key: "gfp:t:" + t.id }); continue; }
+      const f = fills.get(t.offerId) || { qty: 0, gp: 0, ts: 0 };
+      f.qty += qty; f.gp += qty * price; f.ts = Math.max(f.ts, ts);
+      fills.set(t.offerId, f);
+    }
+    for (const o of lg.offers) {
+      const f = fills.get(o.id);
+      if (o.status === "open" || !f || !(f.qty > 0)) continue;
+      out.push({ itemId: Number(o.itemId), side: o.side, qty: f.qty, price: f.gp / f.qty, ts: Number(o.closedAt) || f.ts, key: "gfp:" + o.id });
+    }
+    return out.sort((a, b) => a.ts - b.ts);
+  }
+  /** Either RuneLite file: the GE Flipper plugin's or Flipping Utilities'. */
+  const fromRuneLite = (data) => (data && data.app === "ge-flipper-plugin" ? fromGeFlipperPlugin(data) : fromFlippingUtilities(data));
+
   /**
    * Adds imported offers to the ledger. Each fills the matching open offer you logged
    * (same item and side, placed before it finished) and closes it, since the in-game
@@ -254,6 +283,6 @@
   OSF.ledger = {
     emptyLedger, positions, buyLimitUsage, remainingLimit, openOffers, capital,
     addTrade, removeTrade, placeOffer, fillOffer, cancelOffer, stats, toCSV, fromCSV, dayKey,
-    fromFlippingUtilities, importOffers,
+    fromFlippingUtilities, fromGeFlipperPlugin, fromRuneLite, importOffers,
   };
 })(window.OSF = window.OSF || {});

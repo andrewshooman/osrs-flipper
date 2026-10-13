@@ -307,6 +307,33 @@ function series(n, stepSec, fn, now = Date.now()) {
     let bad = false; try { L.fromFlippingUtilities({ foo: 1 }); } catch (e) { bad = true; }
     ok(bad, "rejects files that aren't Flipping Utilities saves");
 
+    // RuneLite import: the GE Flipper plugin's own trade file (same ledger shape as this app).
+    const T0 = Date.parse("2026-10-13T10:00:00Z");
+    const plug = { app: "ge-flipper-plugin", version: 1, ledger: {
+      offers: [
+        { id: "p1", itemId: 2, side: "buy", qty: 1000, price: 161, placedAt: T0, filled: 1000, status: "done", closedAt: T0 + 2 * H, slot: 0 },
+        { id: "p2", itemId: 2, side: "sell", qty: 1000, price: 172, placedAt: T0 + 2 * H, filled: 400, status: "open", slot: 0 },
+        { id: "p3", itemId: 561, side: "buy", qty: 50, price: 180, placedAt: T0, filled: 0, status: "cancelled", closedAt: T0 + H, slot: 1 } ],
+      trades: [
+        { id: "t1", itemId: 2, side: "buy", qty: 400, price: 160, ts: T0 + H, offerId: "p1" },
+        { id: "t2", itemId: 2, side: "buy", qty: 600, price: 161, ts: T0 + 2 * H, offerId: "p1" },
+        { id: "t3", itemId: 2, side: "sell", qty: 400, price: 172, ts: T0 + 3 * H, offerId: "p2" } ] } };
+    const pl = L.fromRuneLite(plug);
+    eq(pl.length, 1, "plugin file: only finished offers with fills (running sell waits, empty cancel skipped)");
+    eq(pl[0].qty, 1000, "fills of one offer are combined");
+    eq(pl[0].price, (400 * 160 + 600 * 161) / 1000, "at their average price");
+    eq(pl[0].ts, T0 + 2 * H, "dated when the offer finished");
+    const pg = L.emptyLedger();
+    const mine = L.placeOffer(pg, { itemId: 2, side: "buy", qty: 1000, price: 161, placedAt: T0 - 60e3 });
+    eq(L.importOffers(pg, pl).matched, 1, "plugin offer fills the offer logged here");
+    eq(mine.status, "done", "and closes it");
+    plug.ledger.offers[1].status = "done"; plug.ledger.offers[1].closedAt = T0 + 3 * H;
+    const r2 = L.importOffers(pg, L.fromRuneLite(plug));
+    eq(r2.added, 1, "the sell comes in once it's finished"); eq(r2.skipped, 1, "the buy isn't imported twice");
+    eq(L.fromRuneLite(fu).length, 3, "fromRuneLite still reads Flipping Utilities files");
+    let badPlug = false; try { L.fromGeFlipperPlugin({ app: "other" }); } catch (e) { badPlug = true; }
+    ok(badPlug, "rejects files that aren't plugin trade files");
+
     // 7 GE slots by default (one left for your own trades); old saved defaults move once.
     eq(OSF.store.fresh().settings.slots, 7, "fresh settings use 7 slots");
     eq(OSF.store.normalise({ settings: { slots: 8 } }).settings.slots, 7, "old 8-slot default moves to 7");
