@@ -82,5 +82,74 @@
     return applied;
   }
 
-  OSF.engine = { recommend, syncPractice, history, activeLedger, bankrollFor, capitalFor };
+  // ---------------------------------------------------------------- validated model (production)
+  const tax1 = (p) => Math.min(Math.floor(p * 0.02), 5e6);
+  const midOf = (d) => (d && d.avgHighPrice > 0 && d.avgLowPrice > 0 ? (d.avgHighPrice + d.avgLowPrice) / 2 : NaN);
+
+  /** Median h-hour return across liquid items, from whole-market /1h snapshots. */
+  function marketReturns(now, prev1, prev24, day) {
+    const liquid = Object.keys(now).filter((id) => day && day[id] && (day[id].lowPriceVolume || 0) / 24 > 5);
+    const med = (prev) => {
+      const r = liquid.map((id) => Math.log(midOf(now[id])) - Math.log(midOf(prev[id]))).filter(Number.isFinite).sort((a, b) => a - b);
+      return r.length ? r[r.length >> 1] : 0;
+    };
+    return { mkt_ret_1h: med(prev1), mkt_ret_24h: med(prev24) };
+  }
+
+  /** Features + model predictions for one item at the latest completed hour. */
+  async function scoreItem(id, item, barTs, ctx) {
+    const pts = await A.timeseries(id, "1h");
+    const s = OSF.features.denseSeries(pts, barTs);
+    const f = OSF.features.itemFeatures(s, item, ctx);
+    const last = s.ah.length - 1;
+    const bar = { ah: s.ah[last], al: s.al[last], hv: s.hv[last], lv: s.lv[last] };
+    return { f, bar, pred: OSF.gbm.predict(window.OSF_MODEL, f) };
+  }
+
+  /**
+   * "Do this now": buy orders for free slots + an action for every holding,
+   * from the validated model. Needs models/flip-model.js loaded.
+   */
+  async function doThisNow(state, { onProgress = () => {}, candidates = 150 } = {}) {
+    if (!window.OSF_MODEL) throw new Error("Model file not loaded (models/flip-model.js)");
+    const ledger = activeLedger(state);
+    const barTs = Math.floor(Date.now() / 1000 / 3600) * 3600 - 3600; // latest completed hour
+    onProgress("Fetching market snapshots…");
+    const [items, now, prev1, prev24, day] = await Promise.all([
+      A.mapping(), A.snapshot("1h", barTs), A.snapshot("1h", barTs - 3600), A.snapshot("1h", barTs - 86400), A.avg24h(),
+    ]);
+    const ctx = marketReturns(now, prev1, prev24, day);
+    const cap = capitalFor(state);
+    const s = state.settings;
+    // Shortlist: both sides traded last hour, members setting, positive post-tax margin, decent volume.
+    const short = Object.entries(now).map(([k, d]) => ({ id: +k, d, item: items.get(+k) }))
+      .filter(({ d, item }) => item && (s.members || !item.members) && !(s.excludedIds || []).includes(item.id)
+        && d.avgHighPrice > 0 && d.avgLowPrice > 0 && d.highPriceVolume > 2 && d.lowPriceVolume > 2
+        && d.avgHighPrice - 1 - tax1(d.avgHighPrice - 1) - (d.avgLowPrice + 1) > 0)
+      .map((x) => ({ ...x, edge: Math.min(x.d.highPriceVolume, x.d.lowPriceVolume) * (x.d.avgHighPrice - 1 - tax1(x.d.avgHighPrice - 1) - x.d.avgLowPrice - 1) }))
+      .sort((a, b) => b.edge - a.edge) // tradeable gp of margin per hour
+      .slice(0, candidates);
+    const { holdings } = L.positions(ledger.trades);
+    const ids = [...new Set([...short.map((x) => x.id), ...holdings.keys()])];
+    let done = 0;
+    const scored = new Map(await Promise.all(ids.map(async (id) => {
+      const r = await scoreItem(id, items.get(id) || {}, barTs, ctx).catch(() => null);
+      onProgress(`Running the model… ${++done}/${ids.length}`);
+      return [id, r];
+    })));
+    const busy = new Set(L.openOffers(ledger).map((o) => o.itemId));
+    const buyItems = short.filter((x) => !busy.has(x.id) && !holdings.has(x.id) && scored.get(x.id))
+      .map((x) => ({ id: x.id, name: x.item.name, limitLeft: L.remainingLimit(ledger, x.id, x.item.limit), ...scored.get(x.id) }));
+    const plan = OSF.decide.buyPlan(buyItems, cap, ctx.mkt_ret_24h);
+    const holds = [...holdings.values()].map((h) => {
+      const sc = scored.get(h.itemId);
+      const heldHours = (Date.now() - h.oldestTs) / 36e5;
+      const act = sc ? OSF.decide.holdingAction({ qty: h.qty, avgCost: h.avgCost, heldHours }, sc.bar, sc.pred, h.itemId)
+        : { action: "wait", label: "No model data", tone: "muted" };
+      return { ...h, heldHours, name: (items.get(h.itemId) || {}).name, act };
+    });
+    return { barTs, ctx, cap, plan, holds, at: Date.now() };
+  }
+
+  OSF.engine = { recommend, syncPractice, history, activeLedger, bankrollFor, capitalFor, doThisNow, marketReturns };
 })(window.OSF = window.OSF || {});
