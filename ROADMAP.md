@@ -33,9 +33,14 @@ Record results in HANDOFF.md.
   (r13), no gain (worse at a 5% share), so not shipped. See HANDOFF.md.
 
 ## Queue
-1. **Opportunity alerts (research first).** Use the 5-minute data to find sharp drops on
-   liquid items that revert within hours. Backtest it. Ship as an optional alert only
-   if it's profitable after tax in the replay.
+1. **Dip alerts in the plugin (opt-in).** The research passed (HANDOFF: +56k/day out of
+   sample, 2 slots, 2M per trade; random-timing control −28k).
+   - Poll the wiki's `/5m` every 5 minutes while logged in, using `/24h` as the reference.
+   - Alert when an item's instant-sell price is at least 8% under its 24h average on
+     at least twice its usual volume.
+   - Suggest: buy at the dip price, sell at 1% under the 24h average buy price, sell
+     anyway after 6h.
+   - One alert per item per 6h. Notification, chat line and a panel list. Off by default.
 2. **Weekly retrain.** Run `research/retrain.py`, export the model to
    `models/flip-model.js` and the plugin's `flip-model.json`, regenerate the parity
    fixtures, and release.

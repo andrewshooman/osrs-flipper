@@ -141,6 +141,28 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   - The baseline is lower than the earlier +83k because it now includes the 10k minimum per order.
   - The experiment code was not merged.
 
+  **Dip alerts (`research/dips.py`, 2026-10-13): yes, as an opt-in alert.**
+  - **Signal:** on 413 liquid items, a 5-minute instant-sell price at least 8% below
+    its 24h volume-weighted average, on at least twice the usual volume.
+  - **Trade:** buy at the dip price once the alert is acted on (about 10 minutes
+    later), sell at 1% under the 24h average instant-buy price, and dump whatever is
+    left after 6h. Real 5-minute fills, after tax.
+  - **Result:** tuned on the first 30 days; on the last 31, never used for tuning:
+
+    | variant | profit/day | win rate |
+    |---|---|---|
+    | dip alerts, 10% share | **+55.9k** | 70% |
+    | dip alerts, 5% share | +33.5k | |
+    | same trades at random moments (control) | −28.1k | |
+
+    Only 2 slots and 2M per trade are used. 4 of 5 test weeks were positive, and it
+    stays positive without the 3 best trades.
+  - **Catches:**
+    - Acting within 20 minutes keeps most of the gain; at 30 minutes it fades.
+    - Single trades can lose 0.5M.
+    - It only pays while the player is online to act.
+  - **Reports:** `reports/dips-5m*.json`, `reports/dips-5m-checks.txt`.
+
 ## Running things on the cloud machine
 - **The bot is not run here any more** (see above: GitHub Actions). Never run
   `bot_loop.sh` against the `live` branch while the Actions schedule is on, because

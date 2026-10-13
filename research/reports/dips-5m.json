@@ -1,0 +1,333 @@
+{
+ "liquid_items": 413,
+ "days_tune": 29.0,
+ "days_test": 30.84027777777778,
+ "base": {
+  "share": 0.1,
+  "cap": 2000000,
+  "slots": 2
+ },
+ "best_params": {
+  "drop": 0.12,
+  "vol_x": 1.0,
+  "margin": 0.0,
+  "hold_h": 6,
+  "fill_min": 60
+ },
+ "tune": {
+  "trades": 169,
+  "trades_per_day": 5.83,
+  "per_day": 84118,
+  "per_trade": 14434,
+  "win_rate": 0.82,
+  "dumped_share": 0.44,
+  "worst": -301986,
+  "best": 198000
+ },
+ "test": {
+  "trades": 144,
+  "trades_per_day": 4.67,
+  "per_day": 49492,
+  "per_trade": 10600,
+  "win_rate": 0.81,
+  "dumped_share": 0.56,
+  "worst": -520852,
+  "best": 195053
+ },
+ "control_test": {
+  "trades": 282,
+  "trades_per_day": 9.14,
+  "per_day": -29159,
+  "per_trade": -3189,
+  "win_rate": 0.67,
+  "dumped_share": 0.37,
+  "worst": -123172,
+  "best": 100000
+ },
+ "top10_tune": [
+  {
+   "drop": 0.12,
+   "vol_x": 1.0,
+   "margin": 0.0,
+   "hold_h": 6,
+   "fill_min": 60,
+   "tune": {
+    "trades": 169,
+    "trades_per_day": 5.83,
+    "per_day": 84118,
+    "per_trade": 14434,
+    "win_rate": 0.82,
+    "dumped_share": 0.44,
+    "worst": -301986,
+    "best": 198000
+   }
+  },
+  {
+   "drop": 0.12,
+   "vol_x": 1.0,
+   "margin": 0.01,
+   "hold_h": 6,
+   "fill_min": 60,
+   "tune": {
+    "trades": 179,
+    "trades_per_day": 6.17,
+    "per_day": 83135,
+    "per_trade": 13469,
+    "win_rate": 0.83,
+    "dumped_share": 0.35,
+    "worst": -301986,
+    "best": 228540
+   }
+  },
+  {
+   "drop": 0.12,
+   "vol_x": 1.0,
+   "margin": 0.0,
+   "hold_h": 24,
+   "fill_min": 60,
+   "tune": {
+    "trades": 101,
+    "trades_per_day": 3.48,
+    "per_day": 80023,
+    "per_trade": 22977,
+    "win_rate": 0.87,
+    "dumped_share": 0.26,
+    "worst": -121994,
+    "best": 247000
+   }
+  },
+  {
+   "drop": 0.12,
+   "vol_x": 2.0,
+   "margin": 0.01,
+   "hold_h": 6,
+   "fill_min": 60,
+   "tune": {
+    "trades": 175,
+    "trades_per_day": 6.03,
+    "per_day": 75178,
+    "per_trade": 12458,
+    "win_rate": 0.81,
+    "dumped_share": 0.37,
+    "worst": -301986,
+    "best": 183810
+   }
+  },
+  {
+   "drop": 0.12,
+   "vol_x": 2.0,
+   "margin": 0.0,
+   "hold_h": 6,
+   "fill_min": 60,
+   "tune": {
+    "trades": 168,
+    "trades_per_day": 5.79,
+    "per_day": 67929,
+    "per_trade": 11726,
+    "win_rate": 0.79,
+    "dumped_share": 0.45,
+    "worst": -301986,
+    "best": 198000
+   }
+  },
+  {
+   "drop": 0.12,
+   "vol_x": 1.0,
+   "margin": 0.01,
+   "hold_h": 24,
+   "fill_min": 60,
+   "tune": {
+    "trades": 105,
+    "trades_per_day": 3.62,
+    "per_day": 64808,
+    "per_trade": 17899,
+    "win_rate": 0.88,
+    "dumped_share": 0.27,
+    "worst": -143989,
+    "best": 228540
+   }
+  },
+  {
+   "drop": 0.12,
+   "vol_x": 2.0,
+   "margin": 0.0,
+   "hold_h": 24,
+   "fill_min": 60,
+   "tune": {
+    "trades": 96,
+    "trades_per_day": 3.31,
+    "per_day": 57685,
+    "per_trade": 17426,
+    "win_rate": 0.83,
+    "dumped_share": 0.32,
+    "worst": -121994,
+    "best": 198000
+   }
+  },
+  {
+   "drop": 0.12,
+   "vol_x": 2.0,
+   "margin": 0.01,
+   "hold_h": 24,
+   "fill_min": 60,
+   "tune": {
+    "trades": 97,
+    "trades_per_day": 3.34,
+    "per_day": 48575,
+    "per_trade": 14522,
+    "win_rate": 0.85,
+    "dumped_share": 0.31,
+    "worst": -143989,
+    "best": 183810
+   }
+  },
+  {
+   "drop": 0.12,
+   "vol_x": 1.0,
+   "margin": 0.01,
+   "hold_h": 2,
+   "fill_min": 60,
+   "tune": {
+    "trades": 229,
+    "trades_per_day": 7.9,
+    "per_day": 45659,
+    "per_trade": 5782,
+    "win_rate": 0.73,
+    "dumped_share": 0.54,
+    "worst": -308104,
+    "best": 228540
+   }
+  },
+  {
+   "drop": 0.08,
+   "vol_x": 1.0,
+   "margin": 0.01,
+   "hold_h": 24,
+   "fill_min": 60,
+   "tune": {
+    "trades": 126,
+    "trades_per_day": 4.34,
+    "per_day": 45429,
+    "per_trade": 10456,
+    "win_rate": 0.82,
+    "dumped_share": 0.24,
+    "worst": -303117,
+    "best": 214852
+   }
+  }
+ ],
+ "test_worst": [
+  {
+   "t": 14824,
+   "item": 24187,
+   "name": "Trouver parchment",
+   "qty": 8,
+   "buy": 244066.0,
+   "target": 297405,
+   "profit": -520852,
+   "dumped": 8,
+   "end": 14905
+  },
+  {
+   "t": 16912,
+   "item": 7418,
+   "name": "Mole skin",
+   "qty": 50,
+   "buy": 4013.0,
+   "target": 5399,
+   "profit": -133542,
+   "dumped": 50,
+   "end": 16997
+  },
+  {
+   "t": 14905,
+   "item": 24187,
+   "name": "Trouver parchment",
+   "qty": 4,
+   "buy": 184456.0,
+   "target": 282606,
+   "profit": -122253,
+   "dumped": 4,
+   "end": 14991
+  },
+  {
+   "t": 15249,
+   "item": 22783,
+   "name": "Drake bones",
+   "qty": 218,
+   "buy": 4542.0,
+   "target": 5601,
+   "profit": -77207,
+   "dumped": 218,
+   "end": 15335
+  },
+  {
+   "t": 10794,
+   "item": 1777,
+   "name": "Bow string",
+   "qty": 1718,
+   "buy": 190.0,
+   "target": 227,
+   "profit": -33930,
+   "dumped": 1718,
+   "end": 10880
+  }
+ ],
+ "test_best": [
+  {
+   "t": 10417,
+   "item": 24598,
+   "name": "Blighted super restore(4)",
+   "qty": 783,
+   "buy": 2554.0,
+   "target": 3010,
+   "profit": 195053,
+   "dumped": 783,
+   "end": 10492
+  },
+  {
+   "t": 15606,
+   "item": 383,
+   "name": "Raw shark",
+   "qty": 3584,
+   "buy": 558.0,
+   "target": 674,
+   "profit": 149883,
+   "dumped": 3584,
+   "end": 15691
+  },
+  {
+   "t": 15853,
+   "item": 555,
+   "name": "Water rune",
+   "qty": 50000,
+   "buy": 4.0,
+   "target": 6,
+   "profit": 100000,
+   "dumped": 0,
+   "end": 15886
+  },
+  {
+   "t": 16171,
+   "item": 555,
+   "name": "Water rune",
+   "qty": 50000,
+   "buy": 4.0,
+   "target": 6,
+   "profit": 100000,
+   "dumped": 0,
+   "end": 16200
+  },
+  {
+   "t": 16742,
+   "item": 555,
+   "name": "Water rune",
+   "qty": 50000,
+   "buy": 4.0,
+   "target": 6,
+   "profit": 100000,
+   "dumped": 0,
+   "end": 16758
+  }
+ ]
+}
