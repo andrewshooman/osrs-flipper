@@ -68,7 +68,7 @@ public class TradeStoreTest
 			s.load();
 			fail("expected an error");
 		}
-		catch (IOException e)
+		catch (TradeStore.DamagedException e)
 		{
 			assertTrue(e.getMessage().contains("damaged"));
 		}

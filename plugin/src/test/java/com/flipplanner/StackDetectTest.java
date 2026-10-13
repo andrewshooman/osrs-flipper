@@ -4,6 +4,7 @@ import com.flipplanner.engine.Ledger;
 import com.flipplanner.engine.LedgerData;
 import com.flipplanner.engine.Offer;
 import com.flipplanner.engine.Trade;
+import com.flipplanner.tracking.OfferTracker;
 import net.runelite.api.Item;
 import net.runelite.api.gameval.ItemID;
 import static org.junit.Assert.assertEquals;
@@ -62,5 +63,30 @@ public class StackDetectTest
 		assertEquals("Stack 5.40M (detected: coins 5.00M, in offers 180K, in items 220K).",
 			StackDetect.note(true, 5_000_000L, 11_000_000, parts));
 		assertTrue(StackDetect.note(false, 5_000_000L, 11_000_000, parts).startsWith("Detected stack 5.40M"));
+	}
+
+	private static OfferTracker.SlotState slot(boolean buy, int total, int filled, long price, long spent, boolean closed)
+	{
+		OfferTracker.SlotState s = new OfferTracker.SlotState();
+		s.itemId = 4151;
+		s.buy = buy;
+		s.total = total;
+		s.filled = filled;
+		s.price = price;
+		s.spent = spent;
+		s.closed = closed;
+		return s;
+	}
+
+	@Test
+	public void coinsWaitingInFinishedSlots()
+	{
+		OfferTracker.SlotState[] slots = new OfferTracker.SlotState[OfferTracker.SLOTS];
+		slots[0] = slot(true, 100, 40, 1_000, 39_000, true);    // cancelled buy: 61,000 back
+		slots[1] = slot(false, 10, 10, 2_000_000, 20_000_000, true); // finished sell: 2% tax
+		slots[2] = slot(true, 100, 50, 1_000, 50_000, false);   // still buying: nothing to collect
+		slots[3] = slot(false, 5, 0, 900, 0, true);             // cancelled sell, nothing sold: items only
+		assertEquals(61_000 + 19_600_000, StackDetect.uncollected(slots));
+		assertEquals(0, StackDetect.uncollected(null));
 	}
 }

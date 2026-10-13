@@ -2,6 +2,8 @@ package com.flipplanner;
 
 import com.flipplanner.engine.Fmt;
 import com.flipplanner.engine.Ledger;
+import com.flipplanner.engine.Tax;
+import com.flipplanner.tracking.OfferTracker;
 import net.runelite.api.Item;
 import net.runelite.api.gameval.ItemID;
 
@@ -36,6 +38,36 @@ final class StackDetect
 			else if (i.getId() == ItemID.PLATINUM)
 			{
 				gp += 1000L * i.getQuantity();
+			}
+		}
+		return gp;
+	}
+
+	/**
+	 * Coins waiting in finished GE slots until collected: the refund of a finished or
+	 * cancelled buy, and a finished sell's proceeds after tax. Neither is in the inventory,
+	 * the bank or the ledger's open offers yet.
+	 */
+	static long uncollected(OfferTracker.SlotState[] slots)
+	{
+		long gp = 0;
+		if (slots == null)
+		{
+			return 0;
+		}
+		for (OfferTracker.SlotState s : slots)
+		{
+			if (s == null || !s.closed)
+			{
+				continue;
+			}
+			if (s.buy)
+			{
+				gp += Math.max(0, (long) s.total * s.price - s.spent);
+			}
+			else if (s.filled > 0)
+			{
+				gp += Math.round(s.filled * Tax.netSellPrice((double) s.spent / s.filled, s.itemId));
 			}
 		}
 		return gp;

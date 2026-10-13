@@ -30,6 +30,7 @@ import net.runelite.api.GrandExchangeOffer;
 import net.runelite.api.GrandExchangeOfferState;
 import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
+import net.runelite.api.WorldType;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GrandExchangeOfferChanged;
 import net.runelite.api.events.GrandExchangeSearched;
@@ -38,6 +39,7 @@ import net.runelite.api.events.MenuOpened;
 import net.runelite.api.events.VarClientIntChanged;
 import net.runelite.api.ChatMessageType;
 import net.runelite.client.Notifier;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatColorType;
 import net.runelite.client.chat.ChatMessageBuilder;
 import net.runelite.client.chat.ChatMessageManager;
@@ -95,6 +97,8 @@ public class FlipPlannerPlugin extends Plugin
 	@Inject
 	private Client client;
 	@Inject
+	private ClientThread clientThread;
+	@Inject
 	private ClientToolbar clientToolbar;
 	@Inject
 	private FlipPlannerConfig config;
@@ -125,6 +129,8 @@ public class FlipPlannerPlugin extends Plugin
 
 	private final Object lock = new Object();
 	private ExecutorService worker;
+	/** Price graphs load here, so a click doesn't wait behind a model run on {@link #worker}. */
+	private ExecutorService graphs;
 	private FlipperPanel panel;
 	private NavigationButton nav;
 	private Advisor advisor;
@@ -137,6 +143,8 @@ public class FlipPlannerPlugin extends Plugin
 	private final Set<Integer> skipped = ConcurrentHashMap.newKeySet();
 	private volatile long skippedBar = -1;
 	private volatile long loginAt;
+	/** Set while logging in or hopping, so the next LOGGED_IN marks a real login (not a region load). */
+	private volatile boolean loggingIn = true;
 	private volatile long planNotifiedBar = -1;
 	private volatile long sessionStart;
 	/** Coins and platinum in the inventory; -1 until seen after login. */
@@ -160,6 +168,12 @@ public class FlipPlannerPlugin extends Plugin
 		worker = Executors.newSingleThreadExecutor(r ->
 		{
 			Thread t = new Thread(r, "flip-planner");
+			t.setDaemon(true);
+			return t;
+		});
+		graphs = Executors.newSingleThreadExecutor(r ->
+		{
+			Thread t = new Thread(r, "flip-planner-graphs");
 			t.setDaemon(true);
 			return t;
 		});
@@ -224,16 +238,43 @@ public class FlipPlannerPlugin extends Plugin
 		overlayManager.add(gpDrop);
 		// New hourly prices land a few minutes after the hour; check every 5 minutes.
 		ticker = scheduler.scheduleWithFixedDelay(() -> refresh(false), 5, 300, TimeUnit.SECONDS);
-		if (client.getGameState() == GameState.LOGGED_IN)
+		// Turned on while logged in: RuneLite replays item containers but not GE offers, so read the slots now.
+		clientThread.invokeLater(() ->
 		{
-			loadAccount();
-		}
+			if (client.getGameState() != GameState.LOGGED_IN)
+			{
+				return;
+			}
+			loggingIn = false;
+			loginAt = System.currentTimeMillis();
+			sessionStart = loginAt;
+			advisor.setSessionStart(sessionStart);
+			if (tradeWorld() && loadAccount())
+			{
+				GrandExchangeOffer[] offers = client.getGrandExchangeOffers();
+				for (int i = 0; offers != null && i < offers.length && i < OfferTracker.SLOTS; i++)
+				{
+					if (offers[i] != null)
+					{
+						onOffer(i, offers[i], false);
+					}
+				}
+			}
+		});
 	}
 
 	@Override
 	protected void shutDown()
 	{
 		ticker.cancel(false);
+		if (pendingSave != null)
+		{
+			pendingSave.cancel(false);
+		}
+		if (pendingRefresh != null)
+		{
+			pendingRefresh.cancel(false);
+		}
 		overlayManager.remove(overlay);
 		overlayManager.remove(tooltipOverlay);
 		overlayManager.remove(gpDrop);
@@ -241,6 +282,9 @@ public class FlipPlannerPlugin extends Plugin
 		clientToolbar.removeNavigation(nav);
 		saveNow();
 		worker.shutdown();
+		graphs.shutdown();
+		overlayState = new GeOverlay.State();
+		tips = Collections.emptyMap();
 		synchronized (lock)
 		{
 			account = -1;
@@ -287,11 +331,19 @@ public class FlipPlannerPlugin extends Plugin
 			{
 				d = s.load();
 			}
-			catch (IOException e)
+			catch (TradeStore.DamagedException e)
 			{
-				log.warn("Flip Planner: couldn't read {}", s.file(), e);
+				log.warn("Flip Planner: damaged trade file {}", s.file(), e);
 				advisor.setError(e.getMessage());
 				d = null;
+			}
+			catch (IOException e)
+			{
+				// The file is there but unreadable right now (locked, permissions): never start a new one over it.
+				// Not setting the store means nothing is saved; the next GE or bank event tries again.
+				log.warn("Flip Planner: couldn't read {}", s.file(), e);
+				advisor.setError("Couldn't read your trade file (" + e.getMessage() + "). Trades aren't being saved until it can be read.");
+				return false;
 			}
 			if (d == null)
 			{
@@ -373,10 +425,13 @@ public class FlipPlannerPlugin extends Plugin
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged e)
 	{
-		if (e.getGameState() == GameState.LOGGED_IN)
+		GameState st = e.getGameState();
+		if (st == GameState.LOGGED_IN)
 		{
-			if (loginAt == 0 || client.getTickCount() < 5)
+			if (loggingIn)
 			{
+				// A real login or world hop (not a region load): the client now replays every GE slot.
+				loggingIn = false;
 				loginAt = System.currentTimeMillis();
 			}
 			if (sessionStart == 0)
@@ -384,18 +439,36 @@ public class FlipPlannerPlugin extends Plugin
 				sessionStart = System.currentTimeMillis();
 				advisor.setSessionStart(sessionStart);
 			}
-			loadAccount();
+			if (tradeWorld())
+			{
+				loadAccount();
+			}
 		}
-		else if (e.getGameState() == GameState.LOGIN_SCREEN || e.getGameState() == GameState.HOPPING)
+		else if (st == GameState.LOGIN_SCREEN || st == GameState.LOGGING_IN || st == GameState.HOPPING
+			|| st == GameState.CONNECTION_LOST)
 		{
+			loggingIn = true;
 			loginAt = System.currentTimeMillis();
-			if (e.getGameState() == GameState.LOGIN_SCREEN)
+			if (st == GameState.LOGIN_SCREEN)
 			{
 				sessionStart = 0; // logging back in starts a new session
 				invCoins = -1;
 				advisor.setCash(null);
 			}
 		}
+	}
+
+	/**
+	 * Leagues, Deadman, tournament, Fresh Start, speedrunning and beta worlds have their own
+	 * GE and bank under the same account: their trades must not mix with the main history.
+	 */
+	private boolean tradeWorld()
+	{
+		java.util.EnumSet<WorldType> types = client.getWorldType();
+		return client.getEnvironment() == 0 && (types == null || (!types.contains(WorldType.SEASONAL)
+			&& !types.contains(WorldType.DEADMAN) && !types.contains(WorldType.TOURNAMENT_WORLD)
+			&& !types.contains(WorldType.FRESH_START_WORLD) && !types.contains(WorldType.BETA_WORLD)
+			&& !types.contains(WorldType.QUEST_SPEEDRUNNING) && !types.contains(WorldType.NOSAVE_MODE)));
 	}
 
 	@Subscribe
@@ -406,31 +479,43 @@ public class FlipPlannerPlugin extends Plugin
 		{
 			return; // the client clears the slots when logging out or hopping
 		}
+		if (!tradeWorld())
+		{
+			return;
+		}
+		// The client replays every slot while logging in: only notify about live changes.
+		onOffer(e.getSlot(), o, !loggingIn && System.currentTimeMillis() - loginAt > 8000);
+	}
+
+	/** Tracks one GE slot update. live: notify if it finished (not part of the login replay). Client thread. */
+	private void onOffer(int slot, GrandExchangeOffer o, boolean live)
+	{
 		if (!loadAccount())
 		{
 			return;
 		}
 		long now = System.currentTimeMillis();
 		boolean changed;
+		TradeStore<SaveData> s;
 		synchronized (lock)
 		{
-			changed = tracker.onOffer(e.getSlot(), o.getItemId(), o.getPrice(), o.getTotalQuantity(), o.getQuantitySold(),
+			if (tracker == null)
+			{
+				return; // shut down meanwhile
+			}
+			changed = tracker.onOffer(slot, o.getItemId(), o.getPrice(), o.getTotalQuantity(), o.getQuantitySold(),
 				o.getSpent(), o.getState(), now);
+			s = store;
 		}
 		RawOffer raw = new RawOffer();
 		raw.ts = now;
-		raw.slot = e.getSlot();
+		raw.slot = slot;
 		raw.itemId = o.getItemId();
 		raw.price = o.getPrice();
 		raw.total = o.getTotalQuantity();
 		raw.filled = o.getQuantitySold();
 		raw.spent = o.getSpent();
 		raw.state = o.getState().name();
-		TradeStore<SaveData> s;
-		synchronized (lock)
-		{
-			s = store;
-		}
 		worker.execute(() ->
 		{
 			try
@@ -444,15 +529,13 @@ public class FlipPlannerPlugin extends Plugin
 		});
 		if (changed)
 		{
-			// The client replays every slot right after login: only notify about live changes.
-			boolean live = System.currentTimeMillis() - loginAt > 8000;
 			GrandExchangeOfferState st = o.getState();
 			boolean done = st == GrandExchangeOfferState.BOUGHT || st == GrandExchangeOfferState.SOLD;
 			if (live && done && (config.notifyOffers() || config.chatMessages() || config.gpDrop()))
 			{
 				String name = advisor.names().getOrDefault(o.getItemId(), itemManager.getItemComposition(o.getItemId()).getName());
 				String qty = String.format(java.util.Locale.US, "%,d", o.getQuantitySold());
-				Double profit = st == GrandExchangeOfferState.SOLD ? offerProfit(e.getSlot()) : null;
+				Double profit = st == GrandExchangeOfferState.SOLD ? offerProfit(slot) : null;
 				String tail = st == GrandExchangeOfferState.BOUGHT ? ". Collect it and list it for sale."
 					: profit == null ? "." : String.format(java.util.Locale.US, " for %s%,d gp profit after tax.", profit >= 0 ? "+" : "", Math.round(profit));
 				String text = (st == GrandExchangeOfferState.BOUGHT ? "Bought " : "Sold ") + qty + " " + name + tail;
@@ -477,6 +560,7 @@ public class FlipPlannerPlugin extends Plugin
 			}
 			updateNext();
 			scheduleSave();
+			updateCash(false); // coins waiting in finished slots count towards the stack
 			// Holdings changed: re-plan soon (prices are cached, so this is quick).
 			if (pendingRefresh == null || pendingRefresh.isDone())
 			{
@@ -491,6 +575,10 @@ public class FlipPlannerPlugin extends Plugin
 	{
 		int id = e.getContainerId();
 		if (id != net.runelite.api.gameval.InventoryID.INV && id != net.runelite.api.gameval.InventoryID.BANK)
+		{
+			return;
+		}
+		if (!tradeWorld())
 		{
 			return;
 		}
@@ -522,12 +610,14 @@ public class FlipPlannerPlugin extends Plugin
 	private void updateCash(boolean replan)
 	{
 		Long bank;
+		long waiting;
 		synchronized (lock)
 		{
 			bank = data == null ? null : data.bankCoins;
+			waiting = tracker == null ? 0 : StackDetect.uncollected(tracker.getSlots());
 		}
 		long inv = invCoins;
-		Long cash = inv < 0 || bank == null ? null : inv + bank;
+		Long cash = inv < 0 || bank == null ? null : inv + bank + waiting;
 		if (advisor.setCash(cash) && replan && config.useDetectedStack() && (pendingRefresh == null || pendingRefresh.isDone()))
 		{
 			pendingRefresh = scheduler.schedule(() -> refresh(true), 3, TimeUnit.SECONDS);
@@ -762,10 +852,10 @@ public class FlipPlannerPlugin extends Plugin
 		refresh(true);
 	}
 
-	/** Opens the price graph for an item (history is fetched on the worker thread). */
+	/** Opens the price graph for an item (history is fetched on its own thread). */
 	private void openGraph(java.awt.Component parent, int itemId, String name, Double buy, Double sell)
 	{
-		worker.execute(() ->
+		graphs.execute(() ->
 		{
 			try
 			{
@@ -845,7 +935,8 @@ public class FlipPlannerPlugin extends Plugin
 		shortcuts.onVarClientIntChanged(e);
 	}
 
-	@Subscribe
+	// Before the core GE plugin, whose fuzzy search consumes every non-empty search.
+	@Subscribe(priority = 1)
 	public void onGrandExchangeSearched(GrandExchangeSearched e)
 	{
 		shortcuts.onGrandExchangeSearched(e);
