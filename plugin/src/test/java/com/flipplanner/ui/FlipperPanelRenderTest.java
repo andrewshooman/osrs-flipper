@@ -6,7 +6,7 @@ import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 import org.junit.Test;
 
-/** Paints the side panel off-screen (and saves a PNG when the scratch folder exists). */
+/** Paints the side panel off-screen (and saves a PNG when FLIP_PLANNER_PNG_DIR names a folder). */
 public class FlipperPanelRenderTest
 {
 	private static final FlipperPanel.Actions NOOP = new FlipperPanel.Actions()
@@ -79,8 +79,9 @@ public class FlipperPanelRenderTest
 			layout(p);
 			BufferedImage img = new BufferedImage(242, 900, BufferedImage.TYPE_INT_ARGB);
 			p.paint(img.getGraphics());
-			File dir = new File("/tmp/claude-0/-home-user/a7220198-e673-5182-8401-123678a88185/scratchpad/ui");
-			if (dir.isDirectory())
+			String out = System.getenv("FLIP_PLANNER_PNG_DIR");
+			File dir = out == null ? null : new File(out);
+			if (dir != null && dir.isDirectory())
 			{
 				try
 				{

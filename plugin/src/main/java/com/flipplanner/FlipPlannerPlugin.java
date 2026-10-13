@@ -31,7 +31,12 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GrandExchangeOfferChanged;
 import net.runelite.api.events.GrandExchangeSearched;
 import net.runelite.api.events.VarClientIntChanged;
+import net.runelite.api.ChatMessageType;
 import net.runelite.client.Notifier;
+import net.runelite.client.chat.ChatColorType;
+import net.runelite.client.chat.ChatMessageBuilder;
+import net.runelite.client.chat.ChatMessageManager;
+import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -103,6 +108,8 @@ public class FlipPlannerPlugin extends Plugin
 	private Notifier notifier;
 	@Inject
 	private ConfigManager configManager;
+	@Inject
+	private ChatMessageManager chatMessageManager;
 
 	private final Object lock = new Object();
 	private ExecutorService worker;
@@ -118,6 +125,7 @@ public class FlipPlannerPlugin extends Plugin
 	private volatile long skippedBar = -1;
 	private volatile long loginAt;
 	private volatile long planNotifiedBar = -1;
+	private volatile long sessionStart;
 
 	// Guarded by lock.
 	private long account = -1;
@@ -350,11 +358,20 @@ public class FlipPlannerPlugin extends Plugin
 			{
 				loginAt = System.currentTimeMillis();
 			}
+			if (sessionStart == 0)
+			{
+				sessionStart = System.currentTimeMillis();
+				advisor.setSessionStart(sessionStart);
+			}
 			loadAccount();
 		}
 		else if (e.getGameState() == GameState.LOGIN_SCREEN || e.getGameState() == GameState.HOPPING)
 		{
 			loginAt = System.currentTimeMillis();
+			if (e.getGameState() == GameState.LOGIN_SCREEN)
+			{
+				sessionStart = 0; // logging back in starts a new session
+			}
 		}
 	}
 
@@ -407,12 +424,29 @@ public class FlipPlannerPlugin extends Plugin
 			// The client replays every slot right after login: only notify about live changes.
 			boolean live = System.currentTimeMillis() - loginAt > 8000;
 			GrandExchangeOfferState st = o.getState();
-			if (live && config.notifyOffers() && (st == GrandExchangeOfferState.BOUGHT || st == GrandExchangeOfferState.SOLD))
+			boolean done = st == GrandExchangeOfferState.BOUGHT || st == GrandExchangeOfferState.SOLD;
+			if (live && done && (config.notifyOffers() || config.chatMessages()))
 			{
 				String name = advisor.names().getOrDefault(o.getItemId(), itemManager.getItemComposition(o.getItemId()).getName());
-				notifier.notify("Flip Planner: " + (st == GrandExchangeOfferState.BOUGHT ? "bought " : "sold ")
-					+ String.format(java.util.Locale.US, "%,d", o.getQuantitySold()) + " " + name
-					+ (st == GrandExchangeOfferState.BOUGHT ? ". Collect it and list it for sale." : "."));
+				String qty = String.format(java.util.Locale.US, "%,d", o.getQuantitySold());
+				Double profit = st == GrandExchangeOfferState.SOLD ? offerProfit(e.getSlot()) : null;
+				String tail = st == GrandExchangeOfferState.BOUGHT ? ". Collect it and list it for sale."
+					: profit == null ? "." : String.format(java.util.Locale.US, " for %s%,d gp profit after tax.", profit >= 0 ? "+" : "", Math.round(profit));
+				String text = (st == GrandExchangeOfferState.BOUGHT ? "Bought " : "Sold ") + qty + " " + name + tail;
+				if (config.notifyOffers())
+				{
+					notifier.notify("Flip Planner: " + text);
+				}
+				if (config.chatMessages())
+				{
+					chatMessageManager.queue(QueuedMessage.builder()
+						.type(ChatMessageType.GAMEMESSAGE)
+						.runeLiteFormattedMessage(new ChatMessageBuilder()
+							.append(ChatColorType.HIGHLIGHT).append("Flip Planner: ")
+							.append(ChatColorType.NORMAL).append(text)
+							.build())
+						.build());
+				}
 			}
 			updateNext();
 			scheduleSave();
@@ -512,6 +546,38 @@ public class FlipPlannerPlugin extends Plugin
 			snapshot = gson.fromJson(gson.toJson(data.ledger), LedgerData.class);
 		}
 		worker.execute(() -> advisor.run(snapshot, force));
+	}
+
+	/** Profit after tax of the sell offer that just finished in a slot (FIFO against your buys); null if unknown. */
+	private Double offerProfit(int slot)
+	{
+		synchronized (lock)
+		{
+			if (tracker == null || data == null || tracker.slot(slot) == null)
+			{
+				return null;
+			}
+			String offerId = tracker.slot(slot).offerId;
+			java.util.Set<String> ids = new java.util.HashSet<>();
+			for (Trade t : data.ledger.trades)
+			{
+				if (offerId.equals(t.offerId))
+				{
+					ids.add(t.id);
+				}
+			}
+			double sum = 0;
+			boolean any = false;
+			for (com.flipplanner.engine.Ledger.ClosedTrip c : com.flipplanner.engine.Ledger.positions(data.ledger.trades).closed)
+			{
+				if (ids.contains(c.tradeId))
+				{
+					sum += c.profit;
+					any = true;
+				}
+			}
+			return any ? sum : null;
+		}
 	}
 
 	/** Worker thread, after each model run. */

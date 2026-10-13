@@ -1,6 +1,6 @@
 # Handoff: where the project stands and what comes next
 
-*Last updated: 2026-10-13, 18:00 UTC.*
+*Last updated: 2026-10-13, evening UTC.*
 
 **Goal:** use the GE tool to make the user coins by **flipping**: buying and
 selling on the GE only. Decanting, processing and alching are money-making
@@ -41,6 +41,15 @@ logging. Nothing places offers automatically, because that gets accounts banned.
     - `internalName = flip-planner`, BSD-2 LICENSE, `icon.png`, `build=standard`
   - It runs through `Launcher` with the player's own RuneLite install (`plugin/dist`
     start scripts) until it's on the Plugin Hub.
+  - 0.3.0 added Copilot-style help: one next action at a time (collect, cancel, sell,
+    buy, wait) with Skip and Pause, GE highlights and slot timers, notifications,
+    a Stats tab, 7-day price graphs, sell-only mode and a block list.
+  - 0.3.1: session profit per hour, optional game-chat messages with profit after tax.
+  - **Plugin Hub:** standalone repo `andrewshooman/flip-planner` (a copy of `plugin/`
+    made by `plugin/tools/sync-standalone.py`); the submission is branch `flip-planner`
+    of the user's fork `andrewshooman/plugin-hub`. The user opens the PR to
+    runelite/plugin-hub from that branch; pushing the branch updates it.
+  - **What's next for the plugin: `ROADMAP.md`.**
   - **Not yet checked in-game.**
   - New releases: run the "plugin release" workflow with a version. Tag pushes are
     refused from the cloud session.
@@ -51,9 +60,8 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   (+76k realised, 55 closed trades). At 08:31 UTC it was +127k (+122k realised,
   121 closed trades).
   - **Since 2026-10-13 ~08:40 UTC it runs on GitHub Actions** (`.github/workflows/bot.yml`).
-    It has a 10-minute schedule, but GitHub's scheduler hasn't fired it for this
-    repo yet, even after re-registering it (#20). Until it does, runs are
-    dispatched by hand or from a session (`workflow_dispatch`). The bot
+    It has a 10-minute schedule, which GitHub started firing at 18:14 UTC on
+    10-13 (before that, runs were dispatched by hand). The bot
     loses nothing between runs, but its hourly decisions only happen when a run
     does. The cloud session's container is shut down a few minutes
     after the session goes idle, which stopped the local loop (03:54–04:53 and
@@ -148,5 +156,4 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 4. **Run `retrain.py` weekly** (tested, about 15 minutes). It updates
    `research/models/current` and `models/flip-model.js`. Deploying to the bot
    means copying the model into `osrs-live/data/model` and pushing `live`.
-5. **RuneLite plugin** to log GE fills automatically. This needs network access
-   to `repo.runelite.net`.
+5. **RuneLite plugin:** work through `ROADMAP.md`, top to bottom.

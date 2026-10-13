@@ -21,8 +21,8 @@ import static org.junit.Assert.assertTrue;
 /** Headless layout and painting for the UI tests, plus PNG snapshots for a human to look at. */
 final class UiTestSupport
 {
-	/** Snapshots go here, but only when the directory already exists (or FLIP_PLANNER_PNG_DIR names one). */
-	private static final String PNG_DIR = "/tmp/claude-0/-home-user/a7220198-e673-5182-8401-123678a88185/scratchpad/ui";
+	/** Snapshots are written only when the FLIP_PLANNER_PNG_DIR environment variable names an existing directory. */
+	private static final String PNG_DIR = System.getenv("FLIP_PLANNER_PNG_DIR");
 
 	static
 	{
@@ -77,8 +77,11 @@ final class UiTestSupport
 
 	static void save(BufferedImage img, String name) throws IOException
 	{
-		String env = System.getenv("FLIP_PLANNER_PNG_DIR");
-		File dir = new File(env != null && !env.isEmpty() ? env : PNG_DIR);
+		if (PNG_DIR == null || PNG_DIR.isEmpty())
+		{
+			return;
+		}
+		File dir = new File(PNG_DIR);
 		if (dir.isDirectory())
 		{
 			ImageIO.write(img, "png", new File(dir, name));

@@ -47,6 +47,7 @@ class Advisor implements OfferShortcuts.Advice
 	private Recommender recommender;
 	private volatile Recommender.Result lastResult;
 	private Runnable onResult = () -> { };
+	private volatile long sessionStart;
 	private volatile PanelModel last = new PanelModel();
 
 	Advisor(OkHttpClient http, Gson gson, FlipPlannerConfig config, Consumer<PanelModel> show)
@@ -76,6 +77,12 @@ class Advisor implements OfferShortcuts.Advice
 	void setOnResult(Runnable r)
 	{
 		onResult = r;
+	}
+
+	/** When the current play session started (login), for profit per hour. */
+	void setSessionStart(long ms)
+	{
+		sessionStart = ms;
 	}
 
 	Recommender.Result lastResult()
@@ -296,6 +303,17 @@ class Advisor implements OfferShortcuts.Advice
 		m.profitToday = st.today;
 		m.profitTotal = st.profit;
 		m.flips = st.flips;
+		if (sessionStart > 0)
+		{
+			for (Ledger.ClosedTrip c : st.closed)
+			{
+				if (c.sellTs >= sessionStart)
+				{
+					m.sessionProfit += c.profit;
+				}
+			}
+			m.sessionHours = (now - sessionStart) / 3_600_000.0;
+		}
 		m.winRate = st.winRate;
 		m.status = "Updated " + LocalTime.now().format(HM) + " from the "
 			+ java.time.Instant.ofEpochSecond(r.barTs).atZone(ZoneId.systemDefault()).toLocalTime().format(HM) + " prices"

@@ -44,6 +44,9 @@ public class PanelModel
 	public double profitToday;
 	public double profitTotal;
 	public int flips;
+	/** Realised profit since logging in, and how long ago that was. */
+	public double sessionProfit;
+	public double sessionHours;
 	public double winRate = Double.NaN;
 	public String tradeFile = "";
 	/** For the Stats tab; null until the first run. */
@@ -66,6 +69,8 @@ public class PanelModel
 		m.profitToday = profitToday;
 		m.profitTotal = profitTotal;
 		m.flips = flips;
+		m.sessionProfit = sessionProfit;
+		m.sessionHours = sessionHours;
 		m.winRate = winRate;
 		m.tradeFile = tradeFile;
 		m.stats = stats;

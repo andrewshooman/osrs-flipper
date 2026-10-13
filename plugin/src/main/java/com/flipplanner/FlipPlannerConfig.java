@@ -93,6 +93,13 @@ public interface FlipPlannerConfig extends Config
 		return true;
 	}
 
+	@ConfigItem(keyName = "chatMessages", name = "Chat messages", description = "Game-chat messages when an offer finishes, with the profit after tax on sells",
+		section = shortcuts, position = 6)
+	default boolean chatMessages()
+	{
+		return true;
+	}
+
 	@ConfigItem(keyName = "notifyPlan", name = "Notify about new buys", description = "A notification when a new hourly plan has buys for your free slots",
 		section = shortcuts, position = 5)
 	default boolean notifyPlan()
