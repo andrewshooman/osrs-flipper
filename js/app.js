@@ -268,6 +268,7 @@
     } finally {
       S.orders.loading = false;
       if (S.view === "orders") renderOrders();
+      if (S.view === "holdings") renderHoldings();
       renderBadges();
     }
   }
@@ -289,15 +290,19 @@
     }
     const now = Date.now();
     const stale = L.openOffers(ledger()).filter((o) => o.side === "buy" && now - o.placedAt > OSF.decide.PRESET.buyWaitHours * 36e5);
+    const room = (d.makeRoom || []).filter((o) => !stale.some((x) => x.id === o.id) && L.openOffers(ledger()).some((x) => x.id === o.id));
+    const tidy = [...stale.map((o) => ({ o, why: `up ${U.duration((now - o.placedAt) / 36e5)}` })), ...room.map((o) => ({ o, why: "frees a slot to sell what you hold" }))];
     const holds = [...d.holds].sort((a, b) => ({ cut: 0, sell: 1, list: 2, hold: 3, wait: 4 }[a.act.action] - { cut: 0, sell: 1, list: 2, hold: 3, wait: 4 }[b.act.action]));
     const plan = d.plan.plan;
     const sellRows = holds.map((h) => `<div class="pick">
         ${icon(h.itemId)}
         <div style="min-width:0"><div class="name" data-item="${h.itemId}">${esc(h.name || itemName(h.itemId))}</div>
-          <div class="line">You hold ${U.full(h.qty)} @ ${U.full(Math.round(h.avgCost))} · held ${U.duration(h.heldHours)}</div></div>
+          <div class="line">You hold ${U.full(h.qty)} @ ${U.full(Math.round(h.avgCost))} · held ${U.duration(h.heldHours)}</div>
+          ${h.listing ? `<div class="line muted">Listed: ${U.full(h.listing.qty - h.listing.filled)} @ ${U.full(h.listing.price)}</div>` : ""}</div>
         <div class="right"></div>
-        <div class="advice ${h.act.tone}" style="grid-column:2 / -1">${esc(h.act.label)}</div>
-        <div class="actions">${h.act.price ? (h.act.action === "cut"
+        <div class="advice ${h.act.tone}" style="grid-column:2 / -1">${esc(h.act.label)}${h.listing && h.act.price && Math.abs(h.listing.price - h.act.price) / h.act.price > 0.005
+          ? ` (your listing is at ${U.full(h.listing.price)}: cancel it under Your open GE offers to relist)` : ""}</div>
+        <div class="actions">${h.listing ? `<button class="btn sm" data-fill="${h.listing.id}">Record sale</button>` : h.act.price ? (h.act.action === "cut"
           ? `<button class="btn sm primary" data-log-trade="1" data-item-id="${h.itemId}" data-side="sell" data-qty="${h.qty}" data-price="${h.act.price}">I sold it</button>`
           : `<button class="btn sm primary" data-order-sell="${h.itemId}" data-price="${h.act.price}">I listed it</button>
              <button class="btn sm" data-log-trade="1" data-item-id="${h.itemId}" data-side="sell" data-qty="${h.qty}" data-price="${h.act.price}">Already sold</button>`) : ""}</div>
@@ -318,23 +323,18 @@
         <div class="actions"><button class="btn sm primary ${isPractice() ? "practice" : ""}" data-order-buy="${r.id}">${isPractice() ? "Practice buy" : "I placed it"}</button></div>
       </div>`).join("");
     root.innerHTML = head + `
-      ${stale.length ? `<div class="section-head"><h2>Tidy up</h2></div><div class="card">${stale.map((o) => `<div class="row" style="padding:6px 0">
-          <span class="grow">Cancel the unfilled part of <b>${esc(itemName(o.itemId))}</b> (${U.full(o.filled)}/${U.full(o.qty)} filled, up ${U.duration((now - o.placedAt) / 36e5)})</span>
+      ${tidy.length ? `<div class="section-head"><h2>Tidy up</h2></div><div class="card">${tidy.map(({ o, why }) => `<div class="row" style="padding:6px 0">
+          <span class="grow">Cancel the unfilled part of <b>${esc(itemName(o.itemId))}</b> (${U.full(o.filled)}/${U.full(o.qty)} filled, ${why})</span>
           <button class="btn sm" data-cancel="${o.id}">Cancelled it</button></div>`).join("")}</div>` : ""}
       <div class="section-head"><h2>Your items</h2><span class="small muted">${holds.length ? "sell, hold or cut" : ""}</span></div>
       <div class="card">${sellRows || `<div class="empty-state">Nothing held.</div>`}</div>
       <div class="section-head"><h2>Your open GE offers</h2><span class="small muted">update these when they fill</span></div>
       <div class="card">${openRows || `<div class="empty-state">No open offers recorded.</div>`}</div>
-      ${d.decants && d.decants.length ? `<div class="section-head"><h2>Decanting (near riskless)</h2><span class="small muted">combine doses at Bob Barter by the GE</span></div>
-      <div class="card table-wrap"><table class="list"><thead><tr><th>Decant</th><th class="r">Buy each</th><th class="r">Sell each</th><th class="r">Per batch</th><th class="r">Batches</th><th class="r">Total</th></tr></thead><tbody>
-      ${d.decants.map((x) => `<tr><td class="name">${esc(x.inQty)}× ${esc(x.inName)} → ${esc(x.outQty)}× ${esc(x.outName)}</td><td class="r">${U.full(x.buyAt)}</td><td class="r">${U.full(x.sellAt)}</td>
-        <td class="r good">${U.gp(x.profitPerBatch, { plus: true })}</td><td class="r">${U.full(x.batches)}</td><td class="r good">${U.gp(x.total, { plus: true })}</td></tr>`).join("")}
-      </tbody></table><p class="small muted">Profit is after tax at instant prices (buy instantly, sell instantly). Batches are capped by the buy limit and ~5% of daily volume.</p></div>` : ""}
       ${plan.length ? `<div class="card" style="margin-top:12px"><b class="good">${U.gp(U.sum(plan.map((r) => r.expected)), { plus: true })}</b> expected if these buy orders fill and sell,
         using ${U.gp(d.plan.deployUsed)}. Check back in about ${U.duration(Math.min(6, Math.max(...plan.map((r) => r.hours))))}
         (around ${new Date(Date.now() + Math.min(6, Math.max(...plan.map((r) => r.hours))) * 36e5).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}) to list what filled.</div>` : ""}
-      <div class="section-head"><h2>New buy offers</h2><span class="small muted">${plan.length} for ${d.cap.slotsFree} free slots · ${U.gp(d.plan.deployUsed)} of ${U.gp(d.cap.deployable)} free gp${d.ctx.mkt_ret_24h < -0.03 ? " · market falling: half size" : ""}</span></div>
-      <div class="card">${buyRows || `<div class="empty-state">${d.cap.slotsFree ? "Nothing worth buying right now — the model only trades when the edge clears tax and risk." : "All GE slots are busy."}</div>`}</div>`;
+      <div class="section-head"><h2>New buy offers</h2><span class="small muted">${plan.length} for ${d.buySlots ?? d.cap.slotsFree} free slots${d.buySlots < d.cap.slotsFree ? " (the rest are kept for selling)" : ""} · ${U.gp(d.plan.deployUsed)} of ${U.gp(d.cap.deployable)} free gp${d.ctx.mkt_ret_24h < -0.03 ? " · market falling: half size" : ""}</span></div>
+      <div class="card">${buyRows || `<div class="empty-state">${(d.buySlots ?? d.cap.slotsFree) ? "Nothing worth buying right now — the model only trades when the edge clears tax and risk." : "No free slots for new buys: list what you hold first."}</div>`}</div>`;
   }
 
   function orderBuy(id) {
@@ -388,10 +388,15 @@
   function renderHoldings() {
     const root = $("#view-holdings");
     const { holdings } = L.positions(ledger().trades);
-    const mk = S.result && S.result.mk;
     const openSells = L.openOffers(ledger()).filter((o) => o.side === "sell");
+    // Same model advice as Orders (one source of truth), refreshed when holdings change.
+    const d = S.orders.data;
+    const fresh = d && Date.now() - d.at < 15 * 6e4 && [...holdings.keys()].every((id) => d.holds.some((x) => x.itemId === id));
+    if (!fresh && !S.orders.loading && holdings.size) setTimeout(loadOrders, 0);
     const rows = [...holdings.values()].map((h) => {
-      const adv = mk ? M.adviseHolding(h, mk, settings(), S.items.get(h.itemId), { openSells }) : null;
+      const m = d && d.holds.find((x) => x.itemId === h.itemId && x.qty === h.qty);
+      const adv = m ? { marketSell: m.ask, breakeven: U.breakevenSellPrice(h.avgCost, h.itemId), pnl: m.pnl,
+        pnlPct: m.pnl / (h.avgCost * h.qty), heldHours: m.heldHours, label: m.act.label, tone: m.act.tone } : null;
       const listed = openSells.filter((o) => o.itemId === h.itemId).reduce((a, o) => a + o.qty - o.filled, 0);
       return { h, adv, listed };
     }).sort((a, b) => (b.h.cost) - (a.h.cost));
@@ -404,16 +409,15 @@
         <div class="row">${icon(h.itemId)}<b class="grow name" data-item="${h.itemId}" style="cursor:pointer">${esc(itemName(h.itemId))}</b>
           <span class="num">${U.full(h.qty)} × ${U.full(Math.round(h.avgCost))}</span></div>
         ${adv ? `<dl class="kv" style="margin:8px 0">
-          <dt>Market sell price</dt><dd>${U.full(adv.marketSell)}</dd>
+          <dt>Market sell price</dt><dd>${adv.marketSell ? U.full(adv.marketSell) : "–"}</dd>
           <dt>Breakeven (after tax)</dt><dd>${U.full(adv.breakeven)}</dd>
-          <dt>P/L if sold now</dt><dd class="${signClass(adv.pnl)}">${U.gp(adv.pnl, { plus: true })} (${U.pct(adv.pnlPct)})</dd>
+          <dt>P/L if sold now</dt><dd class="${signClass(adv.pnl)}">${adv.pnl == null ? "–" : `${U.gp(adv.pnl, { plus: true })} (${U.pct(adv.pnlPct)})`}</dd>
           <dt>Held</dt><dd>${U.duration(adv.heldHours)}</dd>
           ${listed ? `<dt>Listed for sale</dt><dd>${U.full(listed)}</dd>` : ""}
-        </dl><div class="advice ${adv.tone}">${esc(adv.label)}</div>` : `<p class="muted small">Waiting for prices…</p>`}
+        </dl><div class="advice ${adv.tone}">${esc(adv.label)}</div>` : `<p class="muted small"><span class="spinner"></span> Running the model for sell advice…</p>`}
         <div class="row" style="margin-top:8px">
           ${listed < h.qty ? `<button class="btn sm primary ${isPractice() ? "practice" : ""}" data-sell="${h.itemId}">${isPractice() ? "Practice sell" : "List for sale"}</button>` : ""}
           ${!isPractice() ? `<button class="btn sm" data-log-trade="1" data-item-id="${h.itemId}" data-side="sell">Log sale</button>` : ""}
-          ${adv && adv.alch > 0 ? `<button class="btn sm" data-alch="${h.itemId}">Alched</button>` : ""}
         </div></div>`).join("") : `<div class="card empty-state">Nothing held. Bought items show up here with sell advice.</div>`}`;
   }
 
@@ -741,27 +745,8 @@
     const h = L.positions(ledger().trades).holdings.get(id);
     if (!h) return;
     const listed = L.openOffers(ledger()).filter((o) => o.itemId === id && o.side === "sell").reduce((a, o) => a + o.qty - o.filled, 0);
-    const adv = S.result ? M.adviseHolding(h, S.result.mk, settings(), S.items.get(id)) : null;
-    offerDialog({ itemId: id, side: "sell", qty: h.qty - listed, price: adv ? adv.target : U.breakevenSellPrice(h.avgCost, id) });
-  }
-
-  function alchHolding(id) {
-    const h = L.positions(ledger().trades).holdings.get(id);
-    const it = S.items.get(id);
-    if (!h || !it) return;
-    const nat = S.result ? M.natureRunePrice(S.result.mk) : 0;
-    dialog(`<h3>Record high alchs — ${esc(it.name)}</h3>
-      <p class="small secondary">Counts as a sale at ${U.full(it.highalch)} minus the nature rune (${U.full(nat)}), with no GE tax.</p>
-      <label class="field">How many did you alch?<input id="a-qty" inputmode="decimal" value="${h.qty}"></label>
-      <div class="row"><span class="spacer"></span><button class="btn" data-close>Cancel</button><button class="btn primary" id="a-save">Save</button></div>`,
-    (root, close) => {
-      $("#a-save", root).addEventListener("click", () => {
-        const q = Math.min(h.qty, U.parseGp($("#a-qty", root).value));
-        if (!(q > 0)) return toast("Enter a quantity");
-        L.addTrade(ledger(), { itemId: id, side: "sell", qty: q, price: Math.max(1, it.highalch - nat), noTax: true, note: "alch" });
-        save(); close(); renderAll();
-      });
-    });
+    const m = S.orders.data && S.orders.data.holds.find((x) => x.itemId === id);
+    offerDialog({ itemId: id, side: "sell", qty: h.qty - listed, price: m && m.act.price ? m.act.price : U.breakevenSellPrice(h.avgCost, id) });
   }
 
   function download(name, text, type) {
@@ -811,7 +796,6 @@
       if (d.cancel) { L.cancelOffer(ledger(), d.cancel); save(); renderAll(); if (S.view === "orders") renderOrders(); return; }
       if (d.newOffer) return offerDialog({});
       if (d.sell) return sellFromHolding(+d.sell);
-      if (d.alch) return alchHolding(+d.alch);
       if (d.logTrade) return tradeDialog({ itemId: d.itemId ? +d.itemId : null, side: d.side, qty: d.qty, price: d.price });
       if (d.delTrade) {
         if (confirm("Delete this trade?")) { L.removeTrade(ledger(), d.delTrade); save(); renderAll(); }

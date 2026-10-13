@@ -20,7 +20,7 @@
     buyWaitHours: 6,        // patient offers: leave them up for ~6h, then cancel the rest
     captureShare: 0.10,     // share of real volume we expect to get
     guard: { maxMargin: 0.15, maxRet24h: 0.25, maxZ168h: 3, minActive: 0.5 },
-    maxHoldHours: 7 * 24,
+    maxHoldHours: 48,       // research ModelStrategy.max_hold_h: sell anything held 2 days
   };
 
   const LOG1P2 = Math.log1p(2);
@@ -94,7 +94,7 @@
     const be = U.breakevenSellPrice(h.avgCost, itemId);
     const { fwd4_q10: q10, fwd4_q50: q50, fwd4_q90: q90 } = pred;
     if (h.heldHours >= P.maxHoldHours)
-      return { action: "sell", price: ask, label: `Held over 7 days — sell at ${U.full(ask)}`, tone: "warn" };
+      return { action: "cut", price: Math.round(bar.al), label: `Held over ${Math.round(P.maxHoldHours / 24)} days: sell now (~${U.full(Math.round(bar.al))}) and free the gp`, tone: "warn" };
     if (netNow < h.avgCost) {
       const optimistic = ask * Math.exp(q90);
       if (U.netSellPrice(optimistic, itemId) < h.avgCost && q50 < 0)

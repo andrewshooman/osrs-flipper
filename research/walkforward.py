@@ -51,6 +51,18 @@ ROUNDS = {
         "prod_hourly": PROD,
         "prod_checkin3_cap10": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
     }, ["prod_hourly", "prod_checkin3_cap10"]),
+    # Round 5: free a slot for sells by cancelling the least-filled buy offer;
+    # also try listing above market when the forecast is rising.
+    "r5": ({
+        "prod_hourly": PROD,
+        "prod_hourly_sellprio": {**PROD, "sell_priority": True},
+        "prod_checkin3_cap10": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
+        "prod_checkin3_cap10_sellprio": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10,
+                                         "sell_priority": True},
+        "prod_hourly_sellprio_uplift": {**PROD, "sell_priority": True, "sell_uplift": True},
+        "prod_checkin3_cap10_sellprio_uplift": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10,
+                                                "sell_priority": True, "sell_uplift": True},
+    }, ["prod_hourly_sellprio", "prod_checkin3_cap10_sellprio"]),
 }
 
 
@@ -63,7 +75,7 @@ def main():
     ap.add_argument("--rounds", type=int, default=200)
     ap.add_argument("--min-trade-frac", type=float, default=0.2)
     ap.add_argument("--share", type=float, default=0.10)
-    ap.add_argument("--round", default="r2", choices=["r2", "r3", "r4"])
+    ap.add_argument("--round", default="r2", choices=sorted(ROUNDS))
     ap.add_argument("--leaves", type=int, default=63, help="LightGBM num_leaves")
     ap.add_argument("--lr", type=float, default=0.05, help="LightGBM learning rate")
     ap.add_argument("--wait-h", type=float, default=2.0, help="label: how long the bid may wait to fill")

@@ -296,8 +296,6 @@
     }
     if (pnlPct <= -settings.stopLossPct)
       return { ...base, action: "cut", label: `Down ${U.pct(-pnlPct)} — stop-loss hit. Sell at ${U.full(q.sell)} (instant: ${U.full(instant)})`, tone: "bad" };
-    if (alch > 0 && alch > U.netSellPrice(q.sell, h.itemId))
-      return { ...base, action: "alch", label: `High alch (${U.gp(alch)} net) beats selling (${U.gp(U.netSellPrice(q.sell, h.itemId))})`, tone: "good" };
     if (heldHours >= settings.maxHoldHours)
       return { ...base, action: "time", label: `Held ${U.duration(heldHours)} — over your ${settings.maxHoldHours}h limit. Sell at ${U.full(q.sell)}`, tone: "warn" };
     if (netNow > 0)

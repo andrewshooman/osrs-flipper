@@ -20,7 +20,6 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   - `hybrid.py`: hourly decisions with fills on real 5-minute volume.
   - `walkforward.py`: compares model variants plus a 5% fill check.
   - `live.py` and `bot_loop.sh`: paper-trading bot.
-  - `recipes.py`: decanting and processing arbitrage.
   - `test_research.py` and `test_parity.py`: tests.
 - **Results so far:**
   - **Walk-forward, Oct 2025 – Jan 2026** (4 folds): model averages +104k/day and

@@ -236,7 +236,7 @@ function series(n, stepSec, fn, now = Date.now()) {
     const meh = M.adviseHolding({ itemId: 1, qty: 100, avgCost: 1030, oldestTs: now - H }, mk, s, item, { now });
     eq(meh.action, "hold", "small loss inside the stop → hold");
     const alchy = M.adviseHolding({ itemId: 1, qty: 100, avgCost: 1030, oldestTs: now - H }, mk, s, { ...item, highalch: 1200 }, { now });
-    eq(alchy.action, "alch", "alch when it beats selling");
+    ok(alchy.action !== "alch", "never advises alching (that is money making, not flipping)");
   });
 
   await group("practice fill simulator", () => {
@@ -308,7 +308,7 @@ function series(n, stepSec, fn, now = Date.now()) {
     eq(D.holdingAction({ qty: 100, avgCost: 1000, heldHours: 2 }, bar, { ...pred, fwd4_q50: -0.01 }, 1).action, "sell", "falling forecast: sell now");
     eq(D.holdingAction({ qty: 100, avgCost: 1300, heldHours: 2 }, bar, { ...pred, fwd4_q50: -0.01, fwd4_q90: 0.01 }, 1).action, "cut", "hopeless loser: cut");
     eq(D.holdingAction({ qty: 100, avgCost: 1100, heldHours: 2 }, bar, { ...pred, fwd4_q90: 0.08 }, 1).action, "hold", "recoverable loser: hold at breakeven");
-    eq(D.holdingAction({ qty: 100, avgCost: 1000, heldHours: 200 }, bar, pred, 1).action, "sell", "over 7 days: sell");
+    eq(D.holdingAction({ qty: 100, avgCost: 1000, heldHours: 50 }, bar, pred, 1).action, "cut", "held over 2 days: sell now");
   });
 
   console.log(`\n${passed} passed, ${failed} failed`);
