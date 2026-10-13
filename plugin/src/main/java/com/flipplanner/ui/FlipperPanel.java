@@ -19,6 +19,8 @@ import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
+import net.runelite.client.ui.components.materialtabs.MaterialTab;
+import net.runelite.client.ui.components.materialtabs.MaterialTabGroup;
 import net.runelite.client.util.QuantityFormatter;
 
 /** The Flip Planner side panel. Rebuilt from a {@link PanelModel} on the Swing thread. */
@@ -62,11 +64,13 @@ public class FlipperPanel extends PluginPanel
 	private final JLabel nextDetail = new JLabel();
 	private final JButton skip = new JButton("Skip");
 	private final JButton pause = new JButton("Pause");
+	private final StatsPanel statsPanel;
 
 	public FlipperPanel(ItemManager itemManager, Actions actions)
 	{
 		this.itemManager = itemManager;
 		this.actions = actions;
+		this.statsPanel = new StatsPanel(itemManager);
 		setLayout(new BorderLayout());
 		setBorder(new EmptyBorder(8, 8, 8, 8));
 
@@ -115,7 +119,18 @@ public class FlipperPanel extends PluginPanel
 		showNext("Waiting for prices…", "The first plan takes about 10 seconds after you log in.", false, false);
 
 		body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
-		add(body, BorderLayout.CENTER);
+		// Plan | Stats tabs under the next-action card.
+		JPanel display = new JPanel(new BorderLayout());
+		MaterialTabGroup tabs = new MaterialTabGroup(display);
+		MaterialTab planTab = new MaterialTab("Plan", tabs, body);
+		MaterialTab statsTab = new MaterialTab("Stats", tabs, statsPanel);
+		tabs.addTab(planTab);
+		tabs.addTab(statsTab);
+		tabs.select(planTab);
+		JPanel center = new JPanel(new BorderLayout(0, 4));
+		center.add(tabs, BorderLayout.NORTH);
+		center.add(display, BorderLayout.CENTER);
+		add(center, BorderLayout.CENTER);
 		export.setFocusable(false);
 		export.setToolTipText("Save a copy of your trade history anywhere, e.g. on another drive");
 		export.addActionListener(e -> actions.export());
@@ -261,6 +276,10 @@ public class FlipperPanel extends PluginPanel
 		refresh.setEnabled(!m.loading);
 		status.setText("<html>" + esc(m.loading ? (m.status.isEmpty() ? "Working…" : m.status) : m.status) + "</html>");
 		body.removeAll();
+		if (m.stats != null)
+		{
+			statsPanel.show(m.stats, m.names, System.currentTimeMillis());
+		}
 
 		if (m.error != null)
 		{

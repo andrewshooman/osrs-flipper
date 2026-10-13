@@ -279,6 +279,20 @@ class Advisor implements OfferShortcuts.Advice
 		}
 
 		Ledger.Stats st = Ledger.stats(ledger, ZoneId.systemDefault(), now);
+		m.stats = st;
+		Map<Integer, String> all = new HashMap<>();
+		try
+		{
+			for (com.flipplanner.engine.ItemMeta it : prices.mapping().values())
+			{
+				all.put(it.id, it.name);
+			}
+		}
+		catch (java.io.IOException e)
+		{
+			all.putAll(nm);
+		}
+		m.names = all;
 		m.profitToday = st.today;
 		m.profitTotal = st.profit;
 		m.flips = st.flips;
