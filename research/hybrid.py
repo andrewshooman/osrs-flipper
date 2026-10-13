@@ -184,6 +184,8 @@ def main():
     ap.add_argument("--train-days", type=int, default=120)
     ap.add_argument("--share", type=float, default=0.10)
     ap.add_argument("--rounds", type=int, default=200)
+    ap.add_argument("--out", default="replay-5m.json", help="file name under research/reports/")
+    ap.add_argument("--skip-baselines", action="store_true", help="only the model strategies")
     a = ap.parse_args()
 
     t0 = time.time()
@@ -210,10 +212,12 @@ def main():
         model.save(cache)
     print(f"model trained on {model.meta['rows']:,} rows before the replay window ({time.time() - t0:.0f}s)", flush=True)
     out = {}
-    runs = [(STRATEGIES["top_margin"](), a.share), (STRATEGIES["v0_1"](), a.share),
-            (ModelStrategy(model, F, name="model-production", **PRESETS["production"]), a.share),
-            (ModelStrategy(model, F, name="model-production@5%", **PRESETS["production"]), 0.05),
-            (ModelStrategy(model, F, name="model-base"), a.share)]
+    no_prio = {**PRESETS["production"], "sell_priority": False}
+    runs = [] if a.skip_baselines else [(STRATEGIES["top_margin"](), a.share), (STRATEGIES["v0_1"](), a.share)]
+    runs += [(ModelStrategy(model, F, name="model-production", **PRESETS["production"]), a.share),
+             (ModelStrategy(model, F, name="model-production@5%", **PRESETS["production"]), 0.05),
+             (ModelStrategy(model, F, name="model-production-no-sell-priority", **no_prio), a.share),
+             (ModelStrategy(model, F, name="model-production-no-sell-priority@5%", **no_prio), 0.05)]
     for S, share in runs:
         sim, rep = replay(P1, P5, S, Config(share=share), t_start, P1.T)
         prof = np.array([x["profit"] for x in sim.trips]) if sim.trips else np.zeros(0)
@@ -231,7 +235,7 @@ def main():
         rep["days_positive"] = f"{int((daily > 0).sum())}/{len(daily)}"
         out[rep["strategy"]] = rep
         print(json.dumps(rep), flush=True)
-    (Path(__file__).resolve().parent / "reports" / "replay-5m.json").write_text(json.dumps(out, indent=1, default=float))
+    (Path(__file__).resolve().parent / "reports" / a.out).write_text(json.dumps(out, indent=1, default=float))
     return out
 
 
