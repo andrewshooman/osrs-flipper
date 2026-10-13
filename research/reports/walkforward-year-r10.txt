@@ -1,0 +1,57 @@
+panel 8789 bars x 3429 items
+features ready (140s)
+fold 2025-12-11: baseline_top_margin=-341,806/d  baseline_v0_1=-470,978/d  checkin_2x=+89,566/d  checkin_3x=+109,645/d  checkin_4x=+111,403/d  checkin_6x=+132,519/d  (161s)
+fold 2026-01-08: baseline_top_margin=-346,872/d  baseline_v0_1=-457,739/d  checkin_2x=+101,078/d  checkin_3x=+126,163/d  checkin_4x=+161,577/d  checkin_6x=+167,037/d  (182s)
+fold 2026-02-05: baseline_top_margin=-115,409/d  baseline_v0_1=-168,396/d  checkin_2x=+59,339/d  checkin_3x=+76,660/d  checkin_4x=+70,796/d  checkin_6x=+76,293/d  (199s)
+fold 2026-03-05: baseline_top_margin=-143,628/d  baseline_v0_1=-214,335/d  checkin_2x=+51,540/d  checkin_3x=+60,276/d  checkin_4x=+70,839/d  checkin_6x=+54,763/d  (219s)
+fold 2026-04-02: baseline_top_margin=-175,370/d  baseline_v0_1=-289,275/d  checkin_2x=+47,269/d  checkin_3x=+98,500/d  checkin_4x=+65,392/d  checkin_6x=+72,067/d  (238s)
+fold 2026-04-30: baseline_top_margin=-125,114/d  baseline_v0_1=-203,844/d  checkin_2x=+51,088/d  checkin_3x=+63,689/d  checkin_4x=+54,172/d  checkin_6x=+99,531/d  (256s)
+fold 2026-05-28: baseline_top_margin=-171,550/d  baseline_v0_1=-200,352/d  checkin_2x=+206,434/d  checkin_3x=+232,423/d  checkin_4x=+228,054/d  checkin_6x=+228,806/d  (276s)
+fold 2026-06-25: baseline_top_margin=-128,870/d  baseline_v0_1=-209,776/d  checkin_2x=+39,197/d  checkin_3x=+38,228/d  checkin_4x=+55,121/d  checkin_6x=+88,579/d  (294s)
+fold 2026-07-23: baseline_top_margin=-190,312/d  baseline_v0_1=-212,770/d  checkin_2x=+102,884/d  checkin_3x=+100,359/d  checkin_4x=+89,491/d  checkin_6x=+91,996/d  (313s)
+fold 2026-08-20: baseline_top_margin=-101,908/d  baseline_v0_1=-84,606/d  checkin_2x=+41,335/d  checkin_3x=+34,905/d  checkin_4x=+44,108/d  checkin_6x=+50,674/d  (337s)
+fold 2026-09-17: baseline_top_margin=-215,884/d  baseline_v0_1=-197,726/d  checkin_2x=+52,966/d  checkin_3x=+49,083/d  checkin_4x=+80,004/d  checkin_6x=+94,588/d  (355s)
+{
+ "baseline_top_margin": {
+  "mean_profit_per_day": -186974,
+  "median_profit_per_day": -171550,
+  "folds_positive": "0/11",
+  "worst_fold": -346872,
+  "max_drawdown": 5494101
+ },
+ "baseline_v0_1": {
+  "mean_profit_per_day": -246345,
+  "median_profit_per_day": -209776,
+  "folds_positive": "0/11",
+  "worst_fold": -470978,
+  "max_drawdown": 7198917
+ },
+ "checkin_2x": {
+  "mean_profit_per_day": 76608,
+  "median_profit_per_day": 52966,
+  "folds_positive": "11/11",
+  "worst_fold": 39197,
+  "max_drawdown": 706726
+ },
+ "checkin_3x": {
+  "mean_profit_per_day": 89993,
+  "median_profit_per_day": 76660,
+  "folds_positive": "11/11",
+  "worst_fold": 34905,
+  "max_drawdown": 471826
+ },
+ "checkin_4x": {
+  "mean_profit_per_day": 93723,
+  "median_profit_per_day": 70839,
+  "folds_positive": "11/11",
+  "worst_fold": 44108,
+  "max_drawdown": 663578
+ },
+ "checkin_6x": {
+  "mean_profit_per_day": 105168,
+  "median_profit_per_day": 91996,
+  "folds_positive": "11/11",
+  "worst_fold": 50674,
+  "max_drawdown": 917440
+ }
+}

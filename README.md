@@ -46,6 +46,18 @@ The plan assumes you check in a few times a day, not every minute.
    **I placed it**. When it fills, record the fill; Orders then tells you where to sell.
 5. The summary shows the expected profit and when to check back.
 
+**How often to check in.** In the year-long backtest (11M stack, 50% reserve):
+
+| Check-ins a day | Profit per day |
+| --- | --- |
+| 2 | +77k |
+| 3 | +90k |
+| 4 | +94k |
+| 6 | +105k |
+
+The paper-trading bot decides every hour and makes about +133k/day. Three
+check-ins a day capture most of the gain.
+
 If a price has moved more than 2% since the model's hourly bar, the order is flagged so
 you can double-check it in-game.
 

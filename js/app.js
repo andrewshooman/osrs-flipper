@@ -305,7 +305,8 @@
         ${S.orders.loading ? `<span class="small muted"><span class="spinner"></span> ${esc(S.orders.progress)}</span>` : ""}
         <button class="btn sm" id="orders-refresh" ${S.orders.loading ? "disabled" : ""}>Refresh</button></div>
       <p class="small secondary" style="margin-top:0">Built for check-ins a few times a day: place these, leave buy offers up for
-      about 6 hours, and come back later. Sell prices don't need babysitting until your next check-in.</p>`;
+      about 6 hours, and come back later. Sell prices don't need babysitting until your next check-in.
+      Three check-ins a day capture most of the profit (backtest: 2× +77k, 3× +90k, 6× +105k gp/day).</p>`;
     if (!d) {
       root.innerHTML = head + `<div class="card empty-state">${S.orders.error ? `Couldn't build orders: ${esc(S.orders.error)}` : `<span class="spinner"></span> ${esc(S.orders.progress || "Loading…")}`}</div>`;
       return;
