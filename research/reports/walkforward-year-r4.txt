@@ -1,0 +1,57 @@
+panel 8780 bars x 3429 items
+features ready (101s)
+fold 2025-12-11: baseline_top_margin=-341,806/d  baseline_v0_1=-470,978/d  prod_hourly=+179,373/d  prod_checkin3_cap10=+105,572/d  prod_hourly@5%=+84,582/d  prod_checkin3_cap10@5%=+111,556/d  (250s)
+fold 2026-01-08: baseline_top_margin=-346,872/d  baseline_v0_1=-457,739/d  prod_hourly=+190,532/d  prod_checkin3_cap10=+121,539/d  prod_hourly@5%=+101,788/d  prod_checkin3_cap10@5%=+81,857/d  (436s)
+fold 2026-02-05: baseline_top_margin=-115,409/d  baseline_v0_1=-168,396/d  prod_hourly=+76,955/d  prod_checkin3_cap10=+61,731/d  prod_hourly@5%=+71,879/d  prod_checkin3_cap10@5%=+49,655/d  (685s)
+fold 2026-03-05: baseline_top_margin=-143,628/d  baseline_v0_1=-214,335/d  prod_hourly=+74,963/d  prod_checkin3_cap10=+56,352/d  prod_hourly@5%=+33,435/d  prod_checkin3_cap10@5%=+38,763/d  (972s)
+fold 2026-04-02: baseline_top_margin=-175,370/d  baseline_v0_1=-289,275/d  prod_hourly=+99,137/d  prod_checkin3_cap10=+105,307/d  prod_hourly@5%=+66,225/d  prod_checkin3_cap10@5%=+69,665/d  (1254s)
+fold 2026-04-30: baseline_top_margin=-125,114/d  baseline_v0_1=-203,844/d  prod_hourly=+90,402/d  prod_checkin3_cap10=+58,077/d  prod_hourly@5%=+69,123/d  prod_checkin3_cap10@5%=+17,358/d  (1521s)
+fold 2026-05-28: baseline_top_margin=-171,550/d  baseline_v0_1=-200,352/d  prod_hourly=+60,180/d  prod_checkin3_cap10=+230,860/d  prod_hourly@5%=+42,483/d  prod_checkin3_cap10@5%=+106,014/d  (1788s)
+fold 2026-06-25: baseline_top_margin=-128,870/d  baseline_v0_1=-209,776/d  prod_hourly=+158,030/d  prod_checkin3_cap10=+44,493/d  prod_hourly@5%=+73,948/d  prod_checkin3_cap10@5%=-2,889/d  (2060s)
+fold 2026-07-23: baseline_top_margin=-190,312/d  baseline_v0_1=-212,770/d  prod_hourly=+175,618/d  prod_checkin3_cap10=+99,367/d  prod_hourly@5%=+93,667/d  prod_checkin3_cap10@5%=+62,674/d  (2343s)
+fold 2026-08-20: baseline_top_margin=-101,908/d  baseline_v0_1=-84,606/d  prod_hourly=+57,311/d  prod_checkin3_cap10=+17,617/d  prod_hourly@5%=+32,946/d  prod_checkin3_cap10@5%=+7,209/d  (2629s)
+fold 2026-09-17: baseline_top_margin=-215,884/d  baseline_v0_1=-197,726/d  prod_hourly=+93,729/d  prod_checkin3_cap10=+51,734/d  prod_hourly@5%=+59,970/d  prod_checkin3_cap10@5%=+7,015/d  (2910s)
+{
+ "baseline_top_margin": {
+  "mean_profit_per_day": -186974,
+  "median_profit_per_day": -171550,
+  "folds_positive": "0/11",
+  "worst_fold": -346872,
+  "max_drawdown": 5494101
+ },
+ "baseline_v0_1": {
+  "mean_profit_per_day": -246345,
+  "median_profit_per_day": -209776,
+  "folds_positive": "0/11",
+  "worst_fold": -470978,
+  "max_drawdown": 7198917
+ },
+ "prod_hourly": {
+  "mean_profit_per_day": 114202,
+  "median_profit_per_day": 93729,
+  "folds_positive": "11/11",
+  "worst_fold": 57311,
+  "max_drawdown": 600891
+ },
+ "prod_checkin3_cap10": {
+  "mean_profit_per_day": 86604,
+  "median_profit_per_day": 61731,
+  "folds_positive": "11/11",
+  "worst_fold": 17617,
+  "max_drawdown": 467626
+ },
+ "prod_hourly@5%": {
+  "mean_profit_per_day": 66367,
+  "median_profit_per_day": 69123,
+  "folds_positive": "11/11",
+  "worst_fold": 32946,
+  "max_drawdown": 478611
+ },
+ "prod_checkin3_cap10@5%": {
+  "mean_profit_per_day": 49897,
+  "median_profit_per_day": 49655,
+  "folds_positive": "10/11",
+  "worst_fold": -2889,
+  "max_drawdown": 1622028
+ }
+}

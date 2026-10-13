@@ -113,7 +113,6 @@ class Live:
         P.names = [meta.get(int(i), {}).get("name", str(i)) for i in P.ids]
         F = features(P)
         strat = ModelStrategy(self.model, F, name=f"model-{self.variant}", **PRESETS[self.variant])
-        strat.max_hold_h = 7 * 24  # multi-day holds allowed; the model's exit rules decide
         sim = self.s["sim"]
         if sim is None:
             sim = HybridSim(P, self.cfg, strat)

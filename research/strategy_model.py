@@ -22,14 +22,15 @@ from backtest import Base, breakeven, tax
 
 
 # Named settings. "production" won the year-long walk-forward (round 2):
-# +121k/day on 5.5M, positive in 11/11 two-week folds, max drawdown 0.74M;
-# the same settings without patient offers made +56k/day at a 5% fill share.
+# +121k/day on 5.5M, positive in 11/11 two-week folds, max drawdown 0.74M.
+# Round 5 added sell priority: +133k/day, 11/11 folds, worst fold +60k (was +14k).
 PRESETS = {
     "base": {},
     "production": {"kelly_frac": 0.15, "max_item_frac": 0.15, "min_exp_ret": 0.005,
-                   "guard": True, "buy_wait_h": 6.0},
+                   "guard": True, "buy_wait_h": 6.0, "sell_priority": True},
     # For a player checking in ~3x a day (what the app's Orders tab uses).
     # Round 3: 3 check-ins/day made +90k/day, 11/11 folds positive, worst fold +35k.
+    # Sell priority was neutral here in round 5 (+90k/day either way).
     "checkin": {"kelly_frac": 0.15, "max_item_frac": 0.10, "min_exp_ret": 0.005,
                 "guard": True, "buy_wait_h": 6.0},
 }

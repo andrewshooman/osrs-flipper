@@ -80,7 +80,7 @@ Every test trains only on data before the test period. Fills only happen against
 traded volume, at a capped share (5–10%) of what actually traded.
 
 - **Year walk-forward** (11 two-week folds, Dec 2025 – Oct 2026, 11M stack with a 50% reserve):
-  - **Hourly bot strategy:** +121k gp/day, positive in 11/11 folds.
+  - **Hourly bot strategy:** +133k gp/day, positive in 11/11 folds, worst fold +60k/day.
   - **Check-in strategy** (3 check-ins a day, 10% per item; the one Orders uses):
     +90k gp/day, 11/11 folds positive, worst fold +35k/day.
   - **Simple "top margin" flipping baselines:** −187k and −246k gp/day, 0/11 folds
