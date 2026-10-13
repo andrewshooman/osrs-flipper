@@ -1,0 +1,36 @@
+name: plugin release
+
+# Builds the RuneLite plugin and publishes ge-flipper.jar with the start scripts
+# as a GitHub release, when a tag like plugin-v0.1.0 is pushed.
+on:
+  push:
+    tags: [ 'plugin-v*' ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Build and test
+        working-directory: plugin
+        run: ./gradlew build --no-daemon
+      - name: Package
+        run: |
+          mkdir -p out/GE-Flipper-plugin
+          cp plugin/build/libs/ge-flipper.jar plugin/dist/* plugin/README.md out/GE-Flipper-plugin/
+          (cd out && zip -r GE-Flipper-plugin.zip GE-Flipper-plugin)
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" out/GE-Flipper-plugin.zip plugin/build/libs/ge-flipper.jar \
+            --title "GE Flipper plugin ${GITHUB_REF_NAME#plugin-v}" --prerelease \
+            --notes "Download GE-Flipper-plugin.zip, unzip it anywhere (for example D:\GE-Flipper), and follow README.md inside: double-click 'Start RuneLite with GE Flipper.bat'. Needs RuneLite installed and opened once. Test build: not on the Plugin Hub yet."
