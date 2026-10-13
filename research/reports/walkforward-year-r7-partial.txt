@@ -1,0 +1,10 @@
+panel 8780 bars x 3429 items
+features ready (84s)
+fold 2025-12-11: baseline_top_margin=-341,806/d  baseline_v0_1=-470,978/d  production=+188,225/d  checkin=+106,693/d  production@5%=+77,363/d  (319s)
+fold 2026-01-08: baseline_top_margin=-346,872/d  baseline_v0_1=-457,739/d  production=+241,209/d  checkin=+129,727/d  production@5%=+105,320/d  (639s)
+fold 2026-02-05: baseline_top_margin=-115,409/d  baseline_v0_1=-168,396/d  production=+68,747/d  checkin=+75,038/d  production@5%=+48,914/d  (1076s)
+fold 2026-03-05: baseline_top_margin=-143,628/d  baseline_v0_1=-214,335/d  production=+73,954/d  checkin=+53,297/d  production@5%=+26,468/d  (1578s)
+fold 2026-04-02: baseline_top_margin=-175,370/d  baseline_v0_1=-289,275/d  production=+97,686/d  checkin=+98,417/d  production@5%=+71,984/d  (2039s)
+fold 2026-04-30: baseline_top_margin=-125,114/d  baseline_v0_1=-203,844/d  production=+71,647/d  checkin=+46,872/d  production@5%=+57,418/d  (2514s)
+fold 2026-05-28: baseline_top_margin=-171,550/d  baseline_v0_1=-200,352/d  production=+82,267/d  checkin=+225,701/d  production@5%=+33,772/d  (2914s)
+fold 2026-06-25: baseline_top_margin=-128,870/d  baseline_v0_1=-209,776/d  production=+210,067/d  checkin=+47,630/d  production@5%=+80,452/d  (3301s)
