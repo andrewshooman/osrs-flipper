@@ -231,6 +231,7 @@
         ${tile("Open P/L", U.gp(d.unrealised, { plus: true }), `${d.positions.length} items held`, signClass(d.unrealised))}
         ${tile("Free cash", U.gp(d.cash), `${U.gp(d.in_buy_offers)} in buy offers`)}
       </div>
+      ${botVsBacktest(d)}
       <div class="section-head"><h2>Stack value</h2><span class="small muted">hourly, if everything were sold instantly after tax</span></div>
       <div class="card"><div id="bot-equity"></div></div>
       <div class="section-head"><h2>Holding now</h2></div>
@@ -251,6 +252,27 @@
         ${[...d.events].reverse().slice(0, 80).map((e) => `<tr><td class="muted">${new Date(e.ts * 1000).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
           <td>${esc(actionLabel[e.action] || e.action)}</td><td class="name" data-item="${e.item}">${esc(e.name)}</td><td class="r">${U.full(e.qty)} @ ${U.full(e.price)}</td></tr>`).join("")}</tbody></table>` : `<div class="empty-state">No decisions yet.</div>`}</div>`;
     CH.lineChart($("#bot-equity"), d.equity, { baseline: d.bankroll });
+  }
+
+  /** Live results vs. what the backtests predicted (research/reports: 5m replay + year walk-forward). */
+  function botVsBacktest(d) {
+    const hrs = Math.max((d.updated - d.started) / 3600, 0);
+    const perDay = hrs >= 24 ? (d.profit / hrs) * 24 : null; // earlier rates swing too much to mean anything
+    const lo = 98_000, hi = 157_000; // 5m replay at 5% / 10% of real volume, 5.5M deployable
+    const [tone, verdict] = hrs < 72
+      ? ["muted", `Too early to judge after ${U.duration(hrs)}. Even in the backtests 14 of 60 days lost money, so give it 3–7 days.`]
+      : perDay >= lo ? ["good", "On track: inside or above the backtest range."]
+      : perDay >= 0 ? ["warn", "Profitable, but below the backtest range. The backtests may assume too many fills."]
+      : ["bad", "Losing money, unlike the backtests. The model needs a review before you follow it."];
+    return `<div class="card" style="margin-top:12px">
+      <div class="row"><b class="grow">Live vs. backtest</b><span class="small muted">${U.duration(hrs)} live</span></div>
+      <dl class="kv" style="margin:8px 0">
+        <dt>Live, per day</dt><dd class="${signClass(perDay ?? d.profit)}">${perDay == null ? `after 24h (so far ${U.gp(d.profit, { plus: true })})` : U.gp(perDay, { plus: true })}</dd>
+        <dt>Backtests, per day</dt><dd>${U.gp(lo, { plus: true })} to ${U.gp(hi, { plus: true })}</dd>
+      </dl>
+      <div class="advice ${tone}">${esc(verdict)}</div>
+      <p class="small muted" style="margin:6px 0 0">Backtest range: a 60-day replay on real 5-minute trades, filling 5–10% of real volume.
+      A year-long test (11 two-week periods) averaged +133k/day and every period was profitable.</p></div>`;
   }
 
   // ---------------------------------------------------------------- orders (validated model)
