@@ -9,9 +9,13 @@ Steps:
  3. Backtest candidate vs the current model on the most recent 14 days with the
     production preset. Both models must be trained without those 14 days, so
     this step trains a holdout copy of each.
- 4. Promote only if the candidate's holdout profit is at least 90% of the
-    current model's: write models/flip-model.js (the app) and research/models/current/
-    (the bot's model directory).
+ 4. Promote when the candidate made money on that holdout: write the full-data
+    model to research/models/current/ and models/flip-model.js (the app). The
+    previous holdout is printed for reference only, since it covers different days.
+
+The bot is not updated automatically: copy research/models/current/ into the
+bot's model directory (osrs-live/data/model) and push the `live` branch.
+Tested 2026-10-13: about 15 minutes, holdout +157k/day (14 days, production preset).
 """
 from __future__ import annotations
 
@@ -78,7 +82,7 @@ def main():
     # possible (it already saw these days), so compare against the stored holdout result.
     meta_path = CURRENT / "meta.json"
     prev = json.loads(meta_path.read_text()).get("holdout") if meta_path.exists() else None
-    ok = a.force or prev is None or cand["profit_per_day"] >= 0.9 * prev["profit_per_day"] or cand["profit_per_day"] > 0
+    ok = a.force or cand["profit_per_day"] > 0
     print(f"previous holdout: {prev}; promote: {ok}", flush=True)
     if not ok:
         print("Not promoted.")
