@@ -236,7 +236,7 @@ function series(n, stepSec, fn, now = Date.now()) {
     const meh = M.adviseHolding({ itemId: 1, qty: 100, avgCost: 1030, oldestTs: now - H }, mk, s, item, { now });
     eq(meh.action, "hold", "small loss inside the stop → hold");
     const alchy = M.adviseHolding({ itemId: 1, qty: 100, avgCost: 1030, oldestTs: now - H }, mk, s, { ...item, highalch: 1200 }, { now });
-    eq(alchy.action, "alch", "alch when it beats selling");
+    ok(alchy.action !== "alch", "never advises alching (that is money making, not flipping)");
   });
 
   await group("practice fill simulator", () => {
