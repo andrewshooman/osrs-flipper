@@ -20,32 +20,29 @@ Record results in HANDOFF.md.
    pushing to it updates the submission.
 4. Optionally publish a test build: run the *plugin release* workflow with a version.
 
+## Done
+- 0.3.1: session profit per hour, game-chat messages with profit after tax on sells.
+- 0.4.0: item tooltips (paid, breakeven, now, advice) in the inventory, bank and GE;
+  "Price graph" in the right-click menu of tradeable items.
+
 ## Queue
-1. **Session stats and chat messages.**
-   - Profit per hour for the current session in the Stats tab.
-   - Optional game-chat messages when offers fill or finish (alongside the tray
-     notifications).
-2. **Portfolio tooltips.** Hovering an item you're flipping, in the inventory, bank or
-   GE, shows what you paid, the breakeven, and the current advice (list / hold / sell / cut).
-3. **"Price graph" right-click option** on items in the inventory and GE. The menu entry
-   is client-side only: it opens the graph dialog.
-4. **Re-pricing instead of only cancelling (research first).** In the 5-minute replay
+1. **Re-pricing instead of only cancelling (research first).** In the 5-minute replay
    (`research/hybrid.py`), test: if a buy hasn't filled after N minutes and the live
    instant-sell has moved above our bid, raise it to instant-sell + 1, as long as the
    model's expected return still clears the minimum. Compare with cancel-after-6h. Ship
    it as a MODIFY next action only if it wins.
-5. **Opportunity alerts (research first).** Use the 5-minute data to find sharp drops on
+2. **Opportunity alerts (research first).** Use the 5-minute data to find sharp drops on
    liquid items that revert within hours. Backtest it. Ship as an optional alert only
    if it's profitable after tax in the replay.
-6. **Detect the stack.** Coins in the inventory, plus the bank (cached when opened),
+3. **Detect the stack.** Coins in the inventory, plus the bank (cached when opened),
    plus gp in GE offers, plus holdings at cost. Add a setting, "Use detected stack".
-7. **Weekly retrain.** Run `research/retrain.py`, export the model to
+4. **Weekly retrain.** Run `research/retrain.py`, export the model to
    `models/flip-model.js` and the plugin's `flip-model.json`, regenerate the parity
    fixtures, and release.
-8. **GP drop on finished sells.** A small floating "+12.3K" when a sell completes.
-9. **Keep iterating** on whatever the user reports from in-game testing. The GE
-   highlights and slot timers haven't been checked in-game yet, so those reports come
-   first.
+5. **GP drop on finished sells.** A small floating "+12.3K" when a sell completes.
+6. **Keep iterating** on whatever the user reports from in-game testing. The GE
+   highlights, slot timers, tooltips and the menu option haven't been checked in-game
+   yet, so those reports come first.
 
 ## Rules to keep (RuneLite Plugin Hub)
 - Nothing types or clicks for the player. In particular, no inserting text into the

@@ -23,6 +23,8 @@ Flip Planner brings the model behind the GE Flipper web app (https://andrewshoom
   - The Stats tab shows profit for today, the last 7 days and all time, plus flips, win rate, ROI, tax paid, daily profit bars, best and worst items, and recent flips.
   - Profit and gp per hour for the current session, since you logged in.
   - Right-click a suggestion or a holding for a 7-day price graph with the suggested buy and sell prices marked.
+  - In the game too: right-click any tradeable item in your inventory, bank or GE and pick **Price graph**. The option only opens the graph window; it does nothing in the game.
+- **Item tooltips.** Hover an item you're flipping, in your inventory, bank, the GE or a GE slot, to see what you paid, the breakeven after tax, what it's worth now, and the current advice (list, hold, sell or cut). Items in the current buy plan show the planned order.
 - **Your rules.**
   - *Sell-only mode* stops new buys.
   - *Never suggest* blocks items; right-click a suggestion to add it.
@@ -102,4 +104,5 @@ To build `flip-planner.jar` yourself, you need JDK 11 or newer. Run `./gradlew j
   - `OfferTracker`: GE offer updates in, offers and fills out. It handles the login burst, and offers that changed while you were logged out.
   - `TradeStore`: the trade file and the raw offer log.
 - `OfferShortcuts`: the suggested price/quantity line in the chatbox and the GE search code.
+- `GeOverlay`, `NextAction`: the next action and the GE highlights. `ItemTooltipOverlay`, `ItemTips`: the item tooltips.
 - `ui/FlipperPanel`: the side panel.
