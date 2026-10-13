@@ -32,7 +32,9 @@ public class FlipperPanel extends PluginPanel
 	private final JLabel status = new JLabel();
 	private final JButton refresh = new JButton("Refresh");
 
-	public FlipperPanel(ItemManager itemManager, Runnable onRefresh)
+	private final JButton export = new JButton("Export trades…");
+
+	public FlipperPanel(ItemManager itemManager, Runnable onRefresh, Runnable onExport)
 	{
 		this.itemManager = itemManager;
 		setLayout(new BorderLayout());
@@ -54,6 +56,10 @@ public class FlipperPanel extends PluginPanel
 
 		body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
 		add(body, BorderLayout.CENTER);
+		export.setFocusable(false);
+		export.setToolTipText("Save a copy of your trade history anywhere, e.g. on another drive");
+		export.addActionListener(e -> onExport.run());
+		add(export, BorderLayout.SOUTH);
 		show(new PanelModel());
 	}
 

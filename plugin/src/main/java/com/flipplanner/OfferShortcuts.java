@@ -1,6 +1,5 @@
 package com.flipplanner;
 
-import java.awt.event.KeyEvent;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -12,25 +11,22 @@ import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.VarClientID;
 import net.runelite.api.gameval.VarPlayerID;
 import net.runelite.api.gameval.VarbitID;
-import net.runelite.api.widgets.JavaScriptCallback;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetPositionMode;
 import net.runelite.api.widgets.WidgetSizeMode;
 import net.runelite.api.widgets.WidgetTextAlignment;
 import net.runelite.api.widgets.WidgetType;
 import net.runelite.client.callback.ClientThread;
-import net.runelite.client.input.KeyListener;
 import net.runelite.client.util.QuantityFormatter;
 
 /**
- * GE shortcuts. Every one of them needs a click or key press from the player,
- * and none of them confirms anything: they only save typing.
- * - Price or quantity box open: a line in the chatbox offers the suggested
- *   value; clicking it (or the fill-in key) puts the number in the box.
- * - Item search: typing the search code lists the suggested items.
+ * GE helpers. Nothing here types, clicks or confirms anything for the player.
+ * - Price or quantity box open: a line in the chatbox shows the suggested
+ *   value for the item being set up. The player types it in.
+ * - Item search: typing the search code lists the suggested items as results.
  */
 @Singleton
-public class OfferShortcuts implements KeyListener
+public class OfferShortcuts
 {
 	/** Suggested values, from the latest recommendation. */
 	public interface Advice
@@ -48,14 +44,11 @@ public class OfferShortcuts implements KeyListener
 	private static final int MODE_INT_INPUT = 7;
 	private static final int MODE_LONG_INPUT = 30;
 	private static final int TEXT_COLOR = 0xFFB83F;
-	private static final int HOVER_COLOR = 0xFFFFFF;
 
 	private final Client client;
 	private final ClientThread clientThread;
 	private final FlipPlannerConfig config;
 	private Advice advice;
-	/** The value the open box would get, or -1 when no box is open. Written on the client thread. */
-	private volatile long pending = -1;
 
 	@Inject
 	OfferShortcuts(Client client, ClientThread clientThread, FlipPlannerConfig config)
@@ -72,11 +65,10 @@ public class OfferShortcuts implements KeyListener
 
 	public void onVarClientIntChanged(VarClientIntChanged e)
 	{
-		if (e.getIndex() != VarClientID.MESLAYERMODE)
+		if (e.getIndex() != VarClientID.MESLAYERMODE || !config.showOfferHint())
 		{
 			return;
 		}
-		pending = -1;
 		int mode = client.getVarcIntValue(VarClientID.MESLAYERMODE);
 		if ((mode == MODE_INT_INPUT || mode == MODE_LONG_INPUT) && client.getWidget(InterfaceID.GeOffers.SETUP) != null)
 		{
@@ -129,11 +121,10 @@ public class OfferShortcuts implements KeyListener
 		{
 			return;
 		}
-		String what = price ? QuantityFormatter.formatNumber(value) + " gp each" : QuantityFormatter.formatNumber(value);
-		String key = config.quickSetKey() != null && config.quickSetKey().getKeyCode() != KeyEvent.VK_UNDEFINED
-			? " or press " + config.quickSetKey() : "";
+		String text = "Flip Planner suggests: " + (buying ? "buy " : "sell ")
+			+ (price ? "at " + QuantityFormatter.formatNumber(value) + " gp each" : QuantityFormatter.formatNumber(value));
 		Widget hint = parent.createChild(-1, WidgetType.TEXT);
-		hint.setText("Flip Planner: click" + key + " to fill in " + what);
+		hint.setText(text);
 		hint.setFontId(FontID.PLAIN_12);
 		hint.setTextColor(TEXT_COLOR);
 		hint.setTextShadowed(true);
@@ -144,28 +135,7 @@ public class OfferShortcuts implements KeyListener
 		hint.setWidthMode(WidgetSizeMode.MINUS);
 		hint.setOriginalWidth(0);
 		hint.setOriginalHeight(16);
-		hint.setAction(0, "Fill in");
-		hint.setHasListener(true);
-		hint.setOnOpListener((JavaScriptCallback) ev -> fill(value));
-		hint.setOnMouseRepeatListener((JavaScriptCallback) ev -> hint.setTextColor(HOVER_COLOR));
-		hint.setOnMouseLeaveListener((JavaScriptCallback) ev -> hint.setTextColor(TEXT_COLOR));
 		hint.revalidate();
-		pending = value;
-	}
-
-	/** Puts the number in the open price/quantity box. The player still presses Enter. */
-	private void fill(long value)
-	{
-		if (priceBox() == null)
-		{
-			return;
-		}
-		Widget input = client.getWidget(InterfaceID.Chatbox.MES_TEXT2);
-		if (input != null)
-		{
-			input.setText(value + "*");
-		}
-		client.setVarcStrValue(VarClientID.MESLAYERINPUT, String.valueOf(value));
 	}
 
 	public void onGrandExchangeSearched(GrandExchangeSearched e)
@@ -195,32 +165,5 @@ public class OfferShortcuts implements KeyListener
 		client.setGeSearchResultCount(arr.length);
 		client.setGeSearchResultIds(arr);
 		e.consume();
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e)
-	{
-		long v = pending;
-		if (v <= 0 || config.quickSetKey() == null || !config.quickSetKey().matches(e))
-		{
-			return;
-		}
-		e.consume();
-		clientThread.invoke(() -> fill(v));
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e)
-	{
-		long v = pending;
-		if (v > 0 && config.quickSetKey() != null && e.getKeyChar() == Character.toLowerCase((char) config.quickSetKey().getKeyCode()))
-		{
-			e.consume(); // don't also type the letter into the box
-		}
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e)
-	{
 	}
 }

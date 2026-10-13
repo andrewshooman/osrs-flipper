@@ -7,79 +7,94 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import net.runelite.client.util.Filepath;
 
 /**
  * The trade history on disk: one JSON file per account, plus an append-only
  * log of every raw GE offer update (so the history can be rebuilt even if the
  * JSON is ever damaged). Writes go to a temporary file first and then replace
  * the old one, so a crash mid-write never leaves a half-written file.
+ * Files live in the plugin's own data directory (RuneLite's Filepath API).
  */
 public class TradeStore<T>
 {
 	private final Gson gson;
-	private final Path file;
-	private final Path log;
+	private final Filepath dir;
+	private final String name;
 	private final Class<T> type;
 
-	public TradeStore(Gson gson, Path dir, String name, Class<T> type)
+	public TradeStore(Gson gson, Filepath dir, String name, Class<T> type)
 	{
 		this.gson = gson;
-		this.file = dir.resolve(name + ".json");
-		this.log = dir.resolve(name + "-offers.jsonl");
+		this.dir = dir;
+		this.name = name;
 		this.type = type;
 	}
 
-	public Path file()
+	public Filepath file()
 	{
-		return file;
+		return dir.joinSegment(name + ".json");
+	}
+
+	private Filepath log()
+	{
+		return dir.joinSegment(name + "-offers.jsonl");
 	}
 
 	/** The saved data, or null when there's none yet. A damaged file is set aside, not overwritten. */
 	public T load() throws IOException
 	{
-		if (!Files.exists(file))
+		Filepath file = file();
+		if (!file.exists())
 		{
 			return null;
 		}
-		try (Reader r = Files.newBufferedReader(file, StandardCharsets.UTF_8))
+		try (Reader r = file.openBufferedReader())
 		{
 			return gson.fromJson(r, type);
 		}
 		catch (JsonParseException e)
 		{
-			Path aside = file.resolveSibling(file.getFileName() + ".damaged-" + System.currentTimeMillis());
-			Files.move(file, aside);
+			Filepath aside = dir.joinSegment(name + ".json.damaged-" + System.currentTimeMillis());
+			file.moveTo(aside);
 			throw new IOException("Trade file was damaged; moved it to " + aside.getFileName() + " and started a new one", e);
 		}
 	}
 
 	public synchronized void save(T data) throws IOException
 	{
-		Files.createDirectories(file.getParent());
-		Path tmp = file.resolveSibling(file.getFileName() + ".tmp");
-		try (Writer w = Files.newBufferedWriter(tmp, StandardCharsets.UTF_8))
+		dir.createDirectories();
+		Filepath tmp = dir.joinSegment(name + ".json.tmp");
+		try (Writer w = tmp.openBufferedWriter())
 		{
 			gson.toJson(data, w);
 		}
 		try
 		{
-			Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+			tmp.moveTo(file(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 		}
 		catch (AtomicMoveNotSupportedException e)
 		{
-			Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING);
+			tmp.moveTo(file(), StandardCopyOption.REPLACE_EXISTING);
 		}
 	}
 
 	/** Appends one raw offer update to the log. */
 	public synchronized void append(Object event) throws IOException
 	{
-		Files.createDirectories(log.getParent());
-		Files.write(log, (gson.toJson(event) + "\n").getBytes(StandardCharsets.UTF_8),
-			StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+		dir.createDirectories();
+		log().write((gson.toJson(event) + "\n").getBytes(StandardCharsets.UTF_8),
+			StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+	}
+
+	/** Writes a copy of the data to a file the player picked (Export). */
+	public void exportTo(Filepath target, T data) throws IOException
+	{
+		try (Writer w = target.openBufferedWriter())
+		{
+			gson.toJson(data, w);
+		}
 	}
 }

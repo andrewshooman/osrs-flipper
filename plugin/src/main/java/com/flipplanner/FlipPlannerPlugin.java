@@ -9,8 +9,6 @@ import com.flipplanner.ui.FlipperPanel;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,22 +25,22 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GrandExchangeOfferChanged;
 import net.runelite.api.events.GrandExchangeSearched;
 import net.runelite.api.events.VarClientIntChanged;
-import net.runelite.client.RuneLite;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
-import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
+import net.runelite.client.util.Filepath;
 import net.runelite.client.util.ImageUtil;
 import okhttp3.OkHttpClient;
 
 @Slf4j
 @PluginDescriptor(
 	name = "Flip Planner",
+	internalName = "flip-planner",
 	description = "Model-ranked GE buy suggestions, trade tracking with profit after tax, and one-click price/quantity entry",
 	tags = {"grand exchange", "ge", "flipping", "flip", "merching", "profit", "trading"}
 )
@@ -82,8 +80,6 @@ public class FlipPlannerPlugin extends Plugin
 	@Inject
 	private ItemManager itemManager;
 	@Inject
-	private KeyManager keyManager;
-	@Inject
 	private OkHttpClient okHttpClient;
 	@Inject
 	private Gson gson;
@@ -122,7 +118,7 @@ public class FlipPlannerPlugin extends Plugin
 			t.setDaemon(true);
 			return t;
 		});
-		panel = new FlipperPanel(itemManager, () -> refresh(true));
+		panel = new FlipperPanel(itemManager, () -> refresh(true), this::exportTrades);
 		nav = NavigationButton.builder()
 			.tooltip("Flip Planner")
 			.icon(ImageUtil.loadImageResource(FlipPlannerPlugin.class, "icon.png"))
@@ -130,9 +126,8 @@ public class FlipPlannerPlugin extends Plugin
 			.panel(panel)
 			.build();
 		clientToolbar.addNavigation(nav);
-		advisor = new Advisor(okHttpClient, config, panel::show);
+		advisor = new Advisor(okHttpClient, gson, config, panel::show);
 		shortcuts.setAdvice(advisor);
-		keyManager.registerKeyListener(shortcuts);
 		// New hourly prices land a few minutes after the hour; check every 5 minutes.
 		ticker = scheduler.scheduleWithFixedDelay(() -> refresh(false), 5, 300, TimeUnit.SECONDS);
 		if (client.getGameState() == GameState.LOGGED_IN)
@@ -145,11 +140,10 @@ public class FlipPlannerPlugin extends Plugin
 	protected void shutDown()
 	{
 		ticker.cancel(false);
-		keyManager.unregisterKeyListener(shortcuts);
 		shortcuts.setAdvice(null);
 		clientToolbar.removeNavigation(nav);
 		saveNow();
-		worker.shutdownNow();
+		worker.shutdown();
 		synchronized (lock)
 		{
 			account = -1;
@@ -159,10 +153,10 @@ public class FlipPlannerPlugin extends Plugin
 		}
 	}
 
-	private Path dataDir()
+	/** .runelite/plugin-data/flip-planner (RuneLite's Filepath API keeps plugins inside their own folder). */
+	private Filepath dataDir() throws IOException
 	{
-		String d = config.dataFolder() == null ? "" : config.dataFolder().trim();
-		return d.isEmpty() ? RuneLite.RUNELITE_DIR.toPath().resolve("flip-planner") : Paths.get(d);
+		return getPluginDirectory();
 	}
 
 	/** Opens the trade file of the logged-in account (client thread; the file is small). */
@@ -179,7 +173,18 @@ public class FlipPlannerPlugin extends Plugin
 			{
 				return true;
 			}
-			TradeStore<SaveData> s = new TradeStore<>(gson, dataDir(), "account-" + Long.toUnsignedString(hash), SaveData.class);
+			Filepath dir;
+			try
+			{
+				dir = dataDir();
+			}
+			catch (IOException e)
+			{
+				log.warn("Flip Planner: no data folder", e);
+				advisor.setError("Couldn't open the plugin's data folder: " + e.getMessage());
+				return false;
+			}
+			TradeStore<SaveData> s = new TradeStore<>(gson, dir, "account-" + Long.toUnsignedString(hash), SaveData.class);
 			SaveData d;
 			try
 			{
@@ -364,39 +369,46 @@ public class FlipPlannerPlugin extends Plugin
 		}
 	}
 
-	/**
-	 * The data folder setting changed: carry the history over. If the new folder
-	 * already has this account's file, that one is used instead.
-	 */
-	private void moveFolder()
+	/** Panel button: writes a copy of the trade history wherever the player chooses (Swing thread). */
+	private void exportTrades()
 	{
+		String json;
+		TradeStore<SaveData> s;
 		synchronized (lock)
 		{
-			if (store == null || data == null)
+			if (data == null || store == null)
 			{
+				advisor.setError("Log in first: trades are saved per account.");
 				return;
 			}
-			TradeStore<SaveData> s = new TradeStore<>(gson, dataDir(), "account-" + Long.toUnsignedString(account), SaveData.class);
+			json = gson.toJson(data);
+			s = store;
+		}
+		java.util.List<Filepath> picked = new Filepath.Chooser()
+			.setIsSave()
+			.setAcceptsFiles()
+			.setDialogTitle("Export Flip Planner trades")
+			.addExtensionFilter("JSON", "json")
+			.setDefaultExtension("json")
+			.setFileName("flip-planner-trades.json")
+			.showDialog(panel);
+		if (picked == null || picked.isEmpty())
+		{
+			return;
+		}
+		Filepath target = picked.get(0);
+		SaveData copy = gson.fromJson(json, SaveData.class);
+		worker.execute(() ->
+		{
 			try
 			{
-				SaveData there = s.load();
-				if (there != null && there.ledger != null)
-				{
-					data = there;
-					tracker = new OfferTracker(there.slots, new LedgerSink(there.ledger));
-					there.slots = tracker.getSlots();
-				}
-				store = s;
-				advisor.setTradeFile(s.file().toString());
+				s.exportTo(target, copy);
 			}
 			catch (IOException ex)
 			{
-				advisor.setError("Couldn't use that folder: " + ex.getMessage());
-				return;
+				advisor.setError("Couldn't export: " + ex.getMessage());
 			}
-		}
-		saveNow();
-		refresh(true);
+		});
 	}
 
 	/** Re-runs the model. force = now; otherwise only when a newer hourly bar is out. */
@@ -431,11 +443,6 @@ public class FlipPlannerPlugin extends Plugin
 	{
 		if (!FlipPlannerConfig.GROUP.equals(e.getGroup()))
 		{
-			return;
-		}
-		if ("dataFolder".equals(e.getKey()))
-		{
-			worker.execute(this::moveFolder);
 			return;
 		}
 		refresh(true);
