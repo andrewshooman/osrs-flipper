@@ -1,14 +1,95 @@
 # GE Flipper
 
-**An explainable Grand Exchange flipping assistant for Old School RuneScape.**
-It shows what to buy, at what price, how many and why. Practise with mock trades
-that fill against real market activity, then track your real flips and profit
-after tax.
+**A Grand Exchange trading assistant for Old School RuneScape.** A machine-learning
+model picks what to buy, at what price and how many. It then tells you when to sell,
+hold or cut losses, and tracks your real trades and profit after tax. A paper-trading
+bot runs the same model against the live GE around the clock, so you can watch it
+work before you risk real gold.
 
-> Advice only. The app never touches the game client. You place every offer
-> yourself. Not affiliated with Jagex.
+> Advice only. Nothing touches the game client: you place every offer yourself.
+> Not affiliated with Jagex.
+
+**Live app:** https://andrewshooman.github.io/osrs-flipper/
 
 ---
+
+## What's in the app
+
+| Tab | What it's for |
+| --- | --- |
+| **Bot** | The paper-trading bot: mock 11M stack, its open offers, holdings, closed trades and profit. |
+| **Orders** | Your to-do list for this check-in: what to do with items you hold, offers to tidy up, and new buy offers sized to your stack. One tap logs each order you place. |
+| **Slots** | Your 8 GE slots and the offers in them. |
+| **Holdings** | What you own, cost basis after tax, and live advice. |
+| **Profit** | Realised profit after tax, win rate, ROI, a daily chart, and how your results compare with what the model predicted. |
+| **Settings** | Stack size (default 11M), cash reserve (default 50%), slots, members, backup and restore. |
+
+Prices come straight from the
+[OSRS Wiki real-time prices API](https://oldschool.runescape.wiki/w/RuneScape:Real-time_Prices).
+Trades, offers and settings are saved in your browser (`localStorage`). Use
+**Settings → Export backup** to keep a copy or move to another device.
+
+### Using Orders
+
+The plan assumes you check in a few times a day, not every minute.
+
+1. Open **Orders**. It runs the model in your browser on the latest hourly prices.
+   It fetches recent history for about 150 items, so give it a moment.
+2. **Your items** first: each says *list at X*, *hold* (with the breakeven price),
+   *sell now* (the forecast is falling) or *cut* (even the optimistic case won't reach
+   breakeven).
+3. **Tidy up**: buy offers older than about 6 hours should be cancelled. The edge has
+   usually moved by then.
+4. **New buy offers**: place them in-game at the listed price and quantity, then tap
+   **I placed it**. When it fills, record the fill; Orders then tells you where to sell.
+5. The summary shows the expected profit and when to check back.
+
+If a price has moved more than 2% since the model's hourly bar, the order is flagged so
+you can double-check it in-game.
+
+## How the model works
+
+- **Data:** a year of hourly snapshots of every item (about 3,400 tradeable items) plus
+  60 days of 5-minute snapshots, from the wiki's price history.
+- **Features:** 42 per item per hour, built only from past data: margin after tax,
+  volumes on each side, momentum over several horizons, volatility, z-score against the
+  week, how often the item trades, market-wide moves, and more.
+- **Models (LightGBM):**
+  - the chance that a buy at instant-sell + 1 fills
+  - the return after tax of selling at instant-buy − 1
+  - how long the round trip takes
+  - 4-hour and 12-hour forward-return quantiles, which drive the hold, sell and cut
+    decisions
+- **Decisions:**
+  - **Sizing:** quarter-Kelly, from expected return vs. forecast spread, at most 10–15%
+    of free gp in one item. Your cash reserve is never touched.
+  - **Ranking:** expected gp per hour, divided by the larger share of gp or GE slots
+    the order uses.
+  - **Pump-and-dump guard:** skips items with margins over 15%, a jump of more than 25%
+    in 24 hours, or a price 3σ above the week.
+  - **Market brake:** halves the size when the whole market falls more than 3% in a day.
+- **Tax:** 2% of the sell price, rounded down per item and capped at 5M. The wiki's
+  48 exempt items (bonds, low-level food and ammo, teleport tablets, some tools) pay
+  none. Buy limits are tracked per 4-hour window.
+
+## Validation
+
+Every test trains only on data before the test period. Fills only happen against real
+traded volume, at a capped share (5–10%) of what actually traded.
+
+- **Year walk-forward** (11 two-week folds, Dec 2025 – Oct 2026, 11M stack with a 50% reserve):
+  - **Hourly bot strategy:** +121k gp/day, positive in 11/11 folds.
+  - **Check-in strategy** (3 check-ins a day, 10% per item; the one Orders uses):
+    +90k gp/day, 11/11 folds positive, worst fold +35k/day.
+  - **Simple "top margin" flipping baselines:** −187k and −246k gp/day, 0/11 folds
+    positive.
+- **5-minute replay** (Aug 13 – Oct 12 2026, model never retrained during the test):
+  - **10% of real volume:** +157k gp/day, realised max drawdown about 255k.
+  - **5% of real volume:** +98k gp/day.
+- **Live paper trading:** the Bot tab, running since 2026-10-12.
+
+Backtests are not guarantees. Thin items, game updates and other flippers all move
+prices. Start small and compare your Profit tab with the model's predictions.
 
 ## Run it on your PC (bot + app, keeps running without any cloud session)
 
@@ -27,123 +108,44 @@ Leave the window open to keep it running; close it to stop, and run it again to 
 bot's data lives in `bot-data/` inside that folder. No real gold is traded and nothing touches
 the game client.
 
-## Run it (app only)
-
-It's a static web app with **no build step**.
-
-- **Quickest:** open `index.html` in a modern browser.
-- **Local server (optional):** `python -m http.server`, then open http://localhost:8000.
-- **On a phone:** host it (e.g. GitHub Pages) and use **Add to Home Screen**.
-
-Your browser fetches prices straight from the
-[OSRS Wiki real-time prices API](https://oldschool.runescape.wiki/w/RuneScape:Real-time_Prices).
-Trades, offers and settings are saved in your browser (`localStorage`). Use
-**Settings → Export backup** to keep a copy or move to another device.
-
-## How to use it
-
-1. **Practice first.** The app starts in **PRACTICE** mode with an 11M practice
-   stack. Tap **Practice buy** on a pick. The mock offer only fills when real
-   trades happen at your price, at a realistic share of the volume. When the buy
-   completes, **Holdings** tells you where to sell.
-2. **Check the model.** **Profit** shows realised profit after tax, win rate, ROI,
-   and a daily chart, separately for practice and real.
-3. **Go real.** Switch to **REAL**. Place the offer in-game, then tap
-   **I placed this** and record fills as they happen. You can also log completed
-   trades directly or import a CSV.
-
-Defaults: 11M stack, **50% cash reserve**, at most 25% of free gp in one item,
-8 GE slots, 3% stop-loss, 12-hour max hold. All of these are in **Settings**.
-
-## How picks are chosen
-
-Each step is a pure function in `js/model.js`, so every number on screen can
-be traced back to its inputs.
-
-1. **Screen the whole market** using the bulk endpoints (`/mapping`, `/latest`,
-   `/5m`, `/1h`, and `/24h` when available):
-   - Members items are allowed (configurable), and hidden items are skipped.
-   - Both sides must have traded recently (20 min for active flips, 90 min overnight).
-   - Daily volume must reach a minimum.
-   - The post-tax margin must clear your minimum profit per item and minimum ROI.
-2. **Quote realistic prices.**
-   - **Bid:** one gp above the instant-sell price.
-   - **Ask:** one gp below the instant-buy price.
-   - Both use the *less favourable* of the latest trade and the recent average,
-     so one outlier trade can't create a fake margin.
-   - **Tax:** 2% of the sell price, rounded down, capped at 5M per item. Bonds
-     are exempt.
-3. **Read the history** for the top 40 candidates (`/timeseries`, 5-minute and
-   1-hour). From it the model measures:
-   - hourly volatility
-   - 24-hour and 7-day trend
-   - z-score against the 7-day average
-   - **margin persistence**: the share of recent 5-minute windows where the
-     margin was profitable after tax
-   - the typical margin, used to flag one-off spikes
-   - volume surges, which can signal news or a dump
-4. **Estimate each pick.**
-   - **Quantity** = the smallest of:
-     - the buy limit left in the current 4-hour window (open offers count toward it)
-     - what the market can fill within the strategy's time horizon
-     - the capital you can put into that item
-   - **Time** = time to buy plus time to sell, assuming you get a modest share
-     (8–12%) of each side's volume.
-   - **Expected profit** = quantity × margin × reliability (from persistence)
-     − risk charge (volatility over the holding time) + trend adjustment
-     (falling prices count in full, rising prices only partly).
-   - A high-alch floor reduces the risk charge.
-5. **Grade** each pick A–D from volume, persistence, data depth, volatility and
-   warning flags.
-6. **Plan** your free slots and gp.
-   - Picks are allocated greedily, ranked by gp per hour divided by the larger
-     share of either scarce resource they use: gp or GE slots.
-   - Your cash reserve is never touched.
-
-**Holdings advice:**
-- **Sell** at market once it's profitable after tax.
-- **Stop-loss** when the price drops past your limit.
-- **Time stop** once you've held longer than your max hold time.
-- **Alch** when high alchemy beats selling.
-- **Reprice** a sell offer that has sat above the market.
-
-**Buy-offer advice:**
-- **Cancel** when the margin is gone.
-- **Raise or cancel** when there are no fills and buyers are paying more.
-
-Strategies:
-- **Active flips:** 2-hour horizon, liquid items.
-- **Overnight / AFK:** 10-hour horizon, slower items, a heavier risk charge.
+You can also open `index.html` directly, or serve the folder with `python -m http.server`.
+There is no build step.
 
 ## Project layout
 
 ```
-index.html        app shell
-css/styles.css    tokens (dark/light), layout
-js/config.js      constants, tax rules, strategy presets, default settings
-js/util.js        GE tax, formatting, statistics
-js/api.js         OSRS Wiki prices client (cache, concurrency limit)
-js/ledger.js      trades, offers, FIFO profit, buy limits, capital & reserve
-js/model.js       screen → history → estimate → allocate; advice; practice fill simulator
-js/engine.js      orchestration
-js/charts.js      canvas price & profit charts
-js/app.js         UI
-tests/run.js      Node test harness (no dependencies)
+index.html            app shell
+css/styles.css        tokens (dark/light), layout
+js/config.js          constants, tax exemptions, default settings
+js/util.js            GE tax, breakeven, formatting, statistics
+js/api.js             OSRS Wiki prices client (cache, concurrency limit)
+js/ledger.js          trades, offers, FIFO profit, buy limits, capital & reserve
+js/features.js        the model's 42 features, computed in the browser
+js/gbm.js             LightGBM tree evaluator
+js/decide.js          sizing, ranking, guard, hold/sell/cut rules
+js/engine.js          Orders pipeline: shortlist → history → predict → plan
+js/app.js             UI
+models/flip-model.js  the trained model (generated by research/export_js.py)
+models/decants.js     potion decanting recipes
+research/             data collection, training, backtests, live bot (Python)
+tests/run.js          app test suite (no dependencies)
 ```
+
+Research pipeline (`research/`):
+- `collect.py`: downloads snapshots.
+- `panel.py` and `features.py`: build the price panel and its features.
+- `train.py`: trains the models.
+- `backtest.py`, `hybrid.py` and `walkforward.py`: simulators and validation.
+- `live.py`: the paper-trading bot.
+- `run_bot.py`: the PC runner.
+- `retrain.py`: the refresh pipeline.
 
 ## Tests
 
 ```
-npm test   # or: node tests/run.js
+npm test                          # app: node tests/run.js
+python research/test_research.py  # research pipeline
+python research/test_parity.py    # browser features/trees match Python exactly
 ```
 
-CI runs the same suite on every push and pull request.
-
-## Roadmap
-
-- **Calibration:** compare each offer's prediction (saved with it) with what
-  actually happened, then correct fill-rate and margin estimates per item.
-- **Backtesting:** replay the model over historical `/5m?timestamp=` snapshots.
-- **More strategies:** dump and dip buys, set and potion-dose arbitrage, high-alch plays.
-- Browser notifications for fills, dumps and buy-limit resets.
-- Cross-device sync; RuneLite trade import.
+CI runs the app and research suites on every push and pull request.
