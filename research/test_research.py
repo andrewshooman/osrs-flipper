@@ -53,5 +53,23 @@ ok(old.place_buy(0, 1, float(P.al[0, 1] or 100), 1) and old.n_buys == 1, "old sa
 old.pos[2] = Position(qty=3, cost=300.0, opened=0)
 ok(old.place_sell(0, 2, 120.0) and old.n_sells == 1, "old saved sim can still sell")
 
+# Dip alerts (dips.py): a sharp dip that reverts makes money; flat prices give no trade.
+import argparse as _ap
+import dips
+from panel import Panel
+T5 = 700
+flat = lambda v: np.full((T5, 1), v, dtype=np.float32)
+P5 = Panel(300, np.arange(T5) * 300, np.array([1]), flat(104), flat(100), flat(1000), flat(1000),
+           np.array([100_000]), np.array([0.0]), ["Thing"])
+P5.al[400:412] = 80  # a dump: instant-sells at 80 for an hour
+ref_l, ref_h = dips.rolling_median(P5.al, dips.DAY), dips.rolling_median(P5.ah, dips.DAY)
+args = _ap.Namespace(share=0.1, cap=1_000_000, slots=2, drop=0.12, vol_x=1.0, margin=0.0, hold_h=6, fill_min=60)
+sig = P5.al <= ref_l * (1 - args.drop)
+tr = dips.simulate(P5, np.array([0]), ref_l, ref_h, sig, args, dips.DAY, T5)
+ok(len(tr) == 1 and tr[0]["buy"] == 80 and tr[0]["profit"] > 0 and tr[0]["dumped"] == 0, "dip bought at 80 and sold at the old price")
+ok(not dips.simulate(P5, np.array([0]), ref_l, ref_h, np.zeros_like(sig), args, dips.DAY, T5), "no signal, no trade")
+vw = dips.rolling_vwap(P5.al, P5.lv, dips.DAY)
+ok(abs(vw[300, 0] - 100) < 1e-3 and np.isnan(vw[10, 0]), "24h volume-weighted reference")
+
 print("research checks:", "OK" if not fails else "FAILED\n  " + "\n  ".join(fails))
 raise SystemExit(1 if fails else 0)

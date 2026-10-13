@@ -1,0 +1,14 @@
+Dip alerts: robustness on the test window (last 31 days, never used for tuning)
+Reference: 24h volume-weighted averages (what the wiki's /24h endpoint gives the plugin).
+Top 5 parameter sets from the tuning window; 2 slots, 2M per trade.
+Columns: share of real volume, reaction delay; profit/day (and without the 3 best trades).
+
+drop vol_x margin hold | s10% 10min        | s5% 10min         | s10% 20min        | s10% 30min
+0.08 2.0   0.01   6h   | +55.9k (ex3 +39.8k) | +33.5k (+19.7k) | +36.9k (+24.6k) | +3.6k (-7.9k)   <- tuned best
+0.08 1.0   0.01   24h  | +57.7k (+40.2k)     | +28.6k (+18.4k) | +34.2k (+22.9k) | +47.7k (+27.1k)
+0.08 2.0   0.00   24h  | +17.8k (+7.1k)      | +19.9k (+12.9k) | +22.6k (+12.7k) | +16.5k (+7.2k)
+0.12 2.0   0.01   6h   | +71.9k (+53.2k)     | +43.3k (+30.5k) | +60.6k (+42.5k) | +18.2k (+4.9k)
+0.12 1.0   0.01   2h   | +55.2k (+33.3k)     | +26.9k (+11.6k) | +37.5k (+16.3k) | +28.0k (+12.9k)
+
+Tuned best, by week of the test window: +556k, +526k, +452k, -92k, +283k.
+Control (same trades at random non-dip moments): -28.1k/day.

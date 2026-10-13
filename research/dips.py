@@ -58,6 +58,21 @@ def rolling_median(x: np.ndarray, w: int) -> np.ndarray:
     return out
 
 
+def rolling_vwap(price: np.ndarray, vol: np.ndarray, w: int) -> np.ndarray:
+    """Volume-weighted mean of the previous w buckets (excluding the current one), per column:
+    what the wiki's /24h endpoint reports, so the plugin can use the same reference."""
+    pv = np.nan_to_num(price.astype(np.float64)) * vol
+    v = np.where(np.isfinite(price), vol, 0).astype(np.float64)
+    cpv = np.vstack([np.zeros((1, pv.shape[1])), np.cumsum(pv, 0)])
+    cv = np.vstack([np.zeros((1, v.shape[1])), np.cumsum(v, 0)])
+    out = np.full(price.shape, np.nan, dtype=np.float32)
+    num = cpv[w:-1] - cpv[:-w - 1]
+    den = cv[w:-1] - cv[:-w - 1]
+    with np.errstate(all="ignore"):
+        out[w:] = np.where(den > 0, num / den, np.nan)
+    return out
+
+
 def simulate(P, items, ref_low, ref_high, signal, a, t0, t1, rng=None):
     """Trades for the signal (bool T x N) between buckets t0..t1, at most a.slots open at once."""
     open_until = []  # bucket index when each open trade ends
@@ -85,8 +100,9 @@ def simulate(P, items, ref_low, ref_high, signal, a, t0, t1, rng=None):
             continue
         # Buy: fills from t+2 for `fill_min` minutes.
         got, frac = 0, 0.0
-        u = t + 2
-        end_buy = min(t1, t + 2 + a.fill_min // 5)
+        delay = getattr(a, "delay", 2)  # buckets until the player's offer is up (2 = ~10 minutes)
+        u = t + delay
+        end_buy = min(t1, t + delay + a.fill_min // 5)
         while u < end_buy and got < want:
             al, lv = P.al[u, i], P.lv[u, i]
             if np.isfinite(al) and al <= p:
@@ -110,6 +126,7 @@ def simulate(P, items, ref_low, ref_high, signal, a, t0, t1, rng=None):
                 left -= q
                 frac -= q
             u += 1
+        u = min(u, P.T - 1)  # a trade still open when the data ends is dumped at the last bucket
         if left > 0:
             dump = P.al[u, i]
             if not np.isfinite(dump):
@@ -140,6 +157,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--days-tune", type=int, default=30)
     ap.add_argument("--min-gp-day", type=float, default=50e6, help="liquidity: gp of instant-sells a day")
+    ap.add_argument("--ref", choices=["median", "vwap24"], default="median",
+                    help="reference price: 24h median of 5-minute prices, or the 24h volume-weighted mean (/24h)")
     ap.add_argument("--out", default="dips-5m.json")
     a0 = ap.parse_args()
     t_start = time.time()
@@ -148,9 +167,17 @@ def main():
     items = liquid(P, a0.min_gp_day, 0.6)
     print(f"{P.T} buckets x {P.N} items; {len(items)} liquid ({time.time() - t_start:.0f}s)", flush=True)
     al = P.al[:, items]
-    ref_low = rolling_median(al, DAY)
-    ref_high = rolling_median(P.ah[:, items], DAY)
-    vol_med = rolling_median(P.lv[:, items].astype(np.float32), DAY)
+    if a0.ref == "median":
+        ref_low = rolling_median(al, DAY)
+        ref_high = rolling_median(P.ah[:, items], DAY)
+        vol_med = rolling_median(P.lv[:, items].astype(np.float32), DAY)
+    else:  # "vwap24": the plugin's reference, from the wiki's /24h averages
+        ref_low = rolling_vwap(al, P.lv[:, items], DAY)
+        ref_high = rolling_vwap(P.ah[:, items], P.hv[:, items], DAY)
+        lv = P.lv[:, items].astype(np.float64)
+        c = np.vstack([np.zeros((1, lv.shape[1])), np.cumsum(lv, 0)])
+        vol_med = np.full(lv.shape, np.nan, dtype=np.float32)
+        vol_med[DAY:] = (c[DAY:-1] - c[:-DAY - 1]) / DAY
     print(f"reference prices ready ({time.time() - t_start:.0f}s)", flush=True)
 
     split = a0.days_tune * DAY
@@ -179,7 +206,7 @@ def main():
     pick = cand[rng.choice(len(cand), size=min(n_ctrl, len(cand)), replace=False)]
     ctrl[pick[:, 0] + split, pick[:, 1]] = True
     control = summary(simulate(P, items, ref_low, ref_high, ctrl, a, split, P.T), days_test)
-    out = {"liquid_items": len(items), "days_tune": days_tune, "days_test": days_test, "base": base,
+    out = {"ref": a0.ref, "liquid_items": len(items), "days_tune": days_tune, "days_test": days_test, "base": base,
            "best_params": {k: best[k] for k in grid}, "tune": best["tune"], "test": test, "control_test": control,
            "top10_tune": results[:10],
            "test_worst": sorted(test_trades, key=lambda x: x["profit"])[:5],
