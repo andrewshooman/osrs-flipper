@@ -49,8 +49,8 @@ ROUNDS = {
     # Round 4: same strategies, model retrained on labels that match them (see --wait-h).
     "r4": ({
         "prod_hourly": PROD,
-        "prod_checkin3": {**PROD, "checkin_hours": CHECKINS},
-    }, ["prod_hourly", "prod_checkin3"]),
+        "prod_checkin3_cap10": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
+    }, ["prod_hourly", "prod_checkin3_cap10"]),
 }
 
 
