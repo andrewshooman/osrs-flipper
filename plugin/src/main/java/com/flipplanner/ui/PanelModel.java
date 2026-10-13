@@ -1,7 +1,10 @@
 package com.flipplanner.ui;
 
+import com.flipplanner.engine.Ledger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /** Everything the side panel shows, filled in by the plugin. */
 public class PanelModel
@@ -43,6 +46,9 @@ public class PanelModel
 	public int flips;
 	public double winRate = Double.NaN;
 	public String tradeFile = "";
+	/** For the Stats tab; null until the first run. */
+	public Ledger.Stats stats;
+	public Map<Integer, String> names = Collections.emptyMap();
 
 	/** A copy to change without touching what the panel is showing. */
 	public PanelModel copy()
@@ -62,6 +68,8 @@ public class PanelModel
 		m.flips = flips;
 		m.winRate = winRate;
 		m.tradeFile = tradeFile;
+		m.stats = stats;
+		m.names = names;
 		return m;
 	}
 }

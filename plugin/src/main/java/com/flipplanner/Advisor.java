@@ -45,6 +45,8 @@ class Advisor implements OfferShortcuts.Advice
 	private volatile String tradeFile = "";
 	private long lastBar = -1;
 	private Recommender recommender;
+	private volatile Recommender.Result lastResult;
+	private Runnable onResult = () -> { };
 	private volatile PanelModel last = new PanelModel();
 
 	Advisor(OkHttpClient http, Gson gson, FlipPlannerConfig config, Consumer<PanelModel> show)
@@ -68,6 +70,71 @@ class Advisor implements OfferShortcuts.Advice
 		last = last.copy();
 		last.tradeFile = f;
 		push(last);
+	}
+
+	/** Called on the worker thread after each successful run. */
+	void setOnResult(Runnable r)
+	{
+		onResult = r;
+	}
+
+	Recommender.Result lastResult()
+	{
+		return lastResult;
+	}
+
+	Map<Integer, String> names()
+	{
+		return names;
+	}
+
+	WikiPriceSource prices()
+	{
+		return prices;
+	}
+
+	/** Item ids from the "Never suggest" setting: ids as they are, names looked up in the item list. */
+	private java.util.Set<Integer> blocked()
+	{
+		java.util.Set<Integer> ids = new java.util.HashSet<>();
+		String raw = config.blockedItems();
+		if (raw == null || raw.trim().isEmpty())
+		{
+			return ids;
+		}
+		Map<Integer, com.flipplanner.engine.ItemMeta> items = null;
+		for (String part : raw.split(","))
+		{
+			String t = part.trim();
+			if (t.isEmpty())
+			{
+				continue;
+			}
+			if (t.matches("\\d+"))
+			{
+				ids.add(Integer.parseInt(t));
+				continue;
+			}
+			try
+			{
+				if (items == null)
+				{
+					items = prices.mapping();
+				}
+				for (com.flipplanner.engine.ItemMeta it : items.values())
+				{
+					if (it.name != null && it.name.equalsIgnoreCase(t))
+					{
+						ids.add(it.id);
+					}
+				}
+			}
+			catch (java.io.IOException e)
+			{
+				log.debug("Flip Planner: item list unavailable for the block list", e);
+			}
+		}
+		return ids;
 	}
 
 	private void push(PanelModel m)
@@ -99,6 +166,7 @@ class Advisor implements OfferShortcuts.Advice
 		s.cashReservePct = config.reservePercent() / 100.0;
 		s.slots = config.slots();
 		s.minExpectedGp = config.minOrderProfit();
+		s.excludedIds = blocked();
 
 		PanelModel m = new PanelModel();
 		m.tradeFile = tradeFile;
@@ -117,6 +185,7 @@ class Advisor implements OfferShortcuts.Advice
 			});
 			fill(m, r, ledger, now);
 			lastBar = r.barTs;
+			lastResult = r;
 			m.error = null;
 			error = null;
 		}
@@ -133,6 +202,10 @@ class Advisor implements OfferShortcuts.Advice
 		}
 		last = m;
 		push(m);
+		if (m.error == null)
+		{
+			onResult.run();
+		}
 	}
 
 	/** The panel keeps showing the last results while a run is in progress. */
@@ -149,7 +222,7 @@ class Advisor implements OfferShortcuts.Advice
 		List<Integer> search = new ArrayList<>();
 
 		m.freeGp = r.capital.deployable;
-		for (BuyIdea i : r.plan)
+		for (BuyIdea i : config.sellOnly() ? java.util.Collections.<BuyIdea>emptyList() : r.plan)
 		{
 			PanelModel.Buy row = new PanelModel.Buy();
 			row.itemId = i.id;
@@ -168,7 +241,8 @@ class Advisor implements OfferShortcuts.Advice
 		}
 		if (m.buys.isEmpty())
 		{
-			m.noBuys = r.buySlots > 0
+			m.noBuys = config.sellOnly() ? "Sell-only mode is on: no new buys."
+				: r.buySlots > 0
 				? String.format(Locale.US, "Nothing worth buying right now: no order is expected to make %,d gp or more. Empty slots are fine; check back later.", config.minOrderProfit())
 				: "No free slots for new buys: list what you hold first.";
 		}
@@ -205,6 +279,20 @@ class Advisor implements OfferShortcuts.Advice
 		}
 
 		Ledger.Stats st = Ledger.stats(ledger, ZoneId.systemDefault(), now);
+		m.stats = st;
+		Map<Integer, String> all = new HashMap<>();
+		try
+		{
+			for (com.flipplanner.engine.ItemMeta it : prices.mapping().values())
+			{
+				all.put(it.id, it.name);
+			}
+		}
+		catch (java.io.IOException e)
+		{
+			all.putAll(nm);
+		}
+		m.names = all;
 		m.profitToday = st.today;
 		m.profitTotal = st.profit;
 		m.flips = st.flips;

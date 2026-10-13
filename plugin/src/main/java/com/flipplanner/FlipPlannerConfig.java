@@ -58,15 +58,57 @@ public interface FlipPlannerConfig extends Config
 		return true;
 	}
 
-	@ConfigItem(keyName = "showOfferHint", name = "Show suggested price/quantity", description = "When the GE price or quantity box is open, show the suggested value in the chatbox (you type it in)",
+	@ConfigItem(keyName = "sellOnly", name = "Sell-only mode", description = "Stop suggesting new buys; only help sell what you hold (e.g. before logging off for a while)",
+		section = money, position = 5)
+	default boolean sellOnly()
+	{
+		return false;
+	}
+
+	@ConfigItem(keyName = "blockedItems", name = "Never suggest", description = "Items never to suggest buying: names or item ids, comma-separated (right-click a suggestion in the panel to add one)",
+		section = money, position = 6)
+	default String blockedItems()
+	{
+		return "";
+	}
+
+	@ConfigItem(keyName = "highlightActions", name = "Highlight next action", description = "Outline what to click next in the GE: Collect, a slot's Buy button, the item in the search results, the price/quantity buttons, Confirm",
 		section = shortcuts, position = 0)
+	default boolean highlightActions()
+	{
+		return true;
+	}
+
+	@ConfigItem(keyName = "slotTimers", name = "Slot timers", description = "Show how long each GE offer has been up, coloured green (fine), amber (getting old), red (cancel it) or blue (collect)",
+		section = shortcuts, position = 1)
+	default boolean slotTimers()
+	{
+		return true;
+	}
+
+	@ConfigItem(keyName = "notifyOffers", name = "Notify when offers finish", description = "A notification when a buy or sell offer completes",
+		section = shortcuts, position = 4)
+	default boolean notifyOffers()
+	{
+		return true;
+	}
+
+	@ConfigItem(keyName = "notifyPlan", name = "Notify about new buys", description = "A notification when a new hourly plan has buys for your free slots",
+		section = shortcuts, position = 5)
+	default boolean notifyPlan()
+	{
+		return false;
+	}
+
+	@ConfigItem(keyName = "showOfferHint", name = "Show suggested price/quantity", description = "When the GE price or quantity box is open, show the suggested value in the chatbox (you type it in)",
+		section = shortcuts, position = 2)
 	default boolean showOfferHint()
 	{
 		return true;
 	}
 
 	@ConfigItem(keyName = "searchCode", name = "Search code", description = "Type this in the GE item search to list the suggested items",
-		section = shortcuts, position = 1)
+		section = shortcuts, position = 3)
 	default String searchCode()
 	{
 		return "fp";
