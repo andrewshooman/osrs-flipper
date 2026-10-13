@@ -51,6 +51,9 @@ The plan assumes you check in a few times a day, not every minute.
    first). New buys only get the slots left over.
 4. **New buy offers**: place them in-game at the listed price and quantity, then tap
    **I placed it**. When it fills, record the fill; Orders then tells you where to sell.
+   Only orders expected to make at least **10k gp** after tax are suggested
+   (**Settings → Min profit per order**). Some check-ins have fewer orders than free
+   slots, or none. That's fine: the empty slots are kept for better chances later.
 5. The summary shows the expected profit and when to check back.
 
 ### Log trades automatically with RuneLite
@@ -82,6 +85,13 @@ Tip: when you import from RuneLite, skip **Record fill**. The import does it for
 
 The paper-trading bot decides every hour and makes about +133k/day. Three
 check-ins a day capture most of the gain.
+
+**Why 10k?** In the year walk-forward, the model already avoids tiny orders: a
+typical buy makes about 9.5k, at about 3 new buys and 4 sell listings per check-in.
+A 10k minimum costs almost nothing (+81k/day vs +83k, and the worst two-week period
+improves from +15k to +22k/day). Higher bars mostly remove profit, not clicks. At
+20k: +59k/day and 2 losing periods of 11. At 40k: about +2k/day. The biggest orders
+are capped by buy limits and by how much the market can absorb.
 
 With realistic fills (the 5-minute replay, Aug–Oct 2026), the check-in strategy made
 **+65k to +83k gp/day** on 5.5M (getting 5–10% of real volume). About 1 day in 5

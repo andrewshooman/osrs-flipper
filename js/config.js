@@ -71,7 +71,7 @@
     cashReservePct: 0.5,        // keep half the stack untouched
     maxPerItemPct: 0.25,        // of the deployable capital
     slots: 7,                   // GE slots the tool plans for; the 8th stays free for your own trades
-    minOrderProfit: 20_000,     // only suggest buys expected to make at least this (gp, after tax)
+    minOrderProfit: 10_000,     // only suggest buys expected to make at least this (gp, after tax); walk-forward r12
     slotsDefault7: true,        // marks settings that already got the 7-slot default (see store.js)
     stopLossPct: 0.03,
     maxHoldHours: 12,
