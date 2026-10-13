@@ -73,6 +73,11 @@ class Position:
 
 
 class Sim:
+    # Click counters also live on the class, so a sim pickled before they existed (the
+    # live bot's saved state) still counts from 0 instead of failing on every order.
+    n_buys = 0
+    n_sells = 0
+
     def __init__(self, P: Panel, cfg: Config, strategy):
         self.P, self.cfg, self.s = P, cfg, strategy
         self.cash = cfg.bankroll
