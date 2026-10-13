@@ -38,8 +38,10 @@ The plan assumes you check in a few times a day, not every minute.
 2. **Your items** first: each says *list at X*, *hold* (with the breakeven price),
    *sell now* (the forecast is falling) or *cut* (even the optimistic case won't reach
    breakeven).
-3. **Tidy up**: buy offers older than about 6 hours should be cancelled. The edge has
-   usually moved by then.
+3. **Tidy up**: cancel buy offers older than about 6 hours, because the edge has usually
+   moved by then. Selling comes first: if your slots are full and something you hold
+   needs listing, Orders also tells you which buy offers to cancel (the least-filled
+   first). New buys only get the slots left over.
 4. **New buy offers**: place them in-game at the listed price and quantity, then tap
    **I placed it**. When it fills, record the fill; Orders then tells you where to sell.
 5. The summary shows the expected profit and when to check back.

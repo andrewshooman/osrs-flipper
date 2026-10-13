@@ -56,6 +56,9 @@ class ModelStrategy(Base):
     guard_max_ret_24h = 0.25      # log return over 24h
     guard_max_z_168h = 3.0
     guard_min_active = 0.5        # share of the last 24h with trades on both sides
+    # When all 8 slots are taken, cancel the least-filled buy offer so a holding
+    # can be listed (otherwise profitable items sit unsold behind dead offers).
+    sell_priority = False
 
     def __init__(self, model, F, name=None, **kw):
         self.m, self.F = model, F
@@ -127,7 +130,15 @@ class ModelStrategy(Base):
                     sim.offers.remove(o)
                     sim.place_sell(t, i, target)
             else:
+                if self.sell_priority and sim.free_slots() < 1:
+                    self._free_slot(t, sim)
                 sim.place_sell(t, i, target)
+
+    def _free_slot(self, t, sim):
+        """Cancel the buy offer with the smallest filled share (oldest first)."""
+        buys = [o for o in sim.offers if o.side == "buy" and t > o.placed]
+        if buys:
+            sim.cancel(min(buys, key=lambda o: (o.filled / max(o.qty, 1), o.placed)))
 
     # ---------------------------------------------------------------- entries
     def enter(self, t, sim):

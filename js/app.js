@@ -289,15 +289,19 @@
     }
     const now = Date.now();
     const stale = L.openOffers(ledger()).filter((o) => o.side === "buy" && now - o.placedAt > OSF.decide.PRESET.buyWaitHours * 36e5);
+    const room = (d.makeRoom || []).filter((o) => !stale.some((x) => x.id === o.id) && L.openOffers(ledger()).some((x) => x.id === o.id));
+    const tidy = [...stale.map((o) => ({ o, why: `up ${U.duration((now - o.placedAt) / 36e5)}` })), ...room.map((o) => ({ o, why: "frees a slot to sell what you hold" }))];
     const holds = [...d.holds].sort((a, b) => ({ cut: 0, sell: 1, list: 2, hold: 3, wait: 4 }[a.act.action] - { cut: 0, sell: 1, list: 2, hold: 3, wait: 4 }[b.act.action]));
     const plan = d.plan.plan;
     const sellRows = holds.map((h) => `<div class="pick">
         ${icon(h.itemId)}
         <div style="min-width:0"><div class="name" data-item="${h.itemId}">${esc(h.name || itemName(h.itemId))}</div>
-          <div class="line">You hold ${U.full(h.qty)} @ ${U.full(Math.round(h.avgCost))} · held ${U.duration(h.heldHours)}</div></div>
+          <div class="line">You hold ${U.full(h.qty)} @ ${U.full(Math.round(h.avgCost))} · held ${U.duration(h.heldHours)}</div>
+          ${h.listing ? `<div class="line muted">Listed: ${U.full(h.listing.qty - h.listing.filled)} @ ${U.full(h.listing.price)}</div>` : ""}</div>
         <div class="right"></div>
-        <div class="advice ${h.act.tone}" style="grid-column:2 / -1">${esc(h.act.label)}</div>
-        <div class="actions">${h.act.price ? (h.act.action === "cut"
+        <div class="advice ${h.act.tone}" style="grid-column:2 / -1">${esc(h.act.label)}${h.listing && h.act.price && Math.abs(h.listing.price - h.act.price) / h.act.price > 0.005
+          ? ` (your listing is at ${U.full(h.listing.price)}: cancel it under Your open GE offers to relist)` : ""}</div>
+        <div class="actions">${h.listing ? `<button class="btn sm" data-fill="${h.listing.id}">Record sale</button>` : h.act.price ? (h.act.action === "cut"
           ? `<button class="btn sm primary" data-log-trade="1" data-item-id="${h.itemId}" data-side="sell" data-qty="${h.qty}" data-price="${h.act.price}">I sold it</button>`
           : `<button class="btn sm primary" data-order-sell="${h.itemId}" data-price="${h.act.price}">I listed it</button>
              <button class="btn sm" data-log-trade="1" data-item-id="${h.itemId}" data-side="sell" data-qty="${h.qty}" data-price="${h.act.price}">Already sold</button>`) : ""}</div>
@@ -318,8 +322,8 @@
         <div class="actions"><button class="btn sm primary ${isPractice() ? "practice" : ""}" data-order-buy="${r.id}">${isPractice() ? "Practice buy" : "I placed it"}</button></div>
       </div>`).join("");
     root.innerHTML = head + `
-      ${stale.length ? `<div class="section-head"><h2>Tidy up</h2></div><div class="card">${stale.map((o) => `<div class="row" style="padding:6px 0">
-          <span class="grow">Cancel the unfilled part of <b>${esc(itemName(o.itemId))}</b> (${U.full(o.filled)}/${U.full(o.qty)} filled, up ${U.duration((now - o.placedAt) / 36e5)})</span>
+      ${tidy.length ? `<div class="section-head"><h2>Tidy up</h2></div><div class="card">${tidy.map(({ o, why }) => `<div class="row" style="padding:6px 0">
+          <span class="grow">Cancel the unfilled part of <b>${esc(itemName(o.itemId))}</b> (${U.full(o.filled)}/${U.full(o.qty)} filled, ${why})</span>
           <button class="btn sm" data-cancel="${o.id}">Cancelled it</button></div>`).join("")}</div>` : ""}
       <div class="section-head"><h2>Your items</h2><span class="small muted">${holds.length ? "sell, hold or cut" : ""}</span></div>
       <div class="card">${sellRows || `<div class="empty-state">Nothing held.</div>`}</div>
@@ -333,8 +337,8 @@
       ${plan.length ? `<div class="card" style="margin-top:12px"><b class="good">${U.gp(U.sum(plan.map((r) => r.expected)), { plus: true })}</b> expected if these buy orders fill and sell,
         using ${U.gp(d.plan.deployUsed)}. Check back in about ${U.duration(Math.min(6, Math.max(...plan.map((r) => r.hours))))}
         (around ${new Date(Date.now() + Math.min(6, Math.max(...plan.map((r) => r.hours))) * 36e5).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}) to list what filled.</div>` : ""}
-      <div class="section-head"><h2>New buy offers</h2><span class="small muted">${plan.length} for ${d.cap.slotsFree} free slots · ${U.gp(d.plan.deployUsed)} of ${U.gp(d.cap.deployable)} free gp${d.ctx.mkt_ret_24h < -0.03 ? " · market falling: half size" : ""}</span></div>
-      <div class="card">${buyRows || `<div class="empty-state">${d.cap.slotsFree ? "Nothing worth buying right now — the model only trades when the edge clears tax and risk." : "All GE slots are busy."}</div>`}</div>`;
+      <div class="section-head"><h2>New buy offers</h2><span class="small muted">${plan.length} for ${d.buySlots ?? d.cap.slotsFree} free slots${d.buySlots < d.cap.slotsFree ? " (the rest are kept for selling)" : ""} · ${U.gp(d.plan.deployUsed)} of ${U.gp(d.cap.deployable)} free gp${d.ctx.mkt_ret_24h < -0.03 ? " · market falling: half size" : ""}</span></div>
+      <div class="card">${buyRows || `<div class="empty-state">${(d.buySlots ?? d.cap.slotsFree) ? "Nothing worth buying right now — the model only trades when the edge clears tax and risk." : "No free slots for new buys: list what you hold first."}</div>`}</div>`;
   }
 
   function orderBuy(id) {
