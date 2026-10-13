@@ -16,6 +16,10 @@ from panel import Panel
 NATURE_RUNE_PRICE = 110.0  # used for the alch floor feature when no live price is in the panel
 
 
+# Bump when the feature set changes, so cached walk-forward models aren't reused.
+FEATURE_SET = "v2"  # v2: + trk_fill_7d, trk_exp_7d (item track record)
+
+
 def _tax(p):
     return np.minimum(np.floor(p * 0.02), 5_000_000)
 
@@ -151,8 +155,26 @@ def features(P: Panel, mkt: dict | None = None) -> dict[str, np.ndarray]:
 
     alch = (P.highalch - NATURE_RUNE_PRICE)[None, :]
     F["alch_floor_rel"] = np.where(alch > 0, alch / bid.values, 0)
+    F.update(track_record(P))
 
     return {k: np.asarray(v, dtype=f32) for k, v in F.items()}
+
+
+def track_record(P: Panel, wait_h: float = 2, hold_h: float = 24, days: int = 7) -> dict[str, np.ndarray]:
+    """The item's own recent track record: of the standard flips that could be
+    started in the last `days` (bid al+1 for `wait_h`, ask ah-1 for `hold_h`),
+    how often the bid filled and the average return per attempt (0 when it
+    didn't fill). Only flips whose outcome was already known count, so this
+    looks back, never ahead."""
+    y = flip_labels(P, wait_h=wait_h, hold_h=hold_h)
+    attempt = np.isfinite(P.al) & np.isfinite(P.ah)
+    filled = np.nan_to_num(y["filled"]) == 1
+    fill = np.where(attempt, filled.astype(np.float64), np.nan)
+    gain = np.where(attempt, np.where(filled, np.nan_to_num(y["ret"].astype(np.float64)), 0.0), np.nan)
+    lag = _bars(P, wait_h) + _bars(P, hold_h) + 1
+    n = _bars(P, 24 * days)
+    return {"trk_fill_7d": _df(fill).shift(lag).rolling(n, min_periods=6).mean().values,
+            "trk_exp_7d": _df(gain).shift(lag).rolling(n, min_periods=6).mean().values}
 
 
 def flip_labels(P: Panel, wait_h: float = 2, hold_h: float = 24, dump_slip: float = 0.005,

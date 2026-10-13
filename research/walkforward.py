@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 
 from backtest import STRATEGIES, Config, Sim
-from features import features_chunked, labels_chunked
+from features import FEATURE_SET, features_chunked, labels_chunked
 from panel import load_panel, synthetic_panel
 from strategy_model import ModelStrategy
 from train import candidate_mask, fit
@@ -117,6 +117,8 @@ def main():
         lab = "" if (a.wait_h, a.hold_h) == (2.0, 24.0) else f"-w{a.wait_h:g}h{a.hold_h:g}"
         if (a.leaves, a.lr) != (63, 0.05):
             lab += f"-l{a.leaves}lr{a.lr:g}"
+        if FEATURE_SET != "v1":
+            lab += f"-f{FEATURE_SET}"
         cache = ROOT / "models" / "wf-cache" / f"{a.min_trade_frac}-{a.rounds}{lab}-{int(P.ts[start])}"
         if (cache / "meta.json").exists():
             from train import FlipModel

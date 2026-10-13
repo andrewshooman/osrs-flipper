@@ -122,8 +122,34 @@
     F.hour_sin = Math.sin((2 * Math.PI * hour) / 24); F.hour_cos = Math.cos((2 * Math.PI * hour) / 24);
     const alch = (item.highalch || 0) - NATURE_RUNE_PRICE;
     F.alch_floor_rel = alch > 0 ? alch / bid[last] : 0;
+    Object.assign(F, trackRecord(s));
     for (const k of Object.keys(F)) if (!fin(F[k])) F[k] = NaN;
     return F;
+  }
+
+  /**
+   * The item's recent track record (research/features.py track_record): of the
+   * standard flips started in the last 7 days whose outcome was already known
+   * (bid al+1 for 2h; if filled, ask ah-1 for 24h, else dump at instant-sell),
+   * how often the bid filled and the average return per attempt.
+   */
+  function trackRecord(s, W = 2, H = 24, days = 7) {
+    const last = s.al.length - 1, lag = W + H + 1, n = 24 * days;
+    const alff = ffill(s.al, Infinity);
+    const fills = [], gains = [];
+    for (let t = last - lag - n + 1; t <= last - lag; t++) {
+      const bid = s.al[t] + 1, ask = s.ah[t] - 1;
+      if (t < 0 || !fin(bid) || !fin(ask)) { fills.push(NaN); gains.push(NaN); continue; }
+      let w = 0;
+      for (let k = 1; k <= W; k++) if (fin(s.al[t + k]) && s.al[t + k] <= bid) { w = k; break; }
+      if (!w) { fills.push(0); gains.push(0); continue; }
+      let out = NaN;
+      for (let h = 1; h <= H; h++) { const x = s.ah[t + w + h]; if (fin(x) && x >= ask) { out = ask - tax(ask); break; } }
+      if (!fin(out)) { const px = alff[t + w + H] * (1 - 0.005); if (fin(px)) out = px - tax(px); }
+      fills.push(1);
+      gains.push(fin(out) ? (out - bid) / bid : 0);
+    }
+    return { trk_fill_7d: mean(fills, 6), trk_exp_7d: mean(gains, 6) };
   }
 
   OSF.features = { denseSeries, itemFeatures, NATURE_RUNE_PRICE };

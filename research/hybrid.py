@@ -203,7 +203,9 @@ def main():
     embargo = 27
     train = candidate_mask(P1, F)
     train[t_start - embargo:] = False
-    cache = Path(__file__).resolve().parent / "models" / "replay-cache" / f"{a.train_days}-{a.rounds}-{ts5_from}"
+    from features import FEATURE_SET
+    fs = "" if FEATURE_SET == "v1" else f"-f{FEATURE_SET}"
+    cache = Path(__file__).resolve().parent / "models" / "replay-cache" / f"{a.train_days}-{a.rounds}-{ts5_from}{fs}"
     if (cache / "meta.json").exists():
         from train import FlipModel
         model = FlipModel.load(cache)
