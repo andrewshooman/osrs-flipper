@@ -46,6 +46,18 @@ The plan assumes you check in a few times a day, not every minute.
    **I placed it**. When it fills, record the fill; Orders then tells you where to sell.
 5. The summary shows the expected profit and when to check back.
 
+**How often to check in.** In the year-long backtest (11M stack, 50% reserve):
+
+| Check-ins a day | Profit per day |
+| --- | --- |
+| 2 | +77k |
+| 3 | +90k |
+| 4 | +94k |
+| 6 | +105k |
+
+The paper-trading bot decides every hour and makes about +133k/day. Three
+check-ins a day capture most of the gain.
+
 If a price has moved more than 2% since the model's hourly bar, the order is flagged so
 you can double-check it in-game.
 
@@ -63,8 +75,11 @@ you can double-check it in-game.
   - 4-hour and 12-hour forward-return quantiles, which drive the hold, sell and cut
     decisions
 - **Decisions:**
-  - **Sizing:** quarter-Kelly, from expected return vs. forecast spread, at most 10–15%
-    of free gp in one item. Your cash reserve is never touched.
+  - **Sizing:** at most 10% of free gp per item in Orders (15% for the bot), and
+    no more than the buy limit or what the market can fill in about 4 hours.
+    The Kelly formula (edge vs. forecast spread) is in the code, but this cap
+    binds first: in walk-forward round 9, Kelly fractions from 0.10 to 0.25 gave
+    identical results. Your cash reserve is never touched.
   - **Ranking:** expected gp per hour, divided by the larger share of gp or GE slots
     the order uses.
   - **Pump-and-dump guard:** skips items with margins over 15%, a jump of more than 25%

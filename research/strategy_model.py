@@ -3,7 +3,7 @@ decided from the trained models — no fixed stop-loss or fixed hold time.
 
 Entry:  rank candidates by expected gp/hour per unit of scarce resource
         (gp or GE slot), where expected gp = P(fill) x E[return | fill] x size.
-Size:   quarter-Kelly on the predicted edge vs. forecast spread, capped by the
+Size:   Kelly on the predicted edge vs. forecast spread, capped by the
         buy limit, what the market can fill, and 25% of deployable gp.
 Exits:  each bar, for every position, compare selling now with the 4h
         forecast (10/50/90% quantiles) of the achievable sell price:

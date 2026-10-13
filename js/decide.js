@@ -61,7 +61,7 @@
         sellTarget: Math.round(bar.ah) - 1, fill, q50: pred.fwd4_q50,
         reasons: [
           `${U.pct(expRet, 2)} expected after tax (fills ${U.pct(fill, 0)} of the time)`,
-          `~${U.duration(hours)} to buy and sell; size from edge vs. risk (quarter-Kelly)`,
+          `~${U.duration(hours)} to buy and sell; up to 10% of your free gp, capped by the buy limit and what the market can fill`,
         ],
       });
     }

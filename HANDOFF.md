@@ -53,6 +53,9 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 | r5 | sell uplift (list above market on a rising forecast) | +132k/day, no gain | +90k/day, no gain |
 | r6 | LightGBM 31 leaves, 300 trees | +116k/day, worse | +86k/day, worse |
 | r7 | learning rate 0.03, 400 trees (8 of 11 folds) | worse (1,034k vs 1,169k) | worse (784k vs 806k) |
+| r8 | item track-record features (7-day fill rate, return per attempt) | +119k/day, worse | +90k/day, same; code kept on branch `research/track-record` |
+| r9 | check-in settings: Kelly 0.10/0.25, min return 0.3%, 12h buy wait, 7% cap | — | Kelly and min return change nothing (the 10% cap binds); 12h wait +80k and 7% cap +64k, both worse: keep the preset |
+| r10 | check-ins per day (UTC 12/23, +17, +16/20/0, every 3h from 12 to 3) | hourly: +133k (r5) | 2×: +77k, 3×: +90k, 4×: +94k, 6×: +105k/day, all 11/11 folds positive |
 
   Baselines lose in every fold: top-margin −187k/day and the old heuristic
   −246k/day.
@@ -95,10 +98,10 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 - **Durable option:** the user's PC (`Start GE Flipper.bat`, see the README).
 
 ## Next steps
-1. **Model tuning is done for now.** Rounds 6–7 lost to the current LightGBM
-   settings (63 leaves, learning rate 0.05, 200 trees). Better gains are more
-   likely from new information, for example an item's own track record of
-   flips, or 30-day context from 6h data.
+1. **The model looks well tuned for this data.** Different labels (r4), tree
+   settings (r6–r7) and track-record features (r8) all failed to beat it. The
+   gains came from strategy (sell priority, r5), so strategy is where to keep
+   looking (r9: check-in settings).
 2. **Live bot vs. backtest:** after 3–7 days, check that live profit per day
    lands inside the replay range (+102k to +141k on 5.5M deployable). If it
    doesn't, recalibrate the fill share.
