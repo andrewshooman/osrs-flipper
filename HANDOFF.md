@@ -1,6 +1,6 @@
 # Handoff: where the project stands and what comes next
 
-*Last updated: 2026-10-12, 23:45 UTC.*
+*Last updated: 2026-10-13, 00:55 UTC.*
 
 **Goal:** use the GE tool to make the user coins. The user trades sporadically, a
 few check-ins a day, and wants recommendations they can follow plus easy
@@ -62,7 +62,9 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 ## Next steps (in order)
 1. **Live paper trading, 3–7 days.** Watch that its results land inside the replay's range
    (+98k to +157k per day on 5.5M). If they don't, recalibrate the fill share.
-2. **User trading flow**, built while the bot runs (no real gold until step 1 passes):
+2. **User trading flow:** first version done on `app/do-this-now`. The Orders tab runs the model
+   in the browser and shows buy orders, sell/hold/cut actions for holdings, and tidy-up of offers
+   older than 6h, with one-tap logging. It was checked against live prices. Remaining ideas below.
    - Export `full-year-v1` to JSON (`research/export_js.py`) and run it in the app
      (`js/features.js` + `js/gbm.js`; parity is tested).
    - A "Do this now" list sized to the user's stack (11M, 50% reserve), built for sporadic
