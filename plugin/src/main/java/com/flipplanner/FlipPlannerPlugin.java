@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.inject.Provides;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,9 +28,12 @@ import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.GrandExchangeOffer;
 import net.runelite.api.GrandExchangeOfferState;
+import net.runelite.api.MenuAction;
+import net.runelite.api.MenuEntry;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GrandExchangeOfferChanged;
 import net.runelite.api.events.GrandExchangeSearched;
+import net.runelite.api.events.MenuOpened;
 import net.runelite.api.events.VarClientIntChanged;
 import net.runelite.api.ChatMessageType;
 import net.runelite.client.Notifier;
@@ -105,6 +109,8 @@ public class FlipPlannerPlugin extends Plugin
 	@Inject
 	private GeOverlay overlay;
 	@Inject
+	private ItemTooltipOverlay tooltipOverlay;
+	@Inject
 	private Notifier notifier;
 	@Inject
 	private ConfigManager configManager;
@@ -120,6 +126,7 @@ public class FlipPlannerPlugin extends Plugin
 	private ScheduledFuture<?> pendingSave;
 	private ScheduledFuture<?> pendingRefresh;
 	private volatile GeOverlay.State overlayState = new GeOverlay.State();
+	private volatile Map<Integer, String> tips = Collections.emptyMap();
 	private volatile boolean paused;
 	private final Set<Integer> skipped = ConcurrentHashMap.newKeySet();
 	private volatile long skippedBar = -1;
@@ -189,7 +196,7 @@ public class FlipPlannerPlugin extends Plugin
 			@Override
 			public void graph(int itemId, String name, Double buy, Double sell)
 			{
-				openGraph(itemId, name, buy, sell);
+				openGraph(panel, itemId, name, buy, sell);
 			}
 		});
 		nav = NavigationButton.builder()
@@ -204,6 +211,8 @@ public class FlipPlannerPlugin extends Plugin
 		shortcuts.setAdvice(advisor);
 		overlay.setState(() -> overlayState);
 		overlayManager.add(overlay);
+		tooltipOverlay.setSources(() -> config.itemTooltips() && !paused ? tips : Collections.emptyMap(), () -> overlayState.slots);
+		overlayManager.add(tooltipOverlay);
 		// New hourly prices land a few minutes after the hour; check every 5 minutes.
 		ticker = scheduler.scheduleWithFixedDelay(() -> refresh(false), 5, 300, TimeUnit.SECONDS);
 		if (client.getGameState() == GameState.LOGGED_IN)
@@ -217,6 +226,7 @@ public class FlipPlannerPlugin extends Plugin
 	{
 		ticker.cancel(false);
 		overlayManager.remove(overlay);
+		overlayManager.remove(tooltipOverlay);
 		shortcuts.setAdvice(null);
 		clientToolbar.removeNavigation(nav);
 		saveNow();
@@ -584,6 +594,7 @@ public class FlipPlannerPlugin extends Plugin
 	private void onPlan()
 	{
 		Recommender.Result r = advisor.lastResult();
+		tips = ItemTips.build(r);
 		if (r != null && r.barTs != skippedBar)
 		{
 			skipped.clear();
@@ -686,20 +697,80 @@ public class FlipPlannerPlugin extends Plugin
 	}
 
 	/** Opens the price graph for an item (history is fetched on the worker thread). */
-	private void openGraph(int itemId, String name, Double buy, Double sell)
+	private void openGraph(java.awt.Component parent, int itemId, String name, Double buy, Double sell)
 	{
 		worker.execute(() ->
 		{
 			try
 			{
 				java.util.List<com.flipplanner.engine.HourPoint> pts = advisor.prices().timeseries1h(itemId);
-				SwingUtilities.invokeLater(() -> com.flipplanner.ui.PriceGraphDialog.open(panel, name, pts, buy, sell));
+				SwingUtilities.invokeLater(() -> com.flipplanner.ui.PriceGraphDialog.open(parent, name, pts, buy, sell));
 			}
 			catch (IOException ex)
 			{
 				advisor.setError("Couldn't load the price history: " + ex.getMessage());
 			}
 		});
+	}
+
+	/** Adds "Price graph" to the right-click menu of items in the inventory, bank and GE. Client-side only. */
+	@Subscribe
+	public void onMenuOpened(MenuOpened e)
+	{
+		if (!config.priceGraphMenu())
+		{
+			return;
+		}
+		MenuEntry[] entries = e.getMenuEntries();
+		int id = -1;
+		for (int i = entries.length - 1; i >= 0 && id <= 0; i--)
+		{
+			id = ItemTooltipOverlay.itemUnder(entries[i], overlayState.slots);
+		}
+		if (id <= 0)
+		{
+			return;
+		}
+		int itemId = itemManager.canonicalize(id);
+		net.runelite.api.ItemComposition item = itemManager.getItemComposition(itemId);
+		if (!item.isGeTradeable())
+		{
+			return;
+		}
+		String name = item.getName();
+		Double[] marks = graphMarks(itemId);
+		client.getMenu().createMenuEntry(1)
+			.setOption("Price graph")
+			.setTarget("<col=ff9040>" + name + "</col>")
+			.setType(MenuAction.RUNELITE)
+			.onClick(m -> openGraph(client.getCanvas(), itemId, name, marks[0], marks[1]));
+	}
+
+	/** Suggested buy and sell prices to mark on an item's graph, from the latest plan; nulls when there's none. */
+	private Double[] graphMarks(int itemId)
+	{
+		Recommender.Result r = advisor.lastResult();
+		Double buy = null;
+		Double sell = null;
+		if (r != null)
+		{
+			for (BuyIdea b : r.plan)
+			{
+				if (b.id == itemId)
+				{
+					buy = (double) b.buy;
+					sell = b.sellTarget;
+				}
+			}
+			for (Recommender.HoldView h : r.holds)
+			{
+				if (h.itemId == itemId && h.action.price != null && Double.isFinite(h.action.price) && h.action.price > 0)
+				{
+					sell = h.action.price;
+				}
+			}
+		}
+		return new Double[]{buy, sell};
 	}
 
 	@Subscribe

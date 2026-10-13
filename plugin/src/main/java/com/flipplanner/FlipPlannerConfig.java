@@ -120,4 +120,18 @@ public interface FlipPlannerConfig extends Config
 	{
 		return "fp";
 	}
+
+	@ConfigItem(keyName = "itemTooltips", name = "Item tooltips", description = "Hovering an item you're flipping (inventory, bank or GE) shows what you paid, the breakeven and the current advice",
+		section = shortcuts, position = 7)
+	default boolean itemTooltips()
+	{
+		return true;
+	}
+
+	@ConfigItem(keyName = "priceGraphMenu", name = "Price graph menu option", description = "Adds \"Price graph\" to the right-click menu of items in the inventory, bank and GE",
+		section = shortcuts, position = 8)
+	default boolean priceGraphMenu()
+	{
+		return true;
+	}
 }
