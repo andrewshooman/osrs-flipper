@@ -12,7 +12,7 @@ global.localStorage = {
   removeItem: (k) => store.delete(k),
 };
 const path = require("path");
-["config", "util", "api", "ledger", "model", "store", "engine", "decide"].forEach((f) => require(path.join(__dirname, "..", "js", f + ".js")));
+["config", "util", "api", "ledger", "model", "store", "tradefile", "engine", "decide"].forEach((f) => require(path.join(__dirname, "..", "js", f + ".js")));
 const OSF = global.window.OSF;
 const { util: U, ledger: L, model: M, config: C } = OSF;
 
@@ -340,6 +340,48 @@ function series(n, stepSec, fn, now = Date.now()) {
     eq(D.holdingAction({ qty: 100, avgCost: 1300, heldHours: 2 }, bar, { ...pred, fwd4_q50: -0.01, fwd4_q90: 0.01 }, 1).action, "cut", "hopeless loser: cut");
     eq(D.holdingAction({ qty: 100, avgCost: 1100, heldHours: 2 }, bar, { ...pred, fwd4_q90: 0.08 }, 1).action, "hold", "recoverable loser: hold at breakeven");
     eq(D.holdingAction({ qty: 100, avgCost: 1000, heldHours: 50 }, bar, pred, 1).action, "cut", "held over 2 days: sell now");
+  });
+
+  await group("trade file on your PC (tradefile.js)", async () => {
+    const TF = OSF.tradefile, ST = OSF.store;
+    eq(TF.supported, false, "Node has no File System Access API");
+    eq(TF.T.status, "unsupported", "unsupported browsers report it");
+    const withTrades = (n, savedAt) => {
+      const st = ST.fresh();
+      for (let i = 0; i < n; i++) L.addTrade(st.ledgers.real, { itemId: 1, side: "buy", qty: 1, price: 100 + i, ts: 1000 + i });
+      st.savedAt = savedAt;
+      return st;
+    };
+    eq(TF.reconcile(withTrades(3, 5), null).action, "write", "empty file: write this browser's copy");
+    eq(TF.reconcile(withTrades(3, 5), withTrades(0, 9)).action, "write", "file with no trades: overwrite it");
+    eq(TF.reconcile(withTrades(0, 9), withTrades(4, 5)).action, "restore", "browser data cleared: restore from the file");
+    eq(TF.reconcile(withTrades(2, 5), withTrades(4, 9)).action, "ask", "newer, different file: ask");
+    eq(TF.reconcile(withTrades(4, 9), withTrades(2, 5)).action, "write", "older file: bring it up to date");
+    const same = withTrades(2, 5);
+    eq(TF.reconcile(same, { ...same, savedAt: 9 }).action, "write", "newer file with the same data: nothing to ask");
+    eq(TF.count(withTrades(3, 0)), 3, "count covers trades and offers");
+
+    // Writes go through a FileSystemFileHandle; a fake one records them.
+    const writes = [];
+    TF.T.handle = { name: "ge-flipper-trades.json", createWritable: async () => {
+      let buf = ""; return { write: async (t) => { buf += t; }, close: async () => { writes.push(buf); } };
+    } };
+    TF.T.status = "ok";
+    const st = withTrades(2, 7);
+    TF.schedule(st, 0);
+    await new Promise((r) => setTimeout(r, 20));
+    eq(writes.length, 1, "a save writes the file once");
+    const back = ST.importJSON(writes[0]);
+    eq(back.ledgers.real.trades.length, 2, "the file holds every trade");
+    eq(back.savedAt, 7, "and when it was saved");
+    TF.schedule(st, 0); TF.schedule(st, 0); TF.schedule(st, 0);
+    await new Promise((r) => setTimeout(r, 20));
+    eq(writes.length, 2, "quick saves are merged into one write");
+    TF.T.handle.createWritable = async () => { const e = new Error("denied"); e.name = "NotAllowedError"; throw e; };
+    TF.schedule(st, 0);
+    await new Promise((r) => setTimeout(r, 20));
+    eq(TF.T.status, "needs-permission", "a refused write asks to reconnect");
+    TF.T.handle = null; TF.T.status = "unsupported";
   });
 
   console.log(`\n${passed} passed, ${failed} failed`);

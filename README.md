@@ -26,8 +26,15 @@ work before you risk real gold.
 
 Prices come straight from the
 [OSRS Wiki real-time prices API](https://oldschool.runescape.wiki/w/RuneScape:Real-time_Prices).
-Trades, offers and settings are saved in your browser (`localStorage`). Use
-**Settings → Export backup** to keep a copy or move to another device.
+Trades, offers and settings are saved in your browser (`localStorage`).
+
+**Keep your trade history on your PC.** In **Settings → Trade file on your PC**, tap
+**Save trades to a file…** and pick a folder on any drive (for example `D:\GE-Flipper`).
+From then on, every trade or offer you log is written to that file straight away.
+If the browser's data is ever cleared, or you set the app up again, tap
+**Use an existing file…** and your history comes back. This works in Chrome and Edge
+on a computer. Some visits the browser asks for your OK again: tap **Reconnect file**
+in the banner. In other browsers, use **Export backup** now and then.
 
 ### Using Orders
 
