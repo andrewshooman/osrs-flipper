@@ -58,7 +58,9 @@ The plan assumes you check in a few times a day, not every minute.
 
 ### Log trades automatically with RuneLite
 
-You don't have to type in your fills. The GE Flipper RuneLite plugin (in `plugin/`, in progress) or the free **Flipping Utilities** plugin records
+You don't have to type in your fills. The GE Flipper RuneLite plugin (download it from
+[Releases](https://github.com/andrewshooman/osrs-flipper/releases); see `plugin/README.md`)
+or the free **Flipping Utilities** plugin records
 every GE offer you make:
 
 1. In RuneLite, open the **Plugin Hub**, search for **Flipping Utilities** and install it.

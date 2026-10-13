@@ -1,10 +1,16 @@
 name: plugin release
 
 # Builds the RuneLite plugin and publishes ge-flipper.jar with the start scripts
-# as a GitHub release, when a tag like plugin-v0.1.0 is pushed.
+# as a GitHub release: when a tag like plugin-v0.1.0 is pushed, or when run by
+# hand with a version (the release then creates the tag on the commit it built).
 on:
   push:
     tags: [ 'plugin-v*' ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Plugin version, e.g. 0.1.0'
+        required: true
 
 permissions:
   contents: write
@@ -30,7 +36,10 @@ jobs:
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
         run: |
-          gh release create "$GITHUB_REF_NAME" out/GE-Flipper-plugin.zip plugin/build/libs/ge-flipper.jar \
-            --title "GE Flipper plugin ${GITHUB_REF_NAME#plugin-v}" --prerelease \
+          TAG="${GITHUB_REF_NAME}"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then TAG="plugin-v${VERSION}"; fi
+          gh release create "$TAG" out/GE-Flipper-plugin.zip plugin/build/libs/ge-flipper.jar \
+            --target "$GITHUB_SHA" --title "GE Flipper plugin ${TAG#plugin-v}" --prerelease \
             --notes "Download GE-Flipper-plugin.zip, unzip it anywhere (for example D:\GE-Flipper), and follow README.md inside: double-click 'Start RuneLite with GE Flipper.bat'. Needs RuneLite installed and opened once. Test build: not on the Plugin Hub yet."

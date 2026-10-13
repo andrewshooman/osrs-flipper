@@ -17,7 +17,10 @@ Nothing is automated. Every offer is placed by you, and every shortcut needs you
 RuneLite only loads Plugin Hub plugins, unless the client is started outside the Jagex Launcher. The start script does that with your own RuneLite install: it uses RuneLite's Java and the client files RuneLite already downloaded, and adds `ge-flipper.jar`.
 
 1. Install RuneLite from runelite.net and open it normally once.
-2. Put `ge-flipper.jar` and `Start RuneLite with GE Flipper.bat` in one folder. The `.bat` is in `plugin/dist/`; on Mac or Linux use `start-runelite-ge-flipper.sh`.
+2. Download **GE-Flipper-plugin.zip** from the newest *GE Flipper plugin* release
+   (https://github.com/andrewshooman/osrs-flipper/releases). Unzip it anywhere, for example
+   `D:\GE-Flipper`. It has `ge-flipper.jar`, `Start RuneLite with GE Flipper.bat`, the
+   Mac/Linux script `start-runelite-ge-flipper.sh`, and this README.
 3. **Jagex accounts only:** let RuneLite remember your login (RuneLite's documented method for clients started this way):
    1. In the Start menu, open **RuneLite (configure)**. In *Client arguments*, add `--insecure-write-credentials` and click Save.
    2. Start RuneLite once from the **Jagex Launcher**. This writes `.runelite/credentials.properties`.
