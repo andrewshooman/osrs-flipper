@@ -46,6 +46,24 @@ The plan assumes you check in a few times a day, not every minute.
    **I placed it**. When it fills, record the fill; Orders then tells you where to sell.
 5. The summary shows the expected profit and when to check back.
 
+### Log trades automatically with RuneLite
+
+You don't have to type in your fills. The free **Flipping Utilities** plugin records
+every GE offer you make:
+
+1. In RuneLite, open the **Plugin Hub**, search for **Flipping Utilities** and install it.
+   Then play as normal; it logs your GE offers in the background.
+2. In the app, tap **Import RuneLite**. It's on Orders, next to *Your open GE offers*,
+   and on Profit. Pick the file `<your RuneLite folder>/flipping/<your name>.json`.
+   On Windows that's usually `C:\Users\<you>\.runelite\flipping\`.
+3. Finished offers, complete or cancelled, are added as trades. If you logged that
+   offer with **I placed it**, the import fills and closes it, so Profit can still
+   compare the result with the model's prediction.
+   - Offers still running come in on a later import, once they finish.
+   - Importing the same file again never double-counts.
+
+Tip: when you import from RuneLite, skip **Record fill**. The import does it for you.
+
 **How often to check in.** In the year-long backtest (11M stack, 50% reserve):
 
 | Check-ins a day | Profit per day |
