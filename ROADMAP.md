@@ -29,23 +29,18 @@ Record results in HANDOFF.md.
 - 0.4.1: fixes from a code review for in-game behaviour (no Leagues/DMM/beta trades
   in the history, safe trade-file loading, slots re-read when turned on, noted items,
   setup price, a responsive panel, the `fp` search alongside the core GE plugin).
+- 0.5.0: dip alerts (opt-in): the newest 5-minute prices against the 24h averages,
+  every 2 minutes while logged in; notification, chat line, panel list, `fp` search
+  and price hint.
 - Re-pricing stale buys instead of cancelling them: tested in the 5-minute replay
   (r13), no gain (worse at a 5% share), so not shipped. See HANDOFF.md.
 
 ## Queue
-1. **Dip alerts in the plugin (opt-in).** The research passed (HANDOFF: +56k/day out of
-   sample, 2 slots, 2M per trade; random-timing control −28k).
-   - Poll the wiki's `/5m` every 5 minutes while logged in, using `/24h` as the reference.
-   - Alert when an item's instant-sell price is at least 8% under its 24h average on
-     at least twice its usual volume.
-   - Suggest: buy at the dip price, sell at 1% under the 24h average buy price, sell
-     anyway after 6h.
-   - One alert per item per 6h. Notification, chat line and a panel list. Off by default.
-2. **Weekly retrain.** Run `research/retrain.py`, export the model to
+1. **Weekly retrain.** Run `research/retrain.py`, export the model to
    `models/flip-model.js` and the plugin's `flip-model.json`, regenerate the parity
    fixtures, and release.
-3. **Keep iterating** on whatever the user reports from in-game testing. The GE
-   highlights, slot timers, tooltips, the menu option and the GP drop haven't been checked in-game
+2. **Keep iterating** on whatever the user reports from in-game testing. The GE
+   highlights, slot timers, tooltips, the menu option, the GP drop and dip alerts haven't been checked in-game
    yet, so those reports come first.
 
 ## Rules to keep (RuneLite Plugin Hub)

@@ -18,6 +18,9 @@ public interface FlipPlannerConfig extends Config
 	@ConfigSection(name = "Grand Exchange", description = "Help while setting up GE offers", position = 1)
 	String shortcuts = "shortcuts";
 
+	@ConfigSection(name = "Dip alerts", description = "Alerts when a liquid item suddenly drops well under its 24h average", position = 2)
+	String dips = "dips";
+
 	@ConfigItem(keyName = "bankroll", name = "Stack (gp)", description = "Your flipping stack: coins plus what's in offers and items you're flipping. Not used while Use detected stack is on and your bank has been seen.",
 		section = money, position = 0)
 	@Units(" gp")
@@ -147,5 +150,21 @@ public interface FlipPlannerConfig extends Config
 	default boolean gpDrop()
 	{
 		return true;
+	}
+
+	@ConfigItem(keyName = "dipAlerts", name = "Dip alerts", description = "While you play, check the newest 5-minute prices every 2 minutes and alert when a liquid item drops well under its 24h average on heavy volume. Act within about 20 minutes or skip it.",
+		section = dips, position = 0)
+	default boolean dipAlerts()
+	{
+		return false;
+	}
+
+	@ConfigItem(keyName = "dipDrop", name = "Minimum drop", description = "How far under its 24h average an item's instant-sell price must fall (8% was best in testing)",
+		section = dips, position = 1)
+	@Range(min = 5, max = 30)
+	@Units(Units.PERCENT)
+	default int dipDrop()
+	{
+		return 8;
 	}
 }

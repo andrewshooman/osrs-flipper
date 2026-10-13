@@ -42,7 +42,7 @@ public class WikiPriceSourceTest
 				body = "[{\"examine\":\"x\",\"id\":2,\"members\":true,\"lowalch\":2,\"limit\":11000,\"value\":5,\"highalch\":3,\"icon\":\"a.png\",\"name\":\"Cannonball\"},"
 					+ "{\"id\":13190,\"members\":false,\"value\":1,\"name\":\"Old school bond\"}]";
 			}
-			else if (path.startsWith("/1h?timestamp=") || path.equals("/24h"))
+			else if (path.startsWith("/1h?timestamp=") || path.equals("/24h") || path.equals("/5m"))
 			{
 				body = "{\"data\":{\"561\":{\"avgHighPrice\":110,\"highPriceVolume\":900,\"avgLowPrice\":null,\"lowPriceVolume\":0},"
 					+ "\"2\":{\"avgHighPrice\":170,\"highPriceVolume\":10,\"avgLowPrice\":165,\"lowPriceVolume\":12}},\"timestamp\":1791896400}";
@@ -91,6 +91,9 @@ public class WikiPriceSourceTest
 		assertEquals(172, lt[0]);
 		assertEquals(0, lt[1]);
 		assertEquals(2, src.avg24h().size());
+		Map<Integer, HourPoint> five = src.latest5m();
+		assertEquals(165, five.get(2).avgLowPrice, 0);
+		assertEquals(1791896400L, five.get(2).timestamp);
 
 		for (Request r : requests)
 		{

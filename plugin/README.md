@@ -30,6 +30,11 @@ Flip Planner brings the model behind the GE Flipper web app (https://andrewshoom
   - *Never suggest* blocks items; right-click a suggestion to add it.
   - *Min profit per order* hides orders that aren't worth the clicks.
   - *Use detected stack* plans with the money the game shows: coins and platinum tokens in your inventory and bank, gp in buy offers, and the items you're flipping at cost. Open your bank once so it can count your coins. The Profit section shows the detected stack either way.
+- **Dip alerts (optional, off by default).**
+  - **What it does:** while you play, Flip Planner checks the newest 5-minute prices every 2 minutes. When a liquid item suddenly trades well under its 24-hour average on heavy volume, you get a notification and a chat line, for example *"Rune platebody dipped 11% to 37,200. Buy up to 53 at 37,200, sell at 41,480 (+210K); sell anyway after 6h."*
+  - **Where it shows:** the item also appears in the panel, in the `fp` search and in the price hint for 30 minutes.
+  - **Testing:** in a replay of two months of real 5-minute trades, this made about +56k a day on the month it wasn't tuned on. The same trades at random moments lost money.
+  - **Catch:** it only pays if you act within about 20 minutes, and a single trade can lose money. Turn it on under *Dip alerts* in the settings.
 - **What to buy.** The side panel lists the model's buy orders for your stack: the item, price, quantity, where to sell, and the expected profit. Only orders worth the clicks are shown, so some check-ins have nothing to buy. That's fine.
 - **What to do with what you hold.** For each item you hold, the panel says list at a price, hold (with the breakeven price), sell now, or cut.
 - **Help in the GE:**

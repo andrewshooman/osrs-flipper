@@ -41,6 +41,8 @@ public class PanelModel
 	public final List<Buy> buys = new ArrayList<>();
 	public final List<Hold> holds = new ArrayList<>();
 	public final List<String> tidy = new ArrayList<>();
+	/** Live dip alerts, newest first. */
+	public final List<String> dips = new ArrayList<>();
 	public double profitToday;
 	public double profitTotal;
 	public int flips;
@@ -68,6 +70,7 @@ public class PanelModel
 		m.buys.addAll(buys);
 		m.holds.addAll(holds);
 		m.tidy.addAll(tidy);
+		m.dips.addAll(dips);
 		m.profitToday = profitToday;
 		m.profitTotal = profitTotal;
 		m.flips = flips;
