@@ -110,7 +110,7 @@
    * "Do this now": buy orders for free slots + an action for every holding,
    * from the validated model. Needs models/flip-model.js loaded.
    */
-  async function doThisNow(state, { onProgress = () => {}, candidates = 150 } = {}) {
+  async function doThisNow(state, { onProgress = () => {}, candidates = 300 } = {}) {
     if (!window.OSF_MODEL) throw new Error("Model file not loaded (models/flip-model.js)");
     const ledger = activeLedger(state);
     const barTs = Math.floor(Date.now() / 1000 / 3600) * 3600 - 3600; // latest completed hour
@@ -128,6 +128,7 @@
         && d.avgHighPrice - 1 - tax1(d.avgHighPrice - 1) - (d.avgLowPrice + 1) > 0)
       .map((x) => ({ ...x, edge: Math.min(x.d.highPriceVolume, x.d.lowPriceVolume) * (x.d.avgHighPrice - 1 - tax1(x.d.avgHighPrice - 1) - x.d.avgLowPrice - 1) }))
       .sort((a, b) => b.edge - a.edge) // tradeable gp of margin per hour
+      // Top 300 by edge holds ~96% of what the backtested strategy buys (top 150: ~65%).
       .slice(0, candidates);
     const { holdings } = L.positions(ledger.trades);
     const ids = [...new Set([...short.map((x) => x.id), ...holdings.keys()])];

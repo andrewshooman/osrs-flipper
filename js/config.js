@@ -37,7 +37,7 @@
       ts5m: 10 * 60 * 1000,
       ts1h: 30 * 60 * 1000,
     },
-    MAX_CONCURRENT_REQUESTS: 4,
+    MAX_CONCURRENT_REQUESTS: 6,
     // How many prefiltered candidates get the full (history-backed) analysis.
     DEEP_CANDIDATES: 40,
   };

@@ -34,7 +34,7 @@ Trades, offers and settings are saved in your browser (`localStorage`). Use
 The plan assumes you check in a few times a day, not every minute.
 
 1. Open **Orders**. It runs the model in your browser on the latest hourly prices.
-   It fetches recent history for about 150 items, so give it a moment.
+   It fetches recent history for about 300 items, so give it a minute.
 2. **Your items** first: each says *list at X*, *hold* (with the breakeven price),
    *sell now* (the forecast is falling) or *cut* (even the optimistic case won't reach
    breakeven).
