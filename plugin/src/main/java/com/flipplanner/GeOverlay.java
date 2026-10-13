@@ -15,11 +15,11 @@ import net.runelite.api.gameval.VarClientID;
 import net.runelite.api.gameval.VarPlayerID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
+import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
-import net.runelite.client.ui.overlay.OverlayPriority;
 
 /**
  * Draws on top of the Grand Exchange: an outline on whatever the next action
@@ -53,15 +53,17 @@ public class GeOverlay extends Overlay
 	private static final Color AMBER = new Color(0xFA, 0xB2, 0x19);
 
 	private final Client client;
+	private final ItemManager itemManager;
 	private Supplier<State> state = State::new;
 
 	@Inject
-	GeOverlay(Client client)
+	GeOverlay(Client client, ItemManager itemManager)
 	{
 		this.client = client;
+		this.itemManager = itemManager;
 		setPosition(OverlayPosition.DYNAMIC);
 		setLayer(OverlayLayer.ABOVE_WIDGETS);
-		setPriority(OverlayPriority.HIGH);
+		setPriority(PRIORITY_HIGH);
 	}
 
 	public void setState(Supplier<State> state)
@@ -155,7 +157,8 @@ public class GeOverlay extends Overlay
 				{
 					for (Widget item : inv.getDynamicChildren())
 					{
-						if (item.getItemId() == a.itemId)
+						// Items collected from the GE are often noted.
+						if (item.getItemId() > 0 && itemManager.canonicalize(item.getItemId()) == a.itemId)
 						{
 							outline(g, item, BLUE);
 							break;
@@ -213,8 +216,11 @@ public class GeOverlay extends Overlay
 		{
 			return;
 		}
-		long price = client.getVarpValue(VARP_SETUP_PRICE);
+		long price = setupPrice();
 		long qty = client.getVarbitValue(VarbitID.GE_NEWOFFER_QUANTITY);
+		// The GE fills in the guide price, so 0 means the price couldn't be read: then
+		// keep pointing at the price button, but don't hold back Confirm because of it.
+		boolean priceKnown = price > 0;
 		boolean priceOk = price == a.price;
 		boolean qtyOk = qty == a.qty;
 		if (!priceOk)
@@ -225,10 +231,17 @@ public class GeOverlay extends Overlay
 		{
 			outline(g, setup.getChild(SETUP_QTY_CUSTOM), BLUE);
 		}
-		if (priceOk && qtyOk)
+		if ((priceOk || !priceKnown) && qtyOk)
 		{
 			outline(g, client.getWidget(InterfaceID.GeOffers.SETUP_CONFIRM), BLUE);
 		}
+	}
+
+	/** The price on the offer setup screen. Its varp sits among the GE's long varps, so read it either way. */
+	private long setupPrice()
+	{
+		long p = client.getVarpLongValue(VARP_SETUP_PRICE);
+		return p > 0 ? p : client.getVarpValue(VARP_SETUP_PRICE);
 	}
 
 	private void highlightSearchResult(Graphics2D g, NextAction a)

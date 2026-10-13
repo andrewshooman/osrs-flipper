@@ -26,6 +26,9 @@ Record results in HANDOFF.md.
   "Price graph" in the right-click menu of tradeable items; "Use detected stack"
   (coins in the inventory and bank, gp in buy offers, items at cost); a GP drop with
   the profit when a sell finishes.
+- 0.4.1: fixes from a code review for in-game behaviour (no Leagues/DMM/beta trades
+  in the history, safe trade-file loading, slots re-read when turned on, noted items,
+  setup price, a responsive panel, the `fp` search alongside the core GE plugin).
 
 ## Queue
 1. **Re-pricing instead of only cancelling (research first).** In the 5-minute replay

@@ -65,6 +65,7 @@ public class FlipperPanel extends PluginPanel
 	private final JButton skip = new JButton("Skip");
 	private final JButton pause = new JButton("Pause");
 	private final StatsPanel statsPanel;
+	private com.flipplanner.engine.Ledger.Stats shownStats;
 
 	public FlipperPanel(ItemManager itemManager, Actions actions)
 	{
@@ -276,8 +277,10 @@ public class FlipperPanel extends PluginPanel
 		refresh.setEnabled(!m.loading);
 		status.setText("<html>" + esc(m.loading ? (m.status.isEmpty() ? "Working…" : m.status) : m.status) + "</html>");
 		body.removeAll();
-		if (m.stats != null)
+		if (m.stats != null && m.stats != shownStats)
 		{
+			// Status-only updates (model progress) keep the same stats: don't rebuild the Stats tab for those.
+			shownStats = m.stats;
 			statsPanel.show(m.stats, m.names, System.currentTimeMillis());
 		}
 

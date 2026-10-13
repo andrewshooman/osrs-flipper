@@ -25,6 +25,15 @@ public class TradeStore<T>
 	private final String name;
 	private final Class<T> type;
 
+	/** The file couldn't be parsed and has been moved aside, so starting a new one is safe. */
+	public static class DamagedException extends IOException
+	{
+		DamagedException(String message, Throwable cause)
+		{
+			super(message, cause);
+		}
+	}
+
 	public TradeStore(Gson gson, Filepath dir, String name, Class<T> type)
 	{
 		this.gson = gson;
@@ -43,7 +52,11 @@ public class TradeStore<T>
 		return dir.joinSegment(name + "-offers.jsonl");
 	}
 
-	/** The saved data, or null when there's none yet. A damaged file is set aside, not overwritten. */
+	/**
+	 * The saved data, or null when there's none yet. A damaged file is set aside, not
+	 * overwritten ({@link DamagedException}). Any other IOException means the file is
+	 * still there but couldn't be read right now: don't start a new one over it.
+	 */
 	public T load() throws IOException
 	{
 		Filepath file = file();
@@ -59,7 +72,7 @@ public class TradeStore<T>
 		{
 			Filepath aside = dir.joinSegment(name + ".json.damaged-" + System.currentTimeMillis());
 			file.moveTo(aside);
-			throw new IOException("Trade file was damaged; moved it to " + aside.getFileName() + " and started a new one", e);
+			throw new DamagedException("Trade file was damaged; moved it to " + aside.getFileName() + " and started a new one", e);
 		}
 	}
 

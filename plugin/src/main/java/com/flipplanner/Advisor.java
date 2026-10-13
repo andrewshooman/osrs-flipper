@@ -208,8 +208,16 @@ class Advisor implements OfferShortcuts.Advice
 			{
 				recommender = new Recommender(Model.loadDefault());
 			}
+			long[] shown = {0};
 			Recommender.Result r = recommender.run(prices, ledger, s, now, p ->
 			{
+				// One update per item would rebuild the whole panel hundreds of times: a few a second is plenty.
+				long t = System.currentTimeMillis();
+				if (t - shown[0] < 400)
+				{
+					return;
+				}
+				shown[0] = t;
 				PanelModel q = copyStatus(last);
 				q.loading = true;
 				q.status = p;
