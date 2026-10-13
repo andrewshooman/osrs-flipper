@@ -53,7 +53,7 @@ public interface GeFlipperConfig extends Config
 	@Units(" gp")
 	default int minOrderProfit()
 	{
-		return 20_000;
+		return 10_000;
 	}
 
 	@ConfigItem(keyName = "members", name = "Members items", description = "Include members-only items",
