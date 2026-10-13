@@ -186,6 +186,7 @@ def main():
     ap.add_argument("--rounds", type=int, default=200)
     ap.add_argument("--out", default="replay-5m.json", help="file name under research/reports/")
     ap.add_argument("--skip-baselines", action="store_true", help="only the model strategies")
+    ap.add_argument("--presets", default="production", help="comma-separated strategy_model.PRESETS names")
     a = ap.parse_args()
 
     t0 = time.time()
@@ -212,12 +213,13 @@ def main():
         model.save(cache)
     print(f"model trained on {model.meta['rows']:,} rows before the replay window ({time.time() - t0:.0f}s)", flush=True)
     out = {}
-    no_prio = {**PRESETS["production"], "sell_priority": False}
     runs = [] if a.skip_baselines else [(STRATEGIES["top_margin"](), a.share), (STRATEGIES["v0_1"](), a.share)]
-    runs += [(ModelStrategy(model, F, name="model-production", **PRESETS["production"]), a.share),
-             (ModelStrategy(model, F, name="model-production@5%", **PRESETS["production"]), 0.05),
-             (ModelStrategy(model, F, name="model-production-no-sell-priority", **no_prio), a.share),
-             (ModelStrategy(model, F, name="model-production-no-sell-priority@5%", **no_prio), 0.05)]
+    for name in a.presets.split(","):
+        kw = dict(PRESETS[name])
+        if name == "checkin":  # the app's preset; check in like round 3 (8am, 1pm, 7pm US Eastern)
+            kw["checkin_hours"] = [12, 17, 23]
+        runs += [(ModelStrategy(model, F, name=f"model-{name}", **kw), a.share),
+                 (ModelStrategy(model, F, name=f"model-{name}@5%", **kw), 0.05)]
     for S, share in runs:
         sim, rep = replay(P1, P5, S, Config(share=share), t_start, P1.T)
         prof = np.array([x["profit"] for x in sim.trips]) if sim.trips else np.zeros(0)

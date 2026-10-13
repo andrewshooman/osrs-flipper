@@ -79,6 +79,17 @@ ROUNDS = {
         "checkin_4x": {**PROD, "checkin_hours": [12, 16, 20, 0], "max_item_frac": 0.10},
         "checkin_6x": {**PROD, "checkin_hours": [12, 15, 18, 21, 0, 3], "max_item_frac": 0.10},
     }, []),
+    # Round 11: max hold and (bot) per-item cap.
+    "r11": ({
+        "production": {**PROD, "sell_priority": True},
+        "production_cap10": {**PROD, "sell_priority": True, "max_item_frac": 0.10},
+        "production_cap20": {**PROD, "sell_priority": True, "max_item_frac": 0.20},
+        "production_hold24": {**PROD, "sell_priority": True, "max_hold_h": 24.0},
+        "production_hold72": {**PROD, "sell_priority": True, "max_hold_h": 72.0},
+        "checkin": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
+        "checkin_hold24": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "max_hold_h": 24.0},
+        "checkin_hold72": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "max_hold_h": 72.0},
+    }, []),
     # Round 6: the current presets, for model tuning (--leaves, --lr, --rounds).
     "r6": ({
         "production": {**PROD, "sell_priority": True},

@@ -58,6 +58,10 @@ The plan assumes you check in a few times a day, not every minute.
 The paper-trading bot decides every hour and makes about +133k/day. Three
 check-ins a day capture most of the gain.
 
+With realistic fills (the 5-minute replay, Aug–Oct 2026), the check-in strategy made
+**+65k to +83k gp/day** on 5.5M (getting 5–10% of real volume). About 1 day in 5
+lost money, so judge it over a week, not a day.
+
 If a price has moved more than 2% since the model's hourly bar, the order is flagged so
 you can double-check it in-game.
 
