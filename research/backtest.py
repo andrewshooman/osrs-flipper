@@ -83,6 +83,8 @@ class Sim:
         self.equity: list[float] = []
         self.realised = 0.0
         self.tax_paid = 0.0
+        self.n_buys = 0      # buy offers placed (each one is a few clicks for a player)
+        self.n_sells = 0
         self.last_al = np.nan_to_num(P.al[0], nan=0.0).astype(np.float64)
         self.window = max(1, int(4 * 3600 // P.step))
 
@@ -116,6 +118,7 @@ class Sim:
             return False
         self.cash -= qty * price
         self.offers.append(Offer(i, "buy", float(price), qty, t, tag=tag or {}))
+        self.n_buys += 1
         return True
 
     def place_sell(self, t: int, i: int, price: float, tag=None) -> bool:
@@ -123,6 +126,7 @@ class Sim:
         if not p or p.qty < 1 or self.free_slots() < 1 or any(o.item == i and o.side == "sell" for o in self.offers):
             return False
         self.offers.append(Offer(i, "sell", float(price), p.qty, t, tag=tag or {}))
+        self.n_sells += 1
         return True
 
     def cancel(self, o: Offer) -> None:
@@ -233,6 +237,8 @@ class Sim:
             max_drawdown=round(float((peak - eq).max())),
             sharpe_daily=round(float(daily.mean() / daily.std() * math.sqrt(365)), 2) if len(daily) > 2 and daily.std() > 0 else None,
             trips=len(self.trips),
+            buys=self.n_buys,
+            sells=self.n_sells,
             win_rate=round(float((profits > 0).mean()), 3) if len(profits) else None,
             avg_hold_h=round(float(np.mean([x["hold"] for x in self.trips])), 1) if self.trips else None,
             tax_paid=round(self.tax_paid),

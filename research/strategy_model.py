@@ -31,8 +31,10 @@ PRESETS = {
     # For a player checking in ~3x a day (what the app's Orders tab uses).
     # Round 3: 3 check-ins/day made +90k/day, 11/11 folds positive, worst fold +35k.
     # Sell priority was neutral here in round 5 (+90k/day either way).
+    # Round 12: skip buys expected to make under 10k gp (+81k/day vs +83k, same
+    # ~8.7 buys/day, worst fold +22k vs +15k); higher minimums cost real profit.
     "checkin": {"kelly_frac": 0.15, "max_item_frac": 0.10, "min_exp_ret": 0.005,
-                "guard": True, "buy_wait_h": 6.0},
+                "guard": True, "buy_wait_h": 6.0, "min_exp_gp": 10_000},
 }
 
 
@@ -45,6 +47,7 @@ class ModelStrategy(Base):
 
     # Tunables (variants override these).
     min_daily_volume = 0          # skip items trading less than this per day (both sides)
+    min_exp_gp = 0.0              # skip orders expected to make less than this many gp (not worth the clicks)
     max_item_frac = None          # cap per item (fraction of deployable); None = Config default
     fast_cut = False              # cut as soon as the median forecast says it falls further
     # Pump-and-dump guard: skip items whose price just spiked or whose margin is
@@ -193,4 +196,7 @@ class ModelStrategy(Base):
         for j in np.argsort(-score):
             if score[j] <= 0 or sim.free_slots() <= 0 or sim.deployable() < buy[j]:
                 break
-            sim.place_buy(t, int(idx[j]), buy[j], int(qty[j]))
+            q = min(qty[j], sim.deployable() // buy[j])
+            if self.min_exp_gp and q * buy[j] * exp_ret[j] < self.min_exp_gp:
+                continue
+            sim.place_buy(t, int(idx[j]), buy[j], int(q))

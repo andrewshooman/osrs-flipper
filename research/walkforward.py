@@ -90,6 +90,17 @@ ROUNDS = {
         "checkin_hold24": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "max_hold_h": 24.0},
         "checkin_hold72": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "max_hold_h": 72.0},
     }, []),
+    # Round 12: only orders worth the clicks. Skip buys expected to make less than
+    # N gp; optionally let the ones that remain be bigger (per-item cap).
+    "r12": ({
+        "checkin": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
+        "checkin_min5k": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "min_exp_gp": 5_000},
+        "checkin_min10k": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "min_exp_gp": 10_000},
+        "checkin_min20k": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "min_exp_gp": 20_000},
+        "checkin_min40k": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "min_exp_gp": 40_000},
+        "checkin_min20k_cap15": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.15, "min_exp_gp": 20_000},
+        "checkin_min20k_cap20": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.20, "min_exp_gp": 20_000},
+    }, []),
     # Round 6: the current presets, for model tuning (--leaves, --lr, --rounds).
     "r6": ({
         "production": {**PROD, "sell_priority": True},
@@ -163,7 +174,8 @@ def main():
         for S, share in runs:
             sim = Sim(test, Config(share=share), S)
             r = sim.run(start=start - warm)
-            res = {k: r[k] for k in ("profit_per_day", "max_drawdown", "win_rate", "trips", "exits")}
+            res = {k: r[k] for k in ("profit_per_day", "max_drawdown", "win_rate", "trips", "exits", "days")}
+            res["buys"], res["sells"] = r.get("buys", 0), r.get("sells", 0)
             if r["strategy"].startswith("model"):
                 # Diagnostics: where did the losses come from, and is profit concentrated?
                 prof = np.array([x["profit"] for x in sim.trips]) if sim.trips else np.zeros(0)
@@ -188,6 +200,13 @@ def main():
                       "folds_positive": f"{int((ppd > 0).sum())}/{len(ppd)}",
                       "worst_fold": int(ppd.min()) if len(ppd) else None,
                       "max_drawdown": int(max(f[k]["max_drawdown"] for f in folds)) if folds else None}
+        days = sum(f[k].get("days", 14) for f in folds)
+        buys = sum(f[k].get("buys", 0) for f in folds)
+        if buys:
+            # Effort: buy offers a player would place per day, and what each one earns.
+            summary[k]["buys_per_day"] = round(buys / days, 1)
+            summary[k]["sells_per_day"] = round(sum(f[k].get("sells", 0) for f in folds) / days, 1)
+            summary[k]["profit_per_buy"] = int(sum(f[k]["profit_per_day"] * f[k].get("days", 14) for f in folds) / buys)
     out = {"config": vars(a), "panel": [P.T, P.N], "summary": summary, "folds": folds}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(out, indent=1))

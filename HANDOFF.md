@@ -66,6 +66,7 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 | r9 | check-in settings: Kelly 0.10/0.25, min return 0.3%, 12h buy wait, 7% cap | — | Kelly and min return change nothing (the 10% cap binds); 12h wait +80k and 7% cap +64k, both worse: keep the preset |
 | r10 | check-ins per day (UTC 12/23, +17, +16/20/0, every 3h from 12 to 3) | hourly: +133k (r5) | 2×: +77k, 3×: +90k, 4×: +94k, 6×: +105k/day, all 11/11 folds positive |
 | r11 | max hold 24/72h; bot cap 10/20% | 72h +131k, 24h +118k, cap10 +126k, cap20 +115k: keep 48h / 15% | 72h +93k, 24h +87k: keep 48h (within noise) |
+| r12 | minimum expected profit per buy order (check-in): 0 / 5k / 10k / 20k / 40k; 20k with 15% or 20% per-item cap | — | none +83k (8.6 buys/day, 9.6k per buy), **10k +81k, worst fold +22k: now the default**, 20k +59k (9/11), 40k +2k; bigger caps +61–65k with a 3.2M drawdown. The model already avoids tiny orders; higher bars cost profit, not clicks |
 
   Baselines lose in every fold: top-margin −187k/day and the old heuristic
   −246k/day.
