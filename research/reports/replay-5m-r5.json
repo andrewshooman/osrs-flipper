@@ -1,0 +1,282 @@
+{
+ "model-production": {
+  "strategy": "model-production",
+  "days": 60.9,
+  "profit": 8576531,
+  "profit_per_day": 140830,
+  "return_on_deployable_pct": 155.94,
+  "max_drawdown": 1196118,
+  "sharpe_daily": 11.07,
+  "trips": 9877,
+  "win_rate": 0.679,
+  "avg_hold_h": 5.7,
+  "tax_paid": 6260294,
+  "exits": {
+   "sell": 9495,
+   "dump": 382
+  },
+  "final_equity": 19576531,
+  "still_holding": 5,
+  "top3_share_of_profit": 0.02,
+  "worst_trades": [
+   {
+    "item": "Amethyst arrow(p++)",
+    "qty": 500,
+    "buy": 752,
+    "sell": 604.96,
+    "profit": -79520,
+    "hold_h": 26.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Anguish ornament kit",
+    "qty": 2,
+    "buy": 207202,
+    "sell": 183795.405,
+    "profit": -54163,
+    "hold_h": 49.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Saradomin sword",
+    "qty": 2,
+    "buy": 160725,
+    "sell": 136435.395,
+    "profit": -54035,
+    "hold_h": 29.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Granite legs",
+    "qty": 2,
+    "buy": 89111,
+    "sell": 63436.225,
+    "profit": -53886,
+    "hold_h": 52.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Saradomin sword",
+    "qty": 2,
+    "buy": 160725,
+    "sell": 137346.815,
+    "profit": -52248,
+    "hold_h": 23.0,
+    "reason": "dump"
+   }
+  ],
+  "max_drawdown_realised": 189141,
+  "max_drawdown_robust_mark": 422838,
+  "days_positive": "52/60"
+ },
+ "model-production@5%": {
+  "strategy": "model-production@5%",
+  "days": 60.9,
+  "profit": 6204160,
+  "profit_per_day": 101875,
+  "return_on_deployable_pct": 112.8,
+  "max_drawdown": 2510413,
+  "sharpe_daily": 19.38,
+  "trips": 11101,
+  "win_rate": 0.655,
+  "avg_hold_h": 5.1,
+  "tax_paid": 6281229,
+  "exits": {
+   "sell": 10743,
+   "dump": 358
+  },
+  "final_equity": 17204160,
+  "still_holding": 5,
+  "top3_share_of_profit": 0.02,
+  "worst_trades": [
+   {
+    "item": "Shark lure",
+    "qty": 1413,
+    "buy": 307,
+    "sell": 194.025,
+    "profit": -163873,
+    "hold_h": 28.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Large camphor hull parts",
+    "qty": 18,
+    "buy": 52930,
+    "sell": 47312.25,
+    "profit": -118148,
+    "hold_h": 29.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Ardeaglais teleport",
+    "qty": 12,
+    "buy": 37957,
+    "sell": 30291.78,
+    "profit": -99243,
+    "hold_h": 25.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Shark lure",
+    "qty": 603,
+    "buy": 307,
+    "sell": 194.025,
+    "profit": -69933,
+    "hold_h": 28.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Runite bolts (unf)",
+    "qty": 2724,
+    "buy": 151,
+    "sell": 127.36,
+    "profit": -69843,
+    "hold_h": 13.0,
+    "reason": "dump"
+   }
+  ],
+  "max_drawdown_realised": 294515,
+  "max_drawdown_robust_mark": 288325,
+  "days_positive": "52/60"
+ },
+ "model-production-no-sell-priority": {
+  "strategy": "model-production-no-sell-priority",
+  "days": 60.9,
+  "profit": 9540789,
+  "profit_per_day": 156663,
+  "return_on_deployable_pct": 173.47,
+  "max_drawdown": 4449372,
+  "sharpe_daily": 9.91,
+  "trips": 9141,
+  "win_rate": 0.683,
+  "avg_hold_h": 6.7,
+  "tax_paid": 6297805,
+  "exits": {
+   "sell": 8764,
+   "dump": 377
+  },
+  "final_equity": 20540789,
+  "still_holding": 6,
+  "top3_share_of_profit": 0.04,
+  "worst_trades": [
+   {
+    "item": "Amethyst arrow(p++)",
+    "qty": 500,
+    "buy": 752,
+    "sell": 604.96,
+    "profit": -79520,
+    "hold_h": 26.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Large mithril keel parts",
+    "qty": 25,
+    "buy": 16951,
+    "sell": 14339.94,
+    "profit": -72426,
+    "hold_h": 36.0,
+    "reason": "dump"
+   },
+   {
+    "item": "King worm",
+    "qty": 444,
+    "buy": 717,
+    "sell": 579.09,
+    "profit": -66116,
+    "hold_h": 39.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Draynor manor teleport (tablet)",
+    "qty": 41,
+    "buy": 5052,
+    "sell": 3688.465,
+    "profit": -58898,
+    "hold_h": 18.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Guthix d'hide boots",
+    "qty": 2,
+    "buy": 150822,
+    "sell": 123948.145,
+    "profit": -58704,
+    "hold_h": 23.0,
+    "reason": "dump"
+   }
+  ],
+  "max_drawdown_realised": 254392,
+  "max_drawdown_robust_mark": 260368,
+  "days_positive": "46/60"
+ },
+ "model-production-no-sell-priority@5%": {
+  "strategy": "model-production-no-sell-priority@5%",
+  "days": 60.9,
+  "profit": 5984479,
+  "profit_per_day": 98267,
+  "return_on_deployable_pct": 108.81,
+  "max_drawdown": 308317,
+  "sharpe_daily": 24.35,
+  "trips": 11202,
+  "win_rate": 0.649,
+  "avg_hold_h": 5.6,
+  "tax_paid": 5909089,
+  "exits": {
+   "sell": 10738,
+   "dump": 464
+  },
+  "final_equity": 16984479,
+  "still_holding": 6,
+  "top3_share_of_profit": 0.03,
+  "worst_trades": [
+   {
+    "item": "Diamond bolts",
+    "qty": 2200,
+    "buy": 363,
+    "sell": 311.435,
+    "profit": -126643,
+    "hold_h": 22.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Raw pyre fox",
+    "qty": 297,
+    "buy": 1315,
+    "sell": 1026.84,
+    "profit": -91524,
+    "hold_h": 23.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Ardeaglais teleport",
+    "qty": 10,
+    "buy": 37957,
+    "sell": 30291.78,
+    "profit": -82702,
+    "hold_h": 25.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Fine fish offcuts",
+    "qty": 1426,
+    "buy": 327,
+    "sell": 278.6,
+    "profit": -76148,
+    "hold_h": 18.0,
+    "reason": "dump"
+   },
+   {
+    "item": "Fire ruby",
+    "qty": 2,
+    "buy": 210001,
+    "sell": 175538.895,
+    "profit": -75944,
+    "hold_h": 14.0,
+    "reason": "dump"
+   }
+  ],
+  "max_drawdown_realised": 267927,
+  "max_drawdown_robust_mark": 267955,
+  "days_positive": "55/60"
+ }
+}

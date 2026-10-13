@@ -86,8 +86,9 @@ traded volume, at a capped share (5–10%) of what actually traded.
   - **Simple "top margin" flipping baselines:** −187k and −246k gp/day, 0/11 folds
     positive.
 - **5-minute replay** (Aug 13 – Oct 12 2026, model never retrained during the test):
-  - **10% of real volume:** +157k gp/day, realised max drawdown about 255k.
-  - **5% of real volume:** +98k gp/day.
+  - **10% of real volume:** +141k gp/day. 52 of 60 days were profitable, and the
+    realised max drawdown was 189k.
+  - **5% of real volume:** +102k gp/day, with 52 of 60 days profitable.
 - **Live paper trading:** the Bot tab, running since 2026-10-12.
 
 Backtests are not guarantees. Thin items, game updates and other flippers all move

@@ -258,7 +258,7 @@
   function botVsBacktest(d) {
     const hrs = Math.max((d.updated - d.started) / 3600, 0);
     const perDay = hrs >= 24 ? (d.profit / hrs) * 24 : null; // earlier rates swing too much to mean anything
-    const lo = 98_000, hi = 157_000; // 5m replay at 5% / 10% of real volume, 5.5M deployable
+    const lo = 102_000, hi = 141_000; // research/reports/replay-5m-r5: production preset at 5% / 10% of real volume
     const [tone, verdict] = hrs < 72
       ? ["muted", `Too early to judge after ${U.duration(hrs)}. Even in the backtests 14 of 60 days lost money, so give it 3–7 days.`]
       : perDay >= lo ? ["good", "On track: inside or above the backtest range."]
@@ -272,7 +272,7 @@
       </dl>
       <div class="advice ${tone}">${esc(verdict)}</div>
       <p class="small muted" style="margin:6px 0 0">Backtest range: a 60-day replay on real 5-minute trades, filling 5–10% of real volume.
-      A year-long test (11 two-week periods) averaged +133k/day and every period was profitable.</p></div>`;
+      52 of 60 days were profitable. A year-long test (11 two-week periods) averaged +133k/day, and every period was profitable.</p></div>`;
   }
 
   // ---------------------------------------------------------------- orders (validated model)
