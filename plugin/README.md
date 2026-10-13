@@ -18,9 +18,10 @@ Flip Planner brings the model behind the GE Flipper web app (https://andrewshoom
   - then *Confirm*
 
   Each slot also shows how long its offer has been up: green while it's fine, amber when it's getting old, red when it should be cancelled, blue when it needs collecting.
-- **Notifications** when a buy or sell completes, and optionally when a new hourly plan has buys for your free slots.
+- **Notifications** when a buy or sell completes, and optionally when a new hourly plan has buys for your free slots. Optional game-chat messages too, with the profit after tax when a sell finishes.
 - **Stats and price graphs.**
   - The Stats tab shows profit for today, the last 7 days and all time, plus flips, win rate, ROI, tax paid, daily profit bars, best and worst items, and recent flips.
+  - Profit and gp per hour for the current session, since you logged in.
   - Right-click a suggestion or a holding for a 7-day price graph with the suggested buy and sell prices marked.
 - **Your rules.**
   - *Sell-only mode* stops new buys.
