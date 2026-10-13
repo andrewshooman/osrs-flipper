@@ -35,7 +35,9 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   - `walkforward.py`: compares model variants plus a 5% fill check.
   - `strategy_model.py`: the strategy and its presets.
   - `live.py` and `bot_loop.sh`: paper-trading bot.
-  - `retrain.py`: refresh pipeline (untested).
+  - `retrain.py`: refresh pipeline (tested 2026-10-13: about 15 minutes, holdout
+    +157k/day on the last 14 days). It updates the app model; the bot's model is
+    copied by hand.
   - `test_research.py` and `test_parity.py`: tests.
 
 ## Validation
@@ -102,8 +104,8 @@ logging. Nothing places offers automatically, because that gets accounts banned.
    doesn't, recalibrate the fill share.
 3. **Machine restarts kill every process.** The session health check restarts
    the watchdog. A walk-forward resumes from its cached fold models.
-4. **Test `retrain.py`**, then run it weekly. It updates `research/models/current`
-   and `models/flip-model.js`. Deploying to the bot means copying the model into
-   `osrs-live/data/model` and pushing `live`.
+4. **Run `retrain.py` weekly** (tested, about 15 minutes). It updates
+   `research/models/current` and `models/flip-model.js`. Deploying to the bot
+   means copying the model into `osrs-live/data/model` and pushing `live`.
 5. **RuneLite plugin** to log GE fills automatically. This needs network access
    to `repo.runelite.net`.
