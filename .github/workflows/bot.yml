@@ -1,10 +1,14 @@
 name: paper-trading bot
 
-# One bot step on demand: fill the bot's mock offers against the newest real
-# 5-minute GE trades and, once per hour, let the model decide. The bot
-# normally runs continuously via research/bot_loop.sh; this manual trigger is
-# a fallback. Don't run both at once — they share the `live` branch state.
+# The paper-trading bot, one step every ~10 minutes: fill its mock offers
+# against the newest real 5-minute GE trades (it catches up on every bucket it
+# missed, so late or skipped runs lose nothing) and, once per hour, let the
+# model decide. State lives on the `live` branch, which the app's Bot tab reads.
+# Don't also run research/bot_loop.sh against the same branch: both
+# force-push the state.
 on:
+  schedule:
+    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 concurrency:
@@ -26,10 +30,11 @@ jobs:
           path: live
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.13'
           cache: pip
-          cache-dependency-path: research/requirements.txt
-      - run: pip install -r research/requirements.txt
+          cache-dependency-path: .github/workflows/bot.yml
+      # Pinned to the versions that wrote the bot's pickled state.
+      - run: pip install numpy==2.5.3 pandas==3.0.5 pyarrow==26.0.0 lightgbm==4.7.0
       - name: Bot step
         env:
           OSF_DATA: ${{ github.workspace }}/live/data
