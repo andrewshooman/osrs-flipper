@@ -312,7 +312,8 @@
         ${icon(r.id)}
         <div style="min-width:0"><div class="name" data-item="${r.id}">${esc(r.name)}</div>
           <div class="line"><b>Buy ${U.full(r.qty)} @ ${U.full(r.buy)}</b> → sell ~${U.full(r.sellTarget)}</div>
-          <div class="line muted">uses ${U.gp(r.cost)} · ${esc(r.reasons[0])}</div></div>
+          <div class="line muted">uses ${U.gp(r.cost)} · ${esc(r.reasons[0])}</div>
+          ${r.drift ? `<div class="advice warn" style="margin-top:4px">${esc(r.drift)}</div>` : ""}</div>
         <div class="right"><div class="profit good">${U.gp(r.expected, { plus: true })}</div><div class="line">~${U.duration(r.hours)}</div></div>
         <div class="actions"><button class="btn sm primary ${isPractice() ? "practice" : ""}" data-order-buy="${r.id}">${isPractice() ? "Practice buy" : "I placed it"}</button></div>
       </div>`).join("");
@@ -329,6 +330,9 @@
       ${d.decants.map((x) => `<tr><td class="name">${esc(x.inQty)}× ${esc(x.inName)} → ${esc(x.outQty)}× ${esc(x.outName)}</td><td class="r">${U.full(x.buyAt)}</td><td class="r">${U.full(x.sellAt)}</td>
         <td class="r good">${U.gp(x.profitPerBatch, { plus: true })}</td><td class="r">${U.full(x.batches)}</td><td class="r good">${U.gp(x.total, { plus: true })}</td></tr>`).join("")}
       </tbody></table><p class="small muted">Profit is after tax at instant prices (buy instantly, sell instantly). Batches are capped by the buy limit and ~5% of daily volume.</p></div>` : ""}
+      ${plan.length ? `<div class="card" style="margin-top:12px"><b class="good">${U.gp(U.sum(plan.map((r) => r.expected)), { plus: true })}</b> expected if these buy orders fill and sell,
+        using ${U.gp(d.plan.deployUsed)}. Check back in about ${U.duration(Math.min(6, Math.max(...plan.map((r) => r.hours))))}
+        (around ${new Date(Date.now() + Math.min(6, Math.max(...plan.map((r) => r.hours))) * 36e5).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}) to list what filled.</div>` : ""}
       <div class="section-head"><h2>New buy offers</h2><span class="small muted">${plan.length} for ${d.cap.slotsFree} free slots · ${U.gp(d.plan.deployUsed)} of ${U.gp(d.cap.deployable)} free gp${d.ctx.mkt_ret_24h < -0.03 ? " · market falling: half size" : ""}</span></div>
       <div class="card">${buyRows || `<div class="empty-state">${d.cap.slotsFree ? "Nothing worth buying right now — the model only trades when the edge clears tax and risk." : "All GE slots are busy."}</div>`}</div>`;
   }

@@ -141,6 +141,15 @@
     const buyItems = short.filter((x) => !busy.has(x.id) && !holdings.has(x.id) && scored.get(x.id))
       .map((x) => ({ id: x.id, name: x.item.name, limitLeft: L.remainingLimit(ledger, x.id, x.item.limit), ...scored.get(x.id) }));
     const plan = OSF.decide.buyPlan(buyItems, cap, ctx.mkt_ret_24h);
+    // Prices are from the last hourly close; flag orders whose live price has moved since.
+    const lt = await A.latest().catch(() => ({}));
+    for (const r of plan.plan) {
+      const L = lt[r.id];
+      if (!L || !(L.low > 0)) continue;
+      r.liveLow = L.low;
+      if (L.low > r.buy * 1.02) r.drift = `Price rose since the hourly close (instant-sell now ${L.low}). Skip, or bid up to ${Math.min(L.low + 1, r.sellTarget - 1)} if the margin still clears tax.`;
+      else if (L.low < r.buy * 0.98) r.drift = `Price dropped since the hourly close (instant-sell now ${L.low}). You can bid a little lower.`;
+    }
     const holds = [...holdings.values()].map((h) => {
       const sc = scored.get(h.itemId);
       const heldHours = (Date.now() - h.oldestTs) / 36e5;
