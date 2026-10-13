@@ -1,0 +1,1240 @@
+{
+ "config": {
+  "synthetic": false,
+  "min_train_days": 60,
+  "test_days": 14,
+  "every_days": 28,
+  "rounds": 200,
+  "min_trade_frac": 0.3,
+  "share": 0.1,
+  "round": "r11",
+  "leaves": 63,
+  "lr": 0.05,
+  "wait_h": 2.0,
+  "hold_h": 24.0,
+  "before": null,
+  "out": "reports/walkforward-year-r11.json"
+ },
+ "panel": [
+  8789,
+  3429
+ ],
+ "summary": {
+  "baseline_top_margin": {
+   "mean_profit_per_day": -186974,
+   "median_profit_per_day": -171550,
+   "folds_positive": "0/11",
+   "worst_fold": -346872,
+   "max_drawdown": 5494101
+  },
+  "baseline_v0_1": {
+   "mean_profit_per_day": -246345,
+   "median_profit_per_day": -209776,
+   "folds_positive": "0/11",
+   "worst_fold": -470978,
+   "max_drawdown": 7198917
+  },
+  "production": {
+   "mean_profit_per_day": 132830,
+   "median_profit_per_day": 112070,
+   "folds_positive": "11/11",
+   "worst_fold": 59515,
+   "max_drawdown": 703399
+  },
+  "production_cap10": {
+   "mean_profit_per_day": 126366,
+   "median_profit_per_day": 95939,
+   "folds_positive": "11/11",
+   "worst_fold": 56518,
+   "max_drawdown": 473998
+  },
+  "production_cap20": {
+   "mean_profit_per_day": 114934,
+   "median_profit_per_day": 112733,
+   "folds_positive": "11/11",
+   "worst_fold": 41081,
+   "max_drawdown": 787809
+  },
+  "production_hold24": {
+   "mean_profit_per_day": 117899,
+   "median_profit_per_day": 81376,
+   "folds_positive": "11/11",
+   "worst_fold": 60534,
+   "max_drawdown": 775574
+  },
+  "production_hold72": {
+   "mean_profit_per_day": 131500,
+   "median_profit_per_day": 103901,
+   "folds_positive": "11/11",
+   "worst_fold": 43665,
+   "max_drawdown": 426990
+  },
+  "checkin": {
+   "mean_profit_per_day": 89993,
+   "median_profit_per_day": 76660,
+   "folds_positive": "11/11",
+   "worst_fold": 34905,
+   "max_drawdown": 471826
+  },
+  "checkin_hold24": {
+   "mean_profit_per_day": 86675,
+   "median_profit_per_day": 80574,
+   "folds_positive": "11/11",
+   "worst_fold": 18120,
+   "max_drawdown": 422432
+  },
+  "checkin_hold72": {
+   "mean_profit_per_day": 92734,
+   "median_profit_per_day": 80371,
+   "folds_positive": "11/11",
+   "worst_fold": 33993,
+   "max_drawdown": 471826
+  }
+ },
+ "folds": [
+  {
+   "from": 1765411200,
+   "to": 1766617200,
+   "baseline_top_margin": {
+    "profit_per_day": -341806,
+    "max_drawdown": 5494101,
+    "win_rate": 0.397,
+    "trips": 247,
+    "exits": {
+     "sell": 193,
+     "dump": 54
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -470978,
+    "max_drawdown": 7198917,
+    "win_rate": 0.486,
+    "trips": 607,
+    "exits": {
+     "dump": 207,
+     "sell": 400
+    }
+   },
+   "production": {
+    "profit_per_day": 265411,
+    "max_drawdown": 271236,
+    "win_rate": 0.767,
+    "trips": 649,
+    "exits": {
+     "sell": 638,
+     "dump": 11
+    }
+   },
+   "production_cap10": {
+    "profit_per_day": 185296,
+    "max_drawdown": 303884,
+    "win_rate": 0.695,
+    "trips": 660,
+    "exits": {
+     "sell": 643,
+     "dump": 17
+    }
+   },
+   "production_cap20": {
+    "profit_per_day": 174195,
+    "max_drawdown": 488504,
+    "win_rate": 0.708,
+    "trips": 609,
+    "exits": {
+     "sell": 592,
+     "dump": 17
+    }
+   },
+   "production_hold24": {
+    "profit_per_day": 222655,
+    "max_drawdown": 425626,
+    "win_rate": 0.748,
+    "trips": 643,
+    "exits": {
+     "sell": 627,
+     "dump": 16
+    }
+   },
+   "production_hold72": {
+    "profit_per_day": 262588,
+    "max_drawdown": 271236,
+    "win_rate": 0.767,
+    "trips": 648,
+    "exits": {
+     "sell": 637,
+     "dump": 11
+    }
+   },
+   "checkin": {
+    "profit_per_day": 109645,
+    "max_drawdown": 369200,
+    "win_rate": 0.668,
+    "trips": 274,
+    "exits": {
+     "sell": 263,
+     "dump": 11
+    }
+   },
+   "checkin_hold24": {
+    "profit_per_day": 109901,
+    "max_drawdown": 388752,
+    "win_rate": 0.667,
+    "trips": 285,
+    "exits": {
+     "sell": 271,
+     "dump": 14
+    }
+   },
+   "checkin_hold72": {
+    "profit_per_day": 113919,
+    "max_drawdown": 386147,
+    "win_rate": 0.652,
+    "trips": 276,
+    "exits": {
+     "sell": 266,
+     "dump": 10
+    }
+   }
+  },
+  {
+   "from": 1767830400,
+   "to": 1769036400,
+   "baseline_top_margin": {
+    "profit_per_day": -346872,
+    "max_drawdown": 4955105,
+    "win_rate": 0.425,
+    "trips": 240,
+    "exits": {
+     "sell": 185,
+     "dump": 55
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -457739,
+    "max_drawdown": 6408348,
+    "win_rate": 0.541,
+    "trips": 614,
+    "exits": {
+     "sell": 433,
+     "dump": 181
+    }
+   },
+   "production": {
+    "profit_per_day": 255602,
+    "max_drawdown": 703399,
+    "win_rate": 0.747,
+    "trips": 700,
+    "exits": {
+     "sell": 687,
+     "dump": 13
+    }
+   },
+   "production_cap10": {
+    "profit_per_day": 222373,
+    "max_drawdown": 285282,
+    "win_rate": 0.756,
+    "trips": 709,
+    "exits": {
+     "sell": 698,
+     "dump": 11
+    }
+   },
+   "production_cap20": {
+    "profit_per_day": 221926,
+    "max_drawdown": 787809,
+    "win_rate": 0.694,
+    "trips": 654,
+    "exits": {
+     "sell": 635,
+     "dump": 19
+    }
+   },
+   "production_hold24": {
+    "profit_per_day": 269183,
+    "max_drawdown": 775574,
+    "win_rate": 0.751,
+    "trips": 711,
+    "exits": {
+     "sell": 693,
+     "dump": 18
+    }
+   },
+   "production_hold72": {
+    "profit_per_day": 264154,
+    "max_drawdown": 261389,
+    "win_rate": 0.737,
+    "trips": 700,
+    "exits": {
+     "sell": 687,
+     "dump": 13
+    }
+   },
+   "checkin": {
+    "profit_per_day": 126163,
+    "max_drawdown": 471826,
+    "win_rate": 0.706,
+    "trips": 313,
+    "exits": {
+     "sell": 303,
+     "dump": 10
+    }
+   },
+   "checkin_hold24": {
+    "profit_per_day": 119614,
+    "max_drawdown": 256260,
+    "win_rate": 0.692,
+    "trips": 312,
+    "exits": {
+     "sell": 300,
+     "dump": 12
+    }
+   },
+   "checkin_hold72": {
+    "profit_per_day": 126163,
+    "max_drawdown": 471826,
+    "win_rate": 0.706,
+    "trips": 313,
+    "exits": {
+     "sell": 303,
+     "dump": 10
+    }
+   }
+  },
+  {
+   "from": 1770249600,
+   "to": 1771455600,
+   "baseline_top_margin": {
+    "profit_per_day": -115409,
+    "max_drawdown": 1748330,
+    "win_rate": 0.52,
+    "trips": 296,
+    "exits": {
+     "sell": 252,
+     "dump": 44
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -168396,
+    "max_drawdown": 2400458,
+    "win_rate": 0.523,
+    "trips": 495,
+    "exits": {
+     "sell": 377,
+     "dump": 118
+    }
+   },
+   "production": {
+    "profit_per_day": 63644,
+    "max_drawdown": 363170,
+    "win_rate": 0.622,
+    "trips": 505,
+    "exits": {
+     "sell": 486,
+     "dump": 19
+    }
+   },
+   "production_cap10": {
+    "profit_per_day": 56518,
+    "max_drawdown": 278310,
+    "win_rate": 0.652,
+    "trips": 551,
+    "exits": {
+     "sell": 533,
+     "dump": 18
+    }
+   },
+   "production_cap20": {
+    "profit_per_day": 115815,
+    "max_drawdown": 299674,
+    "win_rate": 0.691,
+    "trips": 557,
+    "exits": {
+     "sell": 541,
+     "dump": 16
+    }
+   },
+   "production_hold24": {
+    "profit_per_day": 60534,
+    "max_drawdown": 437173,
+    "win_rate": 0.658,
+    "trips": 526,
+    "exits": {
+     "sell": 505,
+     "dump": 21
+    }
+   },
+   "production_hold72": {
+    "profit_per_day": 67309,
+    "max_drawdown": 426990,
+    "win_rate": 0.625,
+    "trips": 522,
+    "exits": {
+     "sell": 505,
+     "dump": 17
+    }
+   },
+   "checkin": {
+    "profit_per_day": 76660,
+    "max_drawdown": 310223,
+    "win_rate": 0.684,
+    "trips": 263,
+    "exits": {
+     "sell": 256,
+     "dump": 7
+    }
+   },
+   "checkin_hold24": {
+    "profit_per_day": 80574,
+    "max_drawdown": 210636,
+    "win_rate": 0.663,
+    "trips": 267,
+    "exits": {
+     "sell": 258,
+     "dump": 9
+    }
+   },
+   "checkin_hold72": {
+    "profit_per_day": 80371,
+    "max_drawdown": 264302,
+    "win_rate": 0.697,
+    "trips": 264,
+    "exits": {
+     "sell": 258,
+     "dump": 6
+    }
+   }
+  },
+  {
+   "from": 1772668800,
+   "to": 1773874800,
+   "baseline_top_margin": {
+    "profit_per_day": -143628,
+    "max_drawdown": 2186400,
+    "win_rate": 0.49,
+    "trips": 261,
+    "exits": {
+     "sell": 216,
+     "dump": 45
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -214335,
+    "max_drawdown": 3000691,
+    "win_rate": 0.488,
+    "trips": 461,
+    "exits": {
+     "dump": 138,
+     "sell": 323
+    }
+   },
+   "production": {
+    "profit_per_day": 84831,
+    "max_drawdown": 277809,
+    "win_rate": 0.672,
+    "trips": 586,
+    "exits": {
+     "sell": 573,
+     "dump": 13
+    }
+   },
+   "production_cap10": {
+    "profit_per_day": 64157,
+    "max_drawdown": 216998,
+    "win_rate": 0.669,
+    "trips": 613,
+    "exits": {
+     "sell": 598,
+     "dump": 15
+    }
+   },
+   "production_cap20": {
+    "profit_per_day": 41081,
+    "max_drawdown": 317121,
+    "win_rate": 0.602,
+    "trips": 522,
+    "exits": {
+     "sell": 506,
+     "dump": 16
+    }
+   },
+   "production_hold24": {
+    "profit_per_day": 68495,
+    "max_drawdown": 309325,
+    "win_rate": 0.645,
+    "trips": 560,
+    "exits": {
+     "sell": 536,
+     "dump": 24
+    }
+   },
+   "production_hold72": {
+    "profit_per_day": 43665,
+    "max_drawdown": 299571,
+    "win_rate": 0.635,
+    "trips": 550,
+    "exits": {
+     "sell": 532,
+     "dump": 18
+    }
+   },
+   "checkin": {
+    "profit_per_day": 60276,
+    "max_drawdown": 209838,
+    "win_rate": 0.712,
+    "trips": 267,
+    "exits": {
+     "sell": 253,
+     "dump": 14
+    }
+   },
+   "checkin_hold24": {
+    "profit_per_day": 52787,
+    "max_drawdown": 292831,
+    "win_rate": 0.71,
+    "trips": 269,
+    "exits": {
+     "sell": 250,
+     "dump": 19
+    }
+   },
+   "checkin_hold72": {
+    "profit_per_day": 61838,
+    "max_drawdown": 215333,
+    "win_rate": 0.706,
+    "trips": 269,
+    "exits": {
+     "sell": 258,
+     "dump": 11
+    }
+   }
+  },
+  {
+   "from": 1775088000,
+   "to": 1776294000,
+   "baseline_top_margin": {
+    "profit_per_day": -175370,
+    "max_drawdown": 2756269,
+    "win_rate": 0.423,
+    "trips": 274,
+    "exits": {
+     "sell": 228,
+     "dump": 46
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -289275,
+    "max_drawdown": 4049850,
+    "win_rate": 0.444,
+    "trips": 453,
+    "exits": {
+     "dump": 158,
+     "sell": 295
+    }
+   },
+   "production": {
+    "profit_per_day": 112070,
+    "max_drawdown": 182804,
+    "win_rate": 0.677,
+    "trips": 523,
+    "exits": {
+     "sell": 510,
+     "dump": 13
+    }
+   },
+   "production_cap10": {
+    "profit_per_day": 91697,
+    "max_drawdown": 318380,
+    "win_rate": 0.688,
+    "trips": 554,
+    "exits": {
+     "sell": 538,
+     "dump": 16
+    }
+   },
+   "production_cap20": {
+    "profit_per_day": 61104,
+    "max_drawdown": 654465,
+    "win_rate": 0.611,
+    "trips": 535,
+    "exits": {
+     "sell": 520,
+     "dump": 15
+    }
+   },
+   "production_hold24": {
+    "profit_per_day": 81376,
+    "max_drawdown": 375124,
+    "win_rate": 0.664,
+    "trips": 554,
+    "exits": {
+     "sell": 528,
+     "dump": 26
+    }
+   },
+   "production_hold72": {
+    "profit_per_day": 101514,
+    "max_drawdown": 415610,
+    "win_rate": 0.641,
+    "trips": 529,
+    "exits": {
+     "sell": 511,
+     "dump": 18
+    }
+   },
+   "checkin": {
+    "profit_per_day": 98500,
+    "max_drawdown": 273430,
+    "win_rate": 0.667,
+    "trips": 279,
+    "exits": {
+     "sell": 271,
+     "dump": 8
+    }
+   },
+   "checkin_hold24": {
+    "profit_per_day": 93727,
+    "max_drawdown": 273430,
+    "win_rate": 0.654,
+    "trips": 292,
+    "exits": {
+     "sell": 280,
+     "dump": 12
+    }
+   },
+   "checkin_hold72": {
+    "profit_per_day": 98500,
+    "max_drawdown": 273430,
+    "win_rate": 0.667,
+    "trips": 279,
+    "exits": {
+     "sell": 271,
+     "dump": 8
+    }
+   }
+  },
+  {
+   "from": 1777507200,
+   "to": 1778713200,
+   "baseline_top_margin": {
+    "profit_per_day": -125114,
+    "max_drawdown": 1789661,
+    "win_rate": 0.452,
+    "trips": 290,
+    "exits": {
+     "sell": 238,
+     "dump": 52
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -203844,
+    "max_drawdown": 2906791,
+    "win_rate": 0.388,
+    "trips": 451,
+    "exits": {
+     "sell": 318,
+     "dump": 133
+    }
+   },
+   "production": {
+    "profit_per_day": 76065,
+    "max_drawdown": 407202,
+    "win_rate": 0.674,
+    "trips": 595,
+    "exits": {
+     "sell": 584,
+     "dump": 11
+    }
+   },
+   "production_cap10": {
+    "profit_per_day": 87646,
+    "max_drawdown": 146046,
+    "win_rate": 0.686,
+    "trips": 561,
+    "exits": {
+     "sell": 550,
+     "dump": 11
+    }
+   },
+   "production_cap20": {
+    "profit_per_day": 93634,
+    "max_drawdown": 192311,
+    "win_rate": 0.668,
+    "trips": 582,
+    "exits": {
+     "sell": 569,
+     "dump": 13
+    }
+   },
+   "production_hold24": {
+    "profit_per_day": 105677,
+    "max_drawdown": 220474,
+    "win_rate": 0.681,
+    "trips": 636,
+    "exits": {
+     "sell": 619,
+     "dump": 17
+    }
+   },
+   "production_hold72": {
+    "profit_per_day": 97748,
+    "max_drawdown": 179422,
+    "win_rate": 0.676,
+    "trips": 593,
+    "exits": {
+     "sell": 581,
+     "dump": 12
+    }
+   },
+   "checkin": {
+    "profit_per_day": 63689,
+    "max_drawdown": 259260,
+    "win_rate": 0.718,
+    "trips": 248,
+    "exits": {
+     "sell": 238,
+     "dump": 10
+    }
+   },
+   "checkin_hold24": {
+    "profit_per_day": 56537,
+    "max_drawdown": 259260,
+    "win_rate": 0.712,
+    "trips": 260,
+    "exits": {
+     "sell": 244,
+     "dump": 16
+    }
+   },
+   "checkin_hold72": {
+    "profit_per_day": 63689,
+    "max_drawdown": 259260,
+    "win_rate": 0.718,
+    "trips": 248,
+    "exits": {
+     "sell": 238,
+     "dump": 10
+    }
+   }
+  },
+  {
+   "from": 1779926400,
+   "to": 1781132400,
+   "baseline_top_margin": {
+    "profit_per_day": -171550,
+    "max_drawdown": 2545706,
+    "win_rate": 0.454,
+    "trips": 273,
+    "exits": {
+     "sell": 229,
+     "dump": 44
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -200352,
+    "max_drawdown": 2955743,
+    "win_rate": 0.5,
+    "trips": 460,
+    "exits": {
+     "sell": 331,
+     "dump": 129
+    }
+   },
+   "production": {
+    "profit_per_day": 116302,
+    "max_drawdown": 392860,
+    "win_rate": 0.675,
+    "trips": 569,
+    "exits": {
+     "sell": 556,
+     "dump": 13
+    }
+   },
+   "production_cap10": {
+    "profit_per_day": 270404,
+    "max_drawdown": 385633,
+    "win_rate": 0.696,
+    "trips": 542,
+    "exits": {
+     "sell": 523,
+     "dump": 19
+    }
+   },
+   "production_cap20": {
+    "profit_per_day": 112733,
+    "max_drawdown": 452814,
+    "win_rate": 0.698,
+    "trips": 559,
+    "exits": {
+     "sell": 546,
+     "dump": 13
+    }
+   },
+   "production_hold24": {
+    "profit_per_day": 70434,
+    "max_drawdown": 393312,
+    "win_rate": 0.649,
+    "trips": 564,
+    "exits": {
+     "sell": 536,
+     "dump": 28
+    }
+   },
+   "production_hold72": {
+    "profit_per_day": 116302,
+    "max_drawdown": 392860,
+    "win_rate": 0.675,
+    "trips": 569,
+    "exits": {
+     "sell": 556,
+     "dump": 13
+    }
+   },
+   "checkin": {
+    "profit_per_day": 232423,
+    "max_drawdown": 365807,
+    "win_rate": 0.636,
+    "trips": 231,
+    "exits": {
+     "sell": 218,
+     "dump": 13
+    }
+   },
+   "checkin_hold24": {
+    "profit_per_day": 221142,
+    "max_drawdown": 422432,
+    "win_rate": 0.591,
+    "trips": 242,
+    "exits": {
+     "sell": 219,
+     "dump": 23
+    }
+   },
+   "checkin_hold72": {
+    "profit_per_day": 233938,
+    "max_drawdown": 352086,
+    "win_rate": 0.591,
+    "trips": 225,
+    "exits": {
+     "sell": 212,
+     "dump": 13
+    }
+   }
+  },
+  {
+   "from": 1782345600,
+   "to": 1783551600,
+   "baseline_top_margin": {
+    "profit_per_day": -128870,
+    "max_drawdown": 1976268,
+    "win_rate": 0.452,
+    "trips": 270,
+    "exits": {
+     "sell": 234,
+     "dump": 36
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -209776,
+    "max_drawdown": 3028176,
+    "win_rate": 0.441,
+    "trips": 488,
+    "exits": {
+     "sell": 350,
+     "dump": 138
+    }
+   },
+   "production": {
+    "profit_per_day": 195444,
+    "max_drawdown": 288745,
+    "win_rate": 0.668,
+    "trips": 609,
+    "exits": {
+     "sell": 592,
+     "dump": 17
+    }
+   },
+   "production_cap10": {
+    "profit_per_day": 92751,
+    "max_drawdown": 473998,
+    "win_rate": 0.686,
+    "trips": 576,
+    "exits": {
+     "sell": 560,
+     "dump": 16
+    }
+   },
+   "production_cap20": {
+    "profit_per_day": 135879,
+    "max_drawdown": 311178,
+    "win_rate": 0.665,
+    "trips": 568,
+    "exits": {
+     "sell": 554,
+     "dump": 14
+    }
+   },
+   "production_hold24": {
+    "profit_per_day": 188227,
+    "max_drawdown": 209127,
+    "win_rate": 0.671,
+    "trips": 624,
+    "exits": {
+     "sell": 604,
+     "dump": 20
+    }
+   },
+   "production_hold72": {
+    "profit_per_day": 195444,
+    "max_drawdown": 288745,
+    "win_rate": 0.668,
+    "trips": 609,
+    "exits": {
+     "sell": 592,
+     "dump": 17
+    }
+   },
+   "checkin": {
+    "profit_per_day": 38228,
+    "max_drawdown": 300351,
+    "win_rate": 0.609,
+    "trips": 271,
+    "exits": {
+     "sell": 260,
+     "dump": 11
+    }
+   },
+   "checkin_hold24": {
+    "profit_per_day": 57676,
+    "max_drawdown": 229354,
+    "win_rate": 0.64,
+    "trips": 283,
+    "exits": {
+     "sell": 265,
+     "dump": 18
+    }
+   },
+   "checkin_hold72": {
+    "profit_per_day": 57184,
+    "max_drawdown": 262791,
+    "win_rate": 0.619,
+    "trips": 268,
+    "exits": {
+     "sell": 260,
+     "dump": 8
+    }
+   }
+  },
+  {
+   "from": 1784764800,
+   "to": 1785970800,
+   "baseline_top_margin": {
+    "profit_per_day": -190312,
+    "max_drawdown": 2687977,
+    "win_rate": 0.423,
+    "trips": 248,
+    "exits": {
+     "sell": 195,
+     "dump": 53
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -212770,
+    "max_drawdown": 3032635,
+    "win_rate": 0.471,
+    "trips": 471,
+    "exits": {
+     "sell": 338,
+     "dump": 133
+    }
+   },
+   "production": {
+    "profit_per_day": 132395,
+    "max_drawdown": 342130,
+    "win_rate": 0.698,
+    "trips": 546,
+    "exits": {
+     "sell": 529,
+     "dump": 17
+    }
+   },
+   "production_cap10": {
+    "profit_per_day": 122254,
+    "max_drawdown": 265180,
+    "win_rate": 0.71,
+    "trips": 594,
+    "exits": {
+     "sell": 581,
+     "dump": 13
+    }
+   },
+   "production_cap20": {
+    "profit_per_day": 154191,
+    "max_drawdown": 360543,
+    "win_rate": 0.693,
+    "trips": 587,
+    "exits": {
+     "sell": 573,
+     "dump": 14
+    }
+   },
+   "production_hold24": {
+    "profit_per_day": 90868,
+    "max_drawdown": 229113,
+    "win_rate": 0.69,
+    "trips": 587,
+    "exits": {
+     "sell": 565,
+     "dump": 22
+    }
+   },
+   "production_hold72": {
+    "profit_per_day": 141525,
+    "max_drawdown": 347514,
+    "win_rate": 0.7,
+    "trips": 566,
+    "exits": {
+     "sell": 555,
+     "dump": 11
+    }
+   },
+   "checkin": {
+    "profit_per_day": 100359,
+    "max_drawdown": 236270,
+    "win_rate": 0.715,
+    "trips": 242,
+    "exits": {
+     "sell": 232,
+     "dump": 10
+    }
+   },
+   "checkin_hold24": {
+    "profit_per_day": 91470,
+    "max_drawdown": 236270,
+    "win_rate": 0.692,
+    "trips": 250,
+    "exits": {
+     "sell": 234,
+     "dump": 16
+    }
+   },
+   "checkin_hold72": {
+    "profit_per_day": 100080,
+    "max_drawdown": 236270,
+    "win_rate": 0.69,
+    "trips": 245,
+    "exits": {
+     "sell": 235,
+     "dump": 10
+    }
+   }
+  },
+  {
+   "from": 1787184000,
+   "to": 1788390000,
+   "baseline_top_margin": {
+    "profit_per_day": -101908,
+    "max_drawdown": 1426706,
+    "win_rate": 0.444,
+    "trips": 279,
+    "exits": {
+     "sell": 226,
+     "dump": 53
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -84606,
+    "max_drawdown": 1378624,
+    "win_rate": 0.543,
+    "trips": 475,
+    "exits": {
+     "dump": 115,
+     "sell": 360
+    }
+   },
+   "production": {
+    "profit_per_day": 59515,
+    "max_drawdown": 346329,
+    "win_rate": 0.625,
+    "trips": 538,
+    "exits": {
+     "sell": 514,
+     "dump": 24
+    }
+   },
+   "production_cap10": {
+    "profit_per_day": 95939,
+    "max_drawdown": 256875,
+    "win_rate": 0.701,
+    "trips": 613,
+    "exits": {
+     "sell": 595,
+     "dump": 18
+    }
+   },
+   "production_cap20": {
+    "profit_per_day": 55148,
+    "max_drawdown": 335464,
+    "win_rate": 0.647,
+    "trips": 583,
+    "exits": {
+     "sell": 561,
+     "dump": 22
+    }
+   },
+   "production_hold24": {
+    "profit_per_day": 62306,
+    "max_drawdown": 323573,
+    "win_rate": 0.625,
+    "trips": 562,
+    "exits": {
+     "sell": 537,
+     "dump": 25
+    }
+   },
+   "production_hold72": {
+    "profit_per_day": 52359,
+    "max_drawdown": 356728,
+    "win_rate": 0.601,
+    "trips": 521,
+    "exits": {
+     "sell": 498,
+     "dump": 23
+    }
+   },
+   "checkin": {
+    "profit_per_day": 34905,
+    "max_drawdown": 338141,
+    "win_rate": 0.655,
+    "trips": 252,
+    "exits": {
+     "sell": 236,
+     "dump": 16
+    }
+   },
+   "checkin_hold24": {
+    "profit_per_day": 18120,
+    "max_drawdown": 331640,
+    "win_rate": 0.653,
+    "trips": 248,
+    "exits": {
+     "sell": 223,
+     "dump": 25
+    }
+   },
+   "checkin_hold72": {
+    "profit_per_day": 33993,
+    "max_drawdown": 354662,
+    "win_rate": 0.633,
+    "trips": 248,
+    "exits": {
+     "sell": 232,
+     "dump": 16
+    }
+   }
+  },
+  {
+   "from": 1789603200,
+   "to": 1790809200,
+   "baseline_top_margin": {
+    "profit_per_day": -215884,
+    "max_drawdown": 3089469,
+    "win_rate": 0.436,
+    "trips": 275,
+    "exits": {
+     "sell": 222,
+     "dump": 53
+    }
+   },
+   "baseline_v0_1": {
+    "profit_per_day": -197726,
+    "max_drawdown": 2795616,
+    "win_rate": 0.511,
+    "trips": 481,
+    "exits": {
+     "dump": 129,
+     "sell": 352
+    }
+   },
+   "production": {
+    "profit_per_day": 99852,
+    "max_drawdown": 455718,
+    "win_rate": 0.647,
+    "trips": 481,
+    "exits": {
+     "sell": 467,
+     "dump": 14
+    }
+   },
+   "production_cap10": {
+    "profit_per_day": 100994,
+    "max_drawdown": 227540,
+    "win_rate": 0.703,
+    "trips": 468,
+    "exits": {
+     "sell": 457,
+     "dump": 11
+    }
+   },
+   "production_cap20": {
+    "profit_per_day": 98569,
+    "max_drawdown": 593991,
+    "win_rate": 0.664,
+    "trips": 521,
+    "exits": {
+     "sell": 508,
+     "dump": 13
+    }
+   },
+   "production_hold24": {
+    "profit_per_day": 77138,
+    "max_drawdown": 587051,
+    "win_rate": 0.643,
+    "trips": 496,
+    "exits": {
+     "sell": 468,
+     "dump": 28
+    }
+   },
+   "production_hold72": {
+    "profit_per_day": 103901,
+    "max_drawdown": 410899,
+    "win_rate": 0.638,
+    "trips": 475,
+    "exits": {
+     "sell": 463,
+     "dump": 12
+    }
+   },
+   "checkin": {
+    "profit_per_day": 49083,
+    "max_drawdown": 191995,
+    "win_rate": 0.676,
+    "trips": 244,
+    "exits": {
+     "sell": 235,
+     "dump": 9
+    }
+   },
+   "checkin_hold24": {
+    "profit_per_day": 51879,
+    "max_drawdown": 175933,
+    "win_rate": 0.686,
+    "trips": 245,
+    "exits": {
+     "sell": 228,
+     "dump": 17
+    }
+   },
+   "checkin_hold72": {
+    "profit_per_day": 50406,
+    "max_drawdown": 191995,
+    "win_rate": 0.676,
+    "trips": 244,
+    "exits": {
+     "sell": 236,
+     "dump": 8
+    }
+   }
+  }
+ ]
+}

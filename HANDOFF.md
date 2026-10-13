@@ -56,6 +56,7 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 | r8 | item track-record features (7-day fill rate, return per attempt) | +119k/day, worse | +90k/day, same; code kept on branch `research/track-record` |
 | r9 | check-in settings: Kelly 0.10/0.25, min return 0.3%, 12h buy wait, 7% cap | — | Kelly and min return change nothing (the 10% cap binds); 12h wait +80k and 7% cap +64k, both worse: keep the preset |
 | r10 | check-ins per day (UTC 12/23, +17, +16/20/0, every 3h from 12 to 3) | hourly: +133k (r5) | 2×: +77k, 3×: +90k, 4×: +94k, 6×: +105k/day, all 11/11 folds positive |
+| r11 | max hold 24/72h; bot cap 10/20% | 72h +131k, 24h +118k, cap10 +126k, cap20 +115k: keep 48h / 15% | 72h +93k, 24h +87k: keep 48h (within noise) |
 
   Baselines lose in every fold: top-margin −187k/day and the old heuristic
   −246k/day.
