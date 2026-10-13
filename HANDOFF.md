@@ -68,6 +68,10 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   | `production` (sell priority on) | +141k/day, 52/60 days positive, realised max DD 189k | +102k/day, 52/60 days |
   | without sell priority | +157k/day, 46/60 days, max DD 254k | +98k/day, 55/60 days |
 
+  The `checkin` preset (Orders), 3 check-ins a day (`reports/replay-5m-checkin.*`):
+  +83k/day at a 10% share (47/60 days positive, realised DD 315k) and +65k/day at
+  5% (49/60 days positive, DD 158k).
+
   The replay and the year walk-forward disagree on sell priority's profit (−10%
   here, +10% over the year). It's kept on for lower risk: more winning days and
   a smaller drawdown at the bot's 10% share, and a worst year fold of +60k
