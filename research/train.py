@@ -68,8 +68,10 @@ class FlipModel:
         (path / "meta.json").write_text(json.dumps({"features": self.names, **self.meta}, indent=1))
 
 
-def fit(F, Y, Q, mask, names, rounds=400, seed=0):
+def fit(F, Y, Q, mask, names, rounds=400, seed=0, params=None):
     import lightgbm as lgb
+
+    LGB = {**LGB_PARAMS, **(params or {})}
 
     X, t, i = to_rows(F, mask, names)
     rng = np.random.default_rng(seed)
@@ -79,18 +81,18 @@ def fit(F, Y, Q, mask, names, rounds=400, seed=0):
     b = {}
     yf = Y["filled"][t, i]
     ok = np.isfinite(yf)
-    b["fill"] = lgb.train({**LGB_PARAMS, "objective": "binary", "seed": seed}, lgb.Dataset(X[ok], yf[ok]), rounds)
+    b["fill"] = lgb.train({**LGB, "objective": "binary", "seed": seed}, lgb.Dataset(X[ok], yf[ok]), rounds)
     yr, yh = Y["ret"][t, i], Y["hours"][t, i]
     ok = np.isfinite(yr)
     # Clip extreme returns so a few crashes/spikes don't dominate the fit.
-    b["ret"] = lgb.train({**LGB_PARAMS, "objective": "huber", "alpha": 0.05, "seed": seed},
+    b["ret"] = lgb.train({**LGB, "objective": "huber", "alpha": 0.05, "seed": seed},
                          lgb.Dataset(X[ok], np.clip(yr[ok], -0.3, 0.3)), rounds)
-    b["hours"] = lgb.train({**LGB_PARAMS, "objective": "regression", "seed": seed}, lgb.Dataset(X[ok], yh[ok]), rounds // 2)
+    b["hours"] = lgb.train({**LGB, "objective": "regression", "seed": seed}, lgb.Dataset(X[ok], yh[ok]), rounds // 2)
     for h in (4, 12):
         y = Q[f"fwd_{h}h"][t, i]
         ok = np.isfinite(y)
         for q in (0.1, 0.5, 0.9):
-            b[f"fwd{h}_q{int(q * 100)}"] = lgb.train({**LGB_PARAMS, "objective": "quantile", "alpha": q, "seed": seed},
+            b[f"fwd{h}_q{int(q * 100)}"] = lgb.train({**LGB, "objective": "quantile", "alpha": q, "seed": seed},
                                                      lgb.Dataset(X[ok], np.clip(y[ok], -0.5, 0.5)), rounds // 2)
     return FlipModel(names, b, {"rows": int(len(X))})
 
