@@ -324,6 +324,11 @@
       <div class="card">${sellRows || `<div class="empty-state">Nothing held.</div>`}</div>
       <div class="section-head"><h2>Your open GE offers</h2><span class="small muted">update these when they fill</span></div>
       <div class="card">${openRows || `<div class="empty-state">No open offers recorded.</div>`}</div>
+      ${d.decants && d.decants.length ? `<div class="section-head"><h2>Decanting (near riskless)</h2><span class="small muted">combine doses at Bob Barter by the GE</span></div>
+      <div class="card table-wrap"><table class="list"><thead><tr><th>Decant</th><th class="r">Buy each</th><th class="r">Sell each</th><th class="r">Per batch</th><th class="r">Batches</th><th class="r">Total</th></tr></thead><tbody>
+      ${d.decants.map((x) => `<tr><td class="name">${esc(x.inQty)}× ${esc(x.inName)} → ${esc(x.outQty)}× ${esc(x.outName)}</td><td class="r">${U.full(x.buyAt)}</td><td class="r">${U.full(x.sellAt)}</td>
+        <td class="r good">${U.gp(x.profitPerBatch, { plus: true })}</td><td class="r">${U.full(x.batches)}</td><td class="r good">${U.gp(x.total, { plus: true })}</td></tr>`).join("")}
+      </tbody></table><p class="small muted">Profit is after tax at instant prices (buy instantly, sell instantly). Batches are capped by the buy limit and ~5% of daily volume.</p></div>` : ""}
       <div class="section-head"><h2>New buy offers</h2><span class="small muted">${plan.length} for ${d.cap.slotsFree} free slots · ${U.gp(d.plan.deployUsed)} of ${U.gp(d.cap.deployable)} free gp${d.ctx.mkt_ret_24h < -0.03 ? " · market falling: half size" : ""}</span></div>
       <div class="card">${buyRows || `<div class="empty-state">${d.cap.slotsFree ? "Nothing worth buying right now — the model only trades when the edge clears tax and risk." : "All GE slots are busy."}</div>`}</div>`;
   }

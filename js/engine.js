@@ -148,8 +148,38 @@
         : { action: "wait", label: "No model data", tone: "muted" };
       return { ...h, heldHours, name: (items.get(h.itemId) || {}).name, act };
     });
-    return { barTs, ctx, cap, plan, holds, at: Date.now() };
+    const decants = await decantIdeas(items).catch(() => []);
+    return { barTs, ctx, cap, plan, holds, decants, at: Date.now() };
   }
 
-  OSF.engine = { recommend, syncPractice, history, activeLedger, bankrollFor, capitalFor, doThisNow, marketReturns };
+  /**
+   * Potion decanting (free at Bob Barter next to the GE): buy low-dose potions,
+   * combine into 4-dose, sell. Kept only when profitable after tax at INSTANT
+   * prices (buy at instant-buy, sell at instant-sell), every leg traded in the
+   * last hour and trades >= 2,000/day.
+   */
+  async function decantIdeas(items) {
+    const recipes = window.OSF_DECANTS || [];
+    if (!recipes.length) return [];
+    const [lt, day] = await Promise.all([A.latest(), A.avg24h()]);
+    const now = Date.now() / 1000;
+    const fresh = (id) => lt[id] && lt[id].high > 0 && lt[id].low > 0 && now - Math.min(lt[id].highTime, lt[id].lowTime) < 3600;
+    const vol = (id) => (day && day[id] ? (day[id].highPriceVolume || 0) + (day[id].lowPriceVolume || 0) : 0);
+    const out = [];
+    for (const r of recipes) {
+      if (!fresh(r.in) || !fresh(r.out) || vol(r.in) < 2000 || vol(r.out) < 2000) continue;
+      const cost = r.inQty * lt[r.in].high;                                   // buy instantly
+      const sell = lt[r.out].low;                                             // sell instantly
+      const profit = r.outQty * (sell - Math.min(Math.floor(sell * 0.02), 5e6)) - cost;
+      if (profit <= 0) continue;
+      const it = items.get(r.in) || {};
+      const batches = Math.floor(Math.min((it.limit || 1e9) / r.inQty, (vol(r.out) * 0.05) / r.outQty));
+      if (batches < 1) continue;
+      out.push({ ...r, inName: it.name, outName: (items.get(r.out) || {}).name, buyAt: lt[r.in].high, sellAt: sell,
+        profitPerBatch: profit, batches, total: profit * batches, roi: profit / cost });
+    }
+    return out.sort((a, b) => b.total - a.total).slice(0, 8);
+  }
+
+  OSF.engine = { recommend, syncPractice, history, activeLedger, bankrollFor, capitalFor, doThisNow, marketReturns, decantIdeas };
 })(window.OSF = window.OSF || {});
