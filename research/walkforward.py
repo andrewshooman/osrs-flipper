@@ -63,6 +63,11 @@ ROUNDS = {
         "prod_checkin3_cap10_sellprio_uplift": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10,
                                                 "sell_priority": True, "sell_uplift": True},
     }, ["prod_hourly_sellprio", "prod_checkin3_cap10_sellprio"]),
+    # Round 6: the current presets, for model tuning (--leaves, --lr, --rounds).
+    "r6": ({
+        "production": {**PROD, "sell_priority": True},
+        "checkin": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
+    }, ["production"]),
 }
 
 

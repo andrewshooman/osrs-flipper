@@ -46,7 +46,8 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   | r2 | production preset | +121k/day, 11/11 folds positive | — |
   | r3 | check-in mode (12, 17, 23 UTC), 10% per item | +121k/day | +90k/day, 11/11 folds positive, worst fold +35k |
   | r4 | labels with 6h buy wait | +114k/day | +87k/day, so no gain; kept the 2h labels |
-  | r5 | sell priority, sell uplift | see `reports/walkforward-year-r5.*` | |
+  | r5 | sell priority (cancel the least-filled buy so a holding can be listed) | **+133k/day, worst fold +60k: now on in `production`** | +90k/day, neutral (Orders keeps selling first) |
+| r5 | sell uplift (list above market on a rising forecast) | +132k/day, no gain | +90k/day, no gain |
 
   Baselines lose in every fold: top-margin −187k/day and the old heuristic
   −246k/day.
@@ -81,15 +82,14 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 - **Durable option:** the user's PC (`Start GE Flipper.bat`, see the README).
 
 ## Next steps
-1. **Round 5 decision:** if sell priority and/or sell uplift win, turn them on
-   in `PRESETS` (`production`, `checkin`), mirror them in `js/decide.js`, and
-   let the bot pick them up from `main`.
+1. **Round 6, model tuning** (running): `walkforward.py --round r6 --leaves 31 --rounds 300`.
+   It's compared with round 5's `prod_hourly_sellprio` and `prod_checkin3_cap10`.
 2. **Live bot vs. backtest:** after 3–7 days, check that live profit per day
    lands inside the replay range (+98k to +157k on 5.5M deployable). If it
    doesn't, recalibrate the fill share.
-3. **Hyperparameter tuning:** `walkforward.py --leaves`, `--lr` and `--rounds`.
-   Each new setting retrains all 11 fold models (about 50 minutes, about 11GB of
-   RAM). Run only one heavy job at a time.
+3. **More tuning** if round 6 helps: `walkforward.py --leaves`, `--lr` and
+   `--rounds`. Each new setting retrains all 11 fold models (about 50 minutes,
+   about 11GB of RAM). Run only one heavy job at a time.
 4. **Test `retrain.py`**, then run it weekly. It updates `research/models/current`
    and `models/flip-model.js`. Deploying to the bot means copying the model into
    `osrs-live/data/model` and pushing `live`.
