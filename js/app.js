@@ -356,7 +356,7 @@
       <div class="section-head"><h2>Your items</h2><span class="small muted">${holds.length ? "sell, hold or cut" : ""}</span></div>
       <div class="card">${sellRows || `<div class="empty-state">Nothing held.</div>`}</div>
       <div class="section-head"><h2>Your open GE offers</h2><span class="small muted">update these when they fill</span><span class="spacer"></span>
-        <label class="btn sm" title="Import finished GE offers from RuneLite: the GE Flipper plugin or Flipping Utilities">Import RuneLite<input type="file" accept=".json,application/json" class="import-fu" hidden></label></div>
+        <label class="btn sm" title="Import finished GE offers from RuneLite: the Flip Planner plugin or Flipping Utilities">Import RuneLite<input type="file" accept=".json,application/json" class="import-fu" hidden></label></div>
       <div class="card">${openRows || `<div class="empty-state">No open offers recorded.</div>`}</div>
       ${plan.length ? `<div class="card" style="margin-top:12px"><b class="good">${U.gp(U.sum(plan.map((r) => r.expected)), { plus: true })}</b> expected if these buy orders fill and sell,
         using ${U.gp(d.plan.deployUsed)}. Check back in about ${U.duration(Math.min(6, Math.max(...plan.map((r) => r.hours))))}

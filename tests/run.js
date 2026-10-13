@@ -331,6 +331,7 @@ function series(n, stepSec, fn, now = Date.now()) {
     const r2 = L.importOffers(pg, L.fromRuneLite(plug));
     eq(r2.added, 1, "the sell comes in once it's finished"); eq(r2.skipped, 1, "the buy isn't imported twice");
     eq(L.fromRuneLite(fu).length, 3, "fromRuneLite still reads Flipping Utilities files");
+    eq(L.fromRuneLite({ ...plug, app: "flip-planner-plugin" }).length, 2, "reads the plugin's file under its new name (Flip Planner)");
     let badPlug = false; try { L.fromGeFlipperPlugin({ app: "other" }); } catch (e) { badPlug = true; }
     ok(badPlug, "rejects files that aren't plugin trade files");
 

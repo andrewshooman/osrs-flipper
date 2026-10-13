@@ -223,15 +223,16 @@
     }
     return out.sort((a, b) => a.ts - b.ts);
   }
-  // ---- RuneLite: the GE Flipper plugin's trade file ---------------------------
-  // <data folder>/<account>.json holds the plugin's ledger in this app's shape:
+  // ---- RuneLite: the Flip Planner plugin's trade file --------------------------
+  // (called GE Flipper in its first test build). <data folder>/<account>.json holds the plugin's ledger in this app's shape:
   // trades (fills, each with offerId) and offers (status open/done/cancelled).
   // Each finished offer becomes one imported offer at its average fill price,
   // so it lines up with an offer logged here and offers still running wait.
+  const PLUGIN_APPS = new Set(["flip-planner-plugin", "ge-flipper-plugin"]);
   function fromGeFlipperPlugin(data) {
     const lg = data && data.ledger;
-    if (!data || data.app !== "ge-flipper-plugin" || !lg || !Array.isArray(lg.trades) || !Array.isArray(lg.offers))
-      throw new Error("Not a GE Flipper plugin trade file");
+    if (!data || !PLUGIN_APPS.has(data.app) || !lg || !Array.isArray(lg.trades) || !Array.isArray(lg.offers))
+      throw new Error("Not a Flip Planner plugin trade file");
     const fills = new Map();
     const out = [];
     for (const t of lg.trades) {
@@ -249,8 +250,8 @@
     }
     return out.sort((a, b) => a.ts - b.ts);
   }
-  /** Either RuneLite file: the GE Flipper plugin's or Flipping Utilities'. */
-  const fromRuneLite = (data) => (data && data.app === "ge-flipper-plugin" ? fromGeFlipperPlugin(data) : fromFlippingUtilities(data));
+  /** Either RuneLite file: the Flip Planner plugin's or Flipping Utilities'. */
+  const fromRuneLite = (data) => (data && PLUGIN_APPS.has(data.app) ? fromGeFlipperPlugin(data) : fromFlippingUtilities(data));
 
   /**
    * Adds imported offers to the ledger. Each fills the matching open offer you logged
