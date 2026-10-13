@@ -60,3 +60,7 @@ tasks.register('shadowJar', Jar) {
 	archiveClassifier.set('shadow')
 	archiveFileName.set("${rootProject.name}-${project.version}-all.jar")
 }
+
+jar {
+	archiveFileName.set('ge-flipper.jar')
+}

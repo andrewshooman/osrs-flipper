@@ -43,4 +43,25 @@ public class PanelModel
 	public int flips;
 	public double winRate = Double.NaN;
 	public String tradeFile = "";
+
+	/** A copy to change without touching what the panel is showing. */
+	public PanelModel copy()
+	{
+		PanelModel m = new PanelModel();
+		m.status = status;
+		m.error = error;
+		m.loading = loading;
+		m.noBuys = noBuys;
+		m.freeGp = freeGp;
+		m.expectedProfit = expectedProfit;
+		m.buys.addAll(buys);
+		m.holds.addAll(holds);
+		m.tidy.addAll(tidy);
+		m.profitToday = profitToday;
+		m.profitTotal = profitTotal;
+		m.flips = flips;
+		m.winRate = winRate;
+		m.tradeFile = tradeFile;
+		return m;
+	}
 }
