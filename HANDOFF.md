@@ -26,13 +26,13 @@ logging. Nothing places offers automatically, because that gets accounts banned.
     browser storage is cleared (`js/tradefile.js`).
   - **Import RuneLite** reads the GE Flipper plugin's trade file or a Flipping
     Utilities save.
-- **RuneLite plugin** (`plugin/`, release `plugin-v0.1.0`, a pre-release zip on GitHub
-  Releases):
+- **RuneLite plugin "Flip Planner"** (`plugin/`; first test build `plugin-v0.1.0` was
+  still called GE Flipper, a name already taken on the Plugin Hub; renamed in 0.1.1):
   - The Java engine (`engine/`) is a bit-identical port of the JS, checked by fixtures
     generated from the JS (`plugin/tools/make-fixtures.js --check` in CI).
   - `OfferTracker` and `TradeStore` keep a permanent per-account trade file in the
     web app's ledger shape.
-  - Side panel; GE shortcuts: chatbox fill-in line, E key, `gf` search code.
+  - Side panel; GE shortcuts: chatbox fill-in line, E key, `fp` search code.
   - It runs through `Launcher` with the player's own RuneLite install (`plugin/dist`
     start scripts) until it's on the Plugin Hub.
   - **Not yet checked in-game.**
