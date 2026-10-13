@@ -1,0 +1,71 @@
+panel 8780 bars x 3429 items
+features ready (100s)
+fold 2025-12-11: baseline_top_margin=-341,806/d  baseline_v0_1=-470,978/d  model=+238,913/d  model_lowrisk=+152,467/d  model_liquid=+262,445/d  model_fastcut=+93,411/d  model_patient=+58,921/d  model@5%=+79,859/d  (260s)
+fold 2026-01-08: baseline_top_margin=-346,872/d  baseline_v0_1=-457,739/d  model=-17,135/d  model_lowrisk=+47,118/d  model_liquid=-39,735/d  model_fastcut=-58,827/d  model_patient=+69,276/d  model@5%=-96,607/d  (481s)
+fold 2026-02-05: baseline_top_margin=-115,409/d  baseline_v0_1=-168,396/d  model=+61,994/d  model_lowrisk=+72,690/d  model_liquid=+48,630/d  model_fastcut=+1,374/d  model_patient=-12,281/d  model@5%=-13,009/d  (755s)
+fold 2026-03-05: baseline_top_margin=-143,628/d  baseline_v0_1=-214,335/d  model=+76,982/d  model_lowrisk=+73,357/d  model_liquid=+83,813/d  model_fastcut=+66,235/d  model_patient=+74,329/d  model@5%=-13,190/d  (1042s)
+fold 2026-04-02: baseline_top_margin=-175,370/d  baseline_v0_1=-289,275/d  model=+19,056/d  model_lowrisk=+70,777/d  model_liquid=+44,907/d  model_fastcut=+25,630/d  model_patient=+38,926/d  model@5%=+19,549/d  (1317s)
+fold 2026-04-30: baseline_top_margin=-125,114/d  baseline_v0_1=-203,844/d  model=+38,082/d  model_lowrisk=+67,734/d  model_liquid=+96,978/d  model_fastcut=+77,323/d  model_patient=+78,123/d  model@5%=+8,764/d  (1597s)
+fold 2026-05-28: baseline_top_margin=-171,550/d  baseline_v0_1=-200,352/d  model=-26,470/d  model_lowrisk=+46,530/d  model_liquid=-6,291/d  model_fastcut=-53,551/d  model_patient=+19,629/d  model@5%=-28,012/d  (1872s)
+fold 2026-06-25: baseline_top_margin=-128,870/d  baseline_v0_1=-209,776/d  model=+178,369/d  model_lowrisk=+134,115/d  model_liquid=+73,964/d  model_fastcut=+39,621/d  model_patient=+96,375/d  model@5%=+52,240/d  (2163s)
+fold 2026-07-23: baseline_top_margin=-190,312/d  baseline_v0_1=-212,770/d  model=+52,497/d  model_lowrisk=+84,223/d  model_liquid=+132,326/d  model_fastcut=+44,357/d  model_patient=+149,436/d  model@5%=+14,966/d  (2454s)
+fold 2026-08-20: baseline_top_margin=-101,908/d  baseline_v0_1=-84,606/d  model=+109,877/d  model_lowrisk=+98,134/d  model_liquid=+81,967/d  model_fastcut=+73,975/d  model_patient=+63,482/d  model@5%=+76,199/d  (2739s)
+fold 2026-09-17: baseline_top_margin=-215,884/d  baseline_v0_1=-197,726/d  model=+42,802/d  model_lowrisk=+62,857/d  model_liquid=-8,503/d  model_fastcut=+45,685/d  model_patient=+8,475/d  model@5%=-49,815/d  (3016s)
+{
+ "baseline_top_margin": {
+  "mean_profit_per_day": -186974,
+  "median_profit_per_day": -171550,
+  "folds_positive": "0/11",
+  "worst_fold": -346872,
+  "max_drawdown": 5494101
+ },
+ "baseline_v0_1": {
+  "mean_profit_per_day": -246345,
+  "median_profit_per_day": -209776,
+  "folds_positive": "0/11",
+  "worst_fold": -470978,
+  "max_drawdown": 7198917
+ },
+ "model": {
+  "mean_profit_per_day": 70451,
+  "median_profit_per_day": 52497,
+  "folds_positive": "9/11",
+  "worst_fold": -26470,
+  "max_drawdown": 2077407
+ },
+ "model_lowrisk": {
+  "mean_profit_per_day": 82727,
+  "median_profit_per_day": 72690,
+  "folds_positive": "11/11",
+  "worst_fold": 46530,
+  "max_drawdown": 1642529
+ },
+ "model_liquid": {
+  "mean_profit_per_day": 70045,
+  "median_profit_per_day": 73964,
+  "folds_positive": "8/11",
+  "worst_fold": -39735,
+  "max_drawdown": 2295033
+ },
+ "model_fastcut": {
+  "mean_profit_per_day": 32293,
+  "median_profit_per_day": 44357,
+  "folds_positive": "9/11",
+  "worst_fold": -58827,
+  "max_drawdown": 2233816
+ },
+ "model_patient": {
+  "mean_profit_per_day": 58608,
+  "median_profit_per_day": 63482,
+  "folds_positive": "10/11",
+  "worst_fold": -12281,
+  "max_drawdown": 1478973
+ },
+ "model@5%": {
+  "mean_profit_per_day": 4631,
+  "median_profit_per_day": 8764,
+  "folds_positive": "6/11",
+  "worst_fold": -96607,
+  "max_drawdown": 1765676
+ }
+}

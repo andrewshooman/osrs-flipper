@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from pathlib import Path
 
 import numpy as np
 
@@ -117,6 +118,12 @@ class HybridSim(Sim):
         self.s.enter(t, self)
 
 
+def robust_dd(sim, P1, t_start):
+    """Max drawdown of equity re-marked with the median instant-sell price of the
+    previous 6 hours (one thin hour can't fake a crash). Uses the recorded marks."""
+    return float((np.maximum.accumulate(np.array(sim.robust_equity)) - np.array(sim.robust_equity)).max()) if getattr(sim, "robust_equity", None) else float("nan")
+
+
 def buckets_from_panel(P5: Panel):
     """Yield (ts, {id: (ah, hv, al, lv)}) for each 5-minute bucket."""
     ids = P5.ids
@@ -139,7 +146,18 @@ def replay(P1: Panel, P5: Panel, strategy, cfg: Config, t_start: int, t_end: int
             if pending[0] >= sim.now_ts:
                 sim.fill_bucket(*pending)
             pending = next(feed, None)
-        sim.equity.append(sim.mark(min(t + 1, P1.T - 1)))
+        tm = min(t + 1, P1.T - 1)
+        sim.equity.append(sim.mark(tm))
+        # Robust mark: median instant-sell over the last 6 hours, after tax.
+        if sim.pos:
+            idx = np.array(list(sim.pos))
+            with np.errstate(all="ignore"):
+                med = np.nanmedian(P1.al[max(0, tm - 5):tm + 1, idx], axis=0)
+            med = np.where(np.isfinite(med), med, sim.last_al[idx])
+            val = sum(p.qty * (m - float(min(np.floor(m * 0.02), 5e6))) for p, m in zip(sim.pos.values(), med))
+        else:
+            val = 0.0
+        sim.robust_equity = getattr(sim, "robust_equity", []) + [sim.cash + sim.in_offers() + val]
     # Value what's still held at the instant-sell price after tax (no forced dump).
     end = min(t_end, P1.T - 1)
     for o in list(sim.offers):
@@ -156,9 +174,9 @@ def replay(P1: Panel, P5: Panel, strategy, cfg: Config, t_start: int, t_end: int
 
 def main():
     from backtest import STRATEGIES
-    from features import features, flip_labels, forward_returns
+    from features import features_chunked, labels_chunked
     from panel import load_panel, read_days, panel_from_df
-    from strategy_model import ModelStrategy
+    from strategy_model import PRESETS, ModelStrategy
     from train import candidate_mask, fit
 
     ap = argparse.ArgumentParser()
@@ -176,19 +194,44 @@ def main():
     P1 = panel_from_df(d1, "1h", ts_from=ts5_from - a.train_days * 86400, ts_to=ts5_to, min_trade_frac=0.2)
     P5 = panel_from_df(d5, "5m", ids=P1.ids)
     print(f"hourly {P1.T}x{P1.N}, 5-minute {P5.T} buckets ({time.time() - t0:.0f}s)", flush=True)
-    F, Y, Q = features(P1), flip_labels(P1), forward_returns(P1)
+    F = features_chunked(P1)
+    Y, Q = labels_chunked(P1)
     names = sorted(F)
     t_start = int((ts5_from - P1.ts[0]) // 3600)
     embargo = 27
     train = candidate_mask(P1, F)
     train[t_start - embargo:] = False
-    model = fit(F, Y, Q, train, names, rounds=a.rounds)
+    cache = Path(__file__).resolve().parent / "models" / "replay-cache" / f"{a.train_days}-{a.rounds}-{ts5_from}"
+    if (cache / "meta.json").exists():
+        from train import FlipModel
+        model = FlipModel.load(cache)
+    else:
+        model = fit(F, Y, Q, train, names, rounds=a.rounds)
+        model.save(cache)
     print(f"model trained on {model.meta['rows']:,} rows before the replay window ({time.time() - t0:.0f}s)", flush=True)
     out = {}
-    for S in [STRATEGIES["top_margin"](), STRATEGIES["v0_1"](), ModelStrategy(model, F)]:
-        sim, rep = replay(P1, P5, S, Config(share=a.share), t_start, P1.T)
+    runs = [(STRATEGIES["top_margin"](), a.share), (STRATEGIES["v0_1"](), a.share),
+            (ModelStrategy(model, F, name="model-production", **PRESETS["production"]), a.share),
+            (ModelStrategy(model, F, name="model-production@5%", **PRESETS["production"]), 0.05),
+            (ModelStrategy(model, F, name="model-base"), a.share)]
+    for S, share in runs:
+        sim, rep = replay(P1, P5, S, Config(share=share), t_start, P1.T)
+        prof = np.array([x["profit"] for x in sim.trips]) if sim.trips else np.zeros(0)
+        rep["top3_share_of_profit"] = round(float(np.sort(prof)[-3:].sum() / prof.sum()), 2) if prof.sum() > 0 else None
+        rep["worst_trades"] = [{"item": P1.names[x["item"]], "qty": x["qty"], "buy": round(x["buy"]), "sell": x["sell"],
+                                "profit": round(x["profit"]), "hold_h": round(x["hold"], 1), "reason": x["reason"]}
+                               for x in sorted(sim.trips, key=lambda x: x["profit"])[:5]]
+        # Drawdown on realised profit only (closed trades), and on equity marked at a
+        # steadier price: median instant-sell of the last 6 hours instead of one hour.
+        trips = sorted(sim.trips, key=lambda x: x["t"])
+        cum = np.cumsum([x["profit"] for x in trips]) if trips else np.zeros(1)
+        rep["max_drawdown_realised"] = round(float((np.maximum.accumulate(cum) - cum).max()))
+        rep["max_drawdown_robust_mark"] = round(float(robust_dd(sim, P1, t_start)))
+        daily = np.diff(np.array(sim.equity)[::24]) if len(sim.equity) > 48 else np.zeros(0)
+        rep["days_positive"] = f"{int((daily > 0).sum())}/{len(daily)}"
         out[rep["strategy"]] = rep
         print(json.dumps(rep), flush=True)
+    (Path(__file__).resolve().parent / "reports" / "replay-5m.json").write_text(json.dumps(out, indent=1, default=float))
     return out
 
 

@@ -15,12 +15,24 @@ from pathlib import Path
 import numpy as np
 
 from backtest import STRATEGIES, Config, Sim
-from features import features, flip_labels, forward_returns
+from features import features_chunked, labels_chunked
 from panel import load_panel, synthetic_panel
 from strategy_model import ModelStrategy
 from train import candidate_mask, fit
 
 ROOT = Path(__file__).resolve().parent
+
+# Strategy variants evaluated side by side on the same folds with the same trained model.
+LOWRISK = {"kelly_frac": 0.15, "max_item_frac": 0.15, "min_exp_ret": 0.005}
+VARIANTS = {
+    "model": {},
+    "model_lowrisk": LOWRISK,
+    "model_lowrisk_guard": {**LOWRISK, "guard": True},
+    "model_lowrisk_guard_patient": {**LOWRISK, "guard": True, "buy_wait_h": 6.0},
+    "model_patient": {"buy_wait_h": 6.0},
+}
+# Variants also run at a cautious 5% share of real volume.
+AT_5PCT = ["model", "model_lowrisk", "model_lowrisk_guard"]
 
 
 def main():
@@ -47,9 +59,8 @@ def main():
         P = panel_from_df(df, "1h", min_trade_frac=a.min_trade_frac)
     bars_day = int(86400 // P.step)
     print(f"panel {P.T} bars x {P.N} items", flush=True)
-    F = features(P)
-    Y = flip_labels(P)
-    Q = forward_returns(P)
+    F = features_chunked(P)
+    Y, Q = labels_chunked(P)
     names = sorted(F)
     mask = candidate_mask(P, F)
     embargo = int((2 + 24) * 3600 // P.step) + 1
@@ -61,14 +72,36 @@ def main():
         end = start + a.test_days * bars_day
         tm = mask.copy()
         tm[start - embargo:] = False
-        model = fit(F, Y, Q, tm, names, rounds=a.rounds)
+        # Trained fold models are cached: variant re-runs only re-simulate.
+        cache = ROOT / "models" / "wf-cache" / f"{a.min_trade_frac}-{a.rounds}-{int(P.ts[start])}"
+        if (cache / "meta.json").exists():
+            from train import FlipModel
+            model = FlipModel.load(cache)
+        else:
+            model = fit(F, Y, Q, tm, names, rounds=a.rounds)
+            model.save(cache)
         warm = start - 8 * bars_day
         test = P.slice(warm, end)
         Ft = {k: v[warm:end] for k, v in F.items()}
         row = {"from": int(P.ts[start]), "to": int(P.ts[end - 1])}
-        for S in [STRATEGIES["top_margin"](), STRATEGIES["v0_1"](), ModelStrategy(model, Ft)]:
-            r = Sim(test, Config(share=a.share), S).run(start=start - warm)
-            row[r["strategy"]] = {k: r[k] for k in ("profit_per_day", "max_drawdown", "win_rate", "trips", "exits")}
+        runs = [(STRATEGIES["top_margin"](), a.share), (STRATEGIES["v0_1"](), a.share)]
+        runs += [(ModelStrategy(model, Ft, name=vname, **kw), a.share) for vname, kw in VARIANTS.items()]
+        # Cautious 5% fill share: does the edge survive?
+        runs += [(ModelStrategy(model, Ft, name=f"{v}@5%", **VARIANTS[v]), 0.05) for v in AT_5PCT]
+        for S, share in runs:
+            sim = Sim(test, Config(share=share), S)
+            r = sim.run(start=start - warm)
+            res = {k: r[k] for k in ("profit_per_day", "max_drawdown", "win_rate", "trips", "exits")}
+            if r["strategy"].startswith("model"):
+                # Diagnostics: where did the losses come from, and is profit concentrated?
+                prof = np.array([x["profit"] for x in sim.trips]) if sim.trips else np.zeros(0)
+                res["worst_trades"] = [{"item": test.names[x["item"]], "qty": x["qty"], "buy": round(x["buy"]),
+                                        "sell": x["sell"], "profit": round(x["profit"]), "hold_h": round(x["hold"], 1),
+                                        "reason": x["reason"]} for x in sorted(sim.trips, key=lambda x: x["profit"])[:5]]
+                res["top3_share_of_profit"] = round(float(np.sort(prof)[-3:].sum() / prof.sum()), 2) if prof.sum() > 0 else None
+                eq = np.array(sim.equity)
+                res["drawdown_at_day"] = round(float(np.argmax(np.maximum.accumulate(eq) - eq)) / bars_day, 1)
+            row[r["strategy"]] = res
         folds.append(row)
         day = time.strftime("%Y-%m-%d", time.gmtime(row["from"]))
         print(f"fold {day}: " + "  ".join(f"{k}={v['profit_per_day']:+,}/d" for k, v in row.items() if isinstance(v, dict))
@@ -76,7 +109,7 @@ def main():
         start += a.every_days * bars_day
 
     summary = {}
-    for k in ("baseline_top_margin", "baseline_v0_1", "model"):
+    for k in ([k for k in folds[0] if isinstance(folds[0][k], dict)] if folds else []):
         ppd = np.array([f[k]["profit_per_day"] for f in folds])
         summary[k] = {"mean_profit_per_day": int(ppd.mean()) if len(ppd) else None,
                       "median_profit_per_day": int(np.median(ppd)) if len(ppd) else None,

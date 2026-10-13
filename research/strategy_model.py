@@ -21,6 +21,16 @@ import numpy as np
 from backtest import Base, breakeven, tax
 
 
+# Named settings. "production" won the year-long walk-forward (round 2):
+# +121k/day on 5.5M, positive in 11/11 two-week folds, max drawdown 0.74M;
+# the same settings without patient offers made +56k/day at a 5% fill share.
+PRESETS = {
+    "base": {},
+    "production": {"kelly_frac": 0.15, "max_item_frac": 0.15, "min_exp_ret": 0.005,
+                   "guard": True, "buy_wait_h": 6.0},
+}
+
+
 class ModelStrategy(Base):
     name = "model"
     buy_wait_h = 2.0
@@ -28,8 +38,26 @@ class ModelStrategy(Base):
     kelly_frac = 0.25
     min_exp_ret = 0.002      # skip flips predicted to make <0.2% after tax
 
-    def __init__(self, model, F):
+    # Tunables (variants override these).
+    min_daily_volume = 0          # skip items trading less than this per day (both sides)
+    max_item_frac = None          # cap per item (fraction of deployable); None = Config default
+    fast_cut = False              # cut as soon as the median forecast says it falls further
+    # Pump-and-dump guard: skip items whose price just spiked or whose margin is
+    # implausibly wide — the pattern behind the biggest historical losses.
+    guard = False
+    guard_max_margin = 0.15       # net margin / bid
+    guard_max_ret_24h = 0.25      # log return over 24h
+    guard_max_z_168h = 3.0
+    guard_min_active = 0.5        # share of the last 24h with trades on both sides
+
+    def __init__(self, model, F, name=None, **kw):
         self.m, self.F = model, F
+        if name:
+            self.name = name
+        for k, v in kw.items():
+            if not hasattr(self, k):
+                raise AttributeError(k)
+            setattr(self, k, v)
 
     def prepare(self, P):
         super().prepare(P)
@@ -66,7 +94,10 @@ class ModelStrategy(Base):
                 continue
             if net_now < unit:
                 optimistic = ask * math.exp(q90)
-                if optimistic - float(tax(optimistic)) < unit and q50 < 0:
+                give_up = optimistic - float(tax(optimistic)) < unit and q50 < 0
+                if self.fast_cut and q50 < -0.005 and net_now < unit * 0.985:
+                    give_up = True
+                if give_up:
                     sim.dump(t, i)          # cut: even the good case doesn't get back to breakeven
                     continue
                 target = max(ask, be)
@@ -90,6 +121,15 @@ class ModelStrategy(Base):
         P, F = self.P, self.F
         cand = (np.isfinite(P.ah[t]) & np.isfinite(P.al[t]) & (F["net_margin_rel"][t] > 0)
                 & (F["log_vol_buy_6h"][t] > math.log1p(2)) & (F["log_vol_sell_6h"][t] > math.log1p(2)))
+        if self.guard:
+            with np.errstate(invalid="ignore"):
+                cand &= ~(F["net_margin_rel"][t] > self.guard_max_margin)
+                cand &= ~(F["ret_24h"][t] > self.guard_max_ret_24h)
+                cand &= ~(F["z_168h"][t] > self.guard_max_z_168h)
+                cand &= F["active_24h"][t] >= self.guard_min_active
+        if self.min_daily_volume:
+            per_day = np.expm1(F["log_vol_buy_24h"][t]) * 24 + np.expm1(F["log_vol_sell_24h"][t]) * 24
+            cand &= per_day >= self.min_daily_volume
         idx = np.nonzero(cand)[0]
         if not len(idx):
             return
@@ -108,8 +148,9 @@ class ModelStrategy(Base):
         buy = P.al[t, idx].astype(np.float64) + 1
         per_hour = 3600 / P.step
         rate = np.minimum(P.lv[t, idx], P.hv[t, idx]) * per_hour * sim.cfg.share
-        kelly = np.clip(self.kelly_frac * exp_ret / (spread ** 2), 0, sim.cfg.max_item_frac)
-        budget = np.minimum(kelly * deploy, deploy * sim.cfg.max_item_frac)
+        cap = self.max_item_frac or sim.cfg.max_item_frac
+        kelly = np.clip(self.kelly_frac * exp_ret / (spread ** 2), 0, cap)
+        budget = np.minimum(kelly * deploy, deploy * cap)
         lim = np.where(P.limit[idx] > 0, P.limit[idx], 1e12)
         qty = np.floor(np.minimum.reduce([budget / buy, lim, rate * 4]))
         gp = qty * buy * exp_ret

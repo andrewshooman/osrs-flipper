@@ -28,7 +28,61 @@ def _bars(P: Panel, hours: float) -> int:
     return max(1, int(round(hours * 3600 / P.step)))
 
 
-def features(P: Panel) -> dict[str, np.ndarray]:
+def _cols(P: Panel, a: int, b: int) -> Panel:
+    """Panel restricted to items a:b (all bars)."""
+    return Panel(P.step, P.ts, P.ids[a:b], P.ah[:, a:b], P.al[:, a:b], P.hv[:, a:b], P.lv[:, a:b],
+                 P.limit[a:b], P.highalch[a:b], P.names[a:b])
+
+
+def market_returns(P: Panel) -> dict[str, np.ndarray]:
+    """Median h-hour return across liquid items, per bar (needs all items at once)."""
+    ah = _df(P.ah).ffill(limit=_bars(P, 6))
+    al = _df(P.al).ffill(limit=_bars(P, 6))
+    lmid = np.log((ah + al) / 2)
+    liquid = (_df(P.lv).rolling(_bars(P, 24), min_periods=1).mean() > 5).values
+    out = {}
+    import warnings
+    for h in (1, 24):
+        r = np.where(liquid, (lmid - lmid.shift(_bars(P, h))).values, np.nan)
+        with np.errstate(all="ignore"), warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            out[h] = np.nan_to_num(np.nanmedian(r, axis=1)).astype(np.float32)
+    return out
+
+
+def features_chunked(P: Panel, chunk: int = 400) -> dict[str, np.ndarray]:
+    """Same result as features(P), computed a few hundred items at a time so a
+    full year x thousands of items fits in memory."""
+    mkt = market_returns(P)
+    out = None
+    for a in range(0, P.N, chunk):
+        b = min(P.N, a + chunk)
+        Fc = features(_cols(P, a, b), mkt=mkt)
+        if out is None:
+            out = {k: np.empty((P.T, P.N), dtype=np.float32) for k in Fc}
+        for k, v in Fc.items():
+            out[k][:, a:b] = v
+        del Fc
+    return out
+
+
+def labels_chunked(P: Panel, chunk: int = 400, **kw):
+    Y = Q = None
+    for a in range(0, P.N, chunk):
+        b = min(P.N, a + chunk)
+        Pc = _cols(P, a, b)
+        y, q = flip_labels(Pc, **kw), forward_returns(Pc)
+        if Y is None:
+            Y = {k: np.empty((P.T, P.N), dtype=np.float32) for k in y}
+            Q = {k: np.empty((P.T, P.N), dtype=np.float32) for k in q}
+        for k, v in y.items():
+            Y[k][:, a:b] = v
+        for k, v in q.items():
+            Q[k][:, a:b] = v
+    return Y, Q
+
+
+def features(P: Panel, mkt: dict | None = None) -> dict[str, np.ndarray]:
     f32 = np.float32
     ah = _df(P.ah).ffill(limit=_bars(P, 6))
     al = _df(P.al).ffill(limit=_bars(P, 6))
@@ -82,13 +136,10 @@ def features(P: Panel) -> dict[str, np.ndarray]:
 
     # Market-wide context: median h-hour return across liquid items (the app
     # computes the same thing from two /1h snapshots).
-    liquid = (lv.rolling(_bars(P, 24), min_periods=1).mean() > 5).values
+    if mkt is None:
+        mkt = market_returns(P)
     for h in (1, 24):
-        r = np.where(liquid, F[f"ret_{h}h"], np.nan)
-        with np.errstate(all="ignore"), __import__("warnings").catch_warnings():
-            __import__("warnings").simplefilter("ignore")
-            mkt = np.nan_to_num(np.nanmedian(r, axis=1))
-        F[f"mkt_ret_{h}h"] = np.broadcast_to(mkt[:, None], P.ah.shape)
+        F[f"mkt_ret_{h}h"] = np.broadcast_to(mkt[h][:, None], P.ah.shape)
 
     hours = (P.ts // 3600) % 24
     dow = (P.ts // 86400 + 4) % 7  # 1970-01-01 was a Thursday

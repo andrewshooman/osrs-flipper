@@ -14,6 +14,7 @@
     progress: "",
     view: "bot",
     bot: { data: null, error: null, at: 0 },
+    orders: { data: null, error: null, loading: false, progress: "" },
     sort: "perHour",
     ticks: 0,
   };
@@ -81,7 +82,7 @@
     $(".mode-switch").classList.toggle("hidden", botView); // the bot has its own mock stack
     renderCapital();
     renderBadges();
-    ({ bot: renderBot, picks: renderPicks, slots: renderSlots, holdings: renderHoldings, profit: renderProfit, settings: renderSettings })[S.view]();
+    ({ bot: renderBot, orders: renderOrders, picks: renderPicks, slots: renderSlots, holdings: renderHoldings, profit: renderProfit, settings: renderSettings })[S.view]();
   }
 
   function renderCapital() {
@@ -250,6 +251,82 @@
         ${[...d.events].reverse().slice(0, 80).map((e) => `<tr><td class="muted">${new Date(e.ts * 1000).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
           <td>${esc(actionLabel[e.action] || e.action)}</td><td class="name" data-item="${e.item}">${esc(e.name)}</td><td class="r">${U.full(e.qty)} @ ${U.full(e.price)}</td></tr>`).join("")}</tbody></table>` : `<div class="empty-state">No decisions yet.</div>`}</div>`;
     CH.lineChart($("#bot-equity"), d.equity, { baseline: d.bankroll });
+  }
+
+  // ---------------------------------------------------------------- orders (validated model)
+  async function loadOrders() {
+    if (S.orders.loading) return;
+    S.orders.loading = true;
+    S.orders.progress = "Starting…";
+    renderOrders();
+    try {
+      if (!S.items.size) S.items = await A.mapping();
+      S.orders.data = await E.doThisNow(S.state, { onProgress: (t) => { S.orders.progress = t; if (S.view === "orders") renderOrders(); } });
+      S.orders.error = null;
+    } catch (e) {
+      S.orders.error = e.message || String(e);
+    } finally {
+      S.orders.loading = false;
+      if (S.view === "orders") renderOrders();
+      renderBadges();
+    }
+  }
+
+  function renderOrders() {
+    const root = $("#view-orders");
+    if (S.view !== "orders") return;
+    const d = S.orders.data;
+    const head = `<div class="section-head"><h2>Do this now</h2>
+        <span class="small muted">${d ? `prices from the ${new Date((d.barTs + 3600) * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} hourly close · ${isPractice() ? "practice" : "real"} stack` : ""}</span>
+        <span class="spacer"></span>
+        ${S.orders.loading ? `<span class="small muted"><span class="spinner"></span> ${esc(S.orders.progress)}</span>` : ""}
+        <button class="btn sm" id="orders-refresh" ${S.orders.loading ? "disabled" : ""}>Refresh</button></div>
+      <p class="small secondary" style="margin-top:0">Built for check-ins a few times a day: place these, leave buy offers up for
+      about 6 hours, and come back later. Sell prices don't need babysitting until your next check-in.</p>`;
+    if (!d) {
+      root.innerHTML = head + `<div class="card empty-state">${S.orders.error ? `Couldn't build orders: ${esc(S.orders.error)}` : `<span class="spinner"></span> ${esc(S.orders.progress || "Loading…")}`}</div>`;
+      return;
+    }
+    const now = Date.now();
+    const stale = L.openOffers(ledger()).filter((o) => o.side === "buy" && now - o.placedAt > OSF.decide.PRESET.buyWaitHours * 36e5);
+    const holds = [...d.holds].sort((a, b) => ({ cut: 0, sell: 1, list: 2, hold: 3, wait: 4 }[a.act.action] - { cut: 0, sell: 1, list: 2, hold: 3, wait: 4 }[b.act.action]));
+    const plan = d.plan.plan;
+    const sellRows = holds.map((h) => `<div class="pick">
+        ${icon(h.itemId)}
+        <div style="min-width:0"><div class="name" data-item="${h.itemId}">${esc(h.name || itemName(h.itemId))}</div>
+          <div class="line">You hold ${U.full(h.qty)} @ ${U.full(Math.round(h.avgCost))} · held ${U.duration(h.heldHours)}</div></div>
+        <div class="right"><div class="advice ${h.act.tone}" style="max-width:260px">${esc(h.act.label)}</div></div>
+        <div class="actions">${h.act.price ? `<button class="btn sm primary ${isPractice() ? "practice" : ""}" data-order-sell="${h.itemId}" data-price="${h.act.price}">${h.act.action === "cut" ? "I sold it" : "I listed it"}</button>` : ""}</div>
+      </div>`).join("");
+    const buyRows = plan.map((r) => `<div class="pick">
+        ${icon(r.id)}
+        <div style="min-width:0"><div class="name" data-item="${r.id}">${esc(r.name)}</div>
+          <div class="line"><b>Buy ${U.full(r.qty)} @ ${U.full(r.buy)}</b> → sell ~${U.full(r.sellTarget)}</div>
+          <div class="line muted">uses ${U.gp(r.cost)} · ${esc(r.reasons[0])}</div></div>
+        <div class="right"><div class="profit good">${U.gp(r.expected, { plus: true })}</div><div class="line">~${U.duration(r.hours)}</div></div>
+        <div class="actions"><button class="btn sm primary ${isPractice() ? "practice" : ""}" data-order-buy="${r.id}">${isPractice() ? "Practice buy" : "I placed it"}</button></div>
+      </div>`).join("");
+    root.innerHTML = head + `
+      ${stale.length ? `<div class="section-head"><h2>Tidy up</h2></div><div class="card">${stale.map((o) => `<div class="row" style="padding:6px 0">
+          <span class="grow">Cancel the unfilled part of <b>${esc(itemName(o.itemId))}</b> (${U.full(o.filled)}/${U.full(o.qty)} filled, up ${U.duration((now - o.placedAt) / 36e5)})</span>
+          <button class="btn sm" data-cancel="${o.id}">Cancelled it</button></div>`).join("")}</div>` : ""}
+      <div class="section-head"><h2>Your items</h2><span class="small muted">${holds.length ? "sell, hold or cut" : ""}</span></div>
+      <div class="card">${sellRows || `<div class="empty-state">Nothing held.</div>`}</div>
+      <div class="section-head"><h2>New buy offers</h2><span class="small muted">${plan.length} for ${d.cap.slotsFree} free slots · ${U.gp(d.plan.deployUsed)} of ${U.gp(d.cap.deployable)} free gp${d.ctx.mkt_ret_24h < -0.03 ? " · market falling: half size" : ""}</span></div>
+      <div class="card">${buyRows || `<div class="empty-state">${d.cap.slotsFree ? "Nothing worth buying right now — the model only trades when the edge clears tax and risk." : "All GE slots are busy."}</div>`}</div>`;
+  }
+
+  function orderBuy(id) {
+    const r = S.orders.data && S.orders.data.plan.plan.find((x) => x.id === id);
+    if (!r) return;
+    offerDialog({ itemId: id, side: "buy", price: r.buy, qty: r.qty,
+      predicted: { buy: r.buy, sell: r.sellTarget, expRet: r.expRet, qty: r.qty, hours: r.hours, expected: r.expected, model: "full-year-v1/production", at: Date.now() } });
+  }
+
+  function orderSell(id, price) {
+    const h = L.positions(ledger().trades).holdings.get(id);
+    if (!h) return;
+    offerDialog({ itemId: id, side: "sell", price, qty: h.qty });
   }
 
   // ---------------------------------------------------------------- slots
@@ -481,6 +558,10 @@
         }
         save(); close();
         toast(editing ? "Offer updated" : `${isPractice() ? "Practice " : ""}${sideNow} offer saved`);
+        if (S.orders.data) {
+          S.orders.data.plan.plan = S.orders.data.plan.plan.filter((r) => r.id !== itemId);
+          S.orders.data.holds = S.orders.data.holds.filter((h) => !(sideNow === "sell" && h.itemId === itemId));
+        }
         renderAll();
       });
     });
@@ -663,10 +744,17 @@
       const t = e.target.closest("button, [data-item], [data-new-offer], label.btn");
       if (!t) return;
       const d = t.dataset;
-      if (d.view) { S.view = d.view; renderAll(); window.scrollTo(0, 0); if (d.view === "bot") fetchBot(); return; }
+      if (d.view) {
+        S.view = d.view; renderAll(); window.scrollTo(0, 0);
+        if (d.view === "bot") fetchBot();
+        if (d.view === "orders" && (!S.orders.data || Date.now() - S.orders.data.at > 15 * 6e4)) loadOrders();
+        return;
+      }
       if (d.mode) { if (S.state.mode !== d.mode) { S.state.mode = d.mode; save(); renderAll(); refresh({ quiet: true }); } return; }
       if (d.strategy) { settings().strategy = d.strategy; save(); renderPicks(); refresh(); return; }
       if (d.sort) { S.sort = d.sort; renderPicks(); return; }
+      if (d.orderBuy) return orderBuy(+d.orderBuy);
+      if (d.orderSell) return orderSell(+d.orderSell, +d.price);
       if (d.place) { document.querySelectorAll(".overlay").forEach((o) => o.remove()); placeFromRec(+d.place); return; }
       if (d.fill) return fillDialog(d.fill);
       if (d.editOffer) return offerDialog({ offerId: d.editOffer });
@@ -689,6 +777,7 @@
       if (d.item && !t.matches("button.btn.primary")) return itemDialog(+d.item);
       switch (t.id) {
         case "bot-refresh": return fetchBot();
+        case "orders-refresh": return loadOrders();
         case "refresh": case "retry": return refresh({ force: true });
         case "sync": return refresh({ quiet: true });
         case "export-csv": return download(`ge-flipper-${S.state.mode}-trades.csv`, L.toCSV(ledger(), S.items), "text/csv");
