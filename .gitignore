@@ -17,3 +17,7 @@ research/models/
 research/models/wf-cache/
 research/models/replay-cache/
 bot-data/
+
+# RuneLite plugin build
+plugin/build/
+plugin/.gradle/
