@@ -43,4 +43,10 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: gradle
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # The bundled model and the Java parity fixtures must match the web app's JS.
+      - run: node tools/export-model.js --check
+      - run: node tools/make-fixtures.js --check
       - run: ./gradlew build --no-daemon
