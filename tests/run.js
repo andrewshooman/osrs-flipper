@@ -12,7 +12,7 @@ global.localStorage = {
   removeItem: (k) => store.delete(k),
 };
 const path = require("path");
-["config", "util", "api", "ledger", "model", "store", "engine"].forEach((f) => require(path.join(__dirname, "..", "js", f + ".js")));
+["config", "util", "api", "ledger", "model", "store", "engine", "decide"].forEach((f) => require(path.join(__dirname, "..", "js", f + ".js")));
 const OSF = global.window.OSF;
 const { util: U, ledger: L, model: M, config: C } = OSF;
 
@@ -283,6 +283,32 @@ function series(n, stepSec, fn, now = Date.now()) {
     ok(fills.length > 0 && o.filled > 0, "practice offer filled from history");
     OSF.store.save(state);
     eq(OSF.store.load().ledgers.practice.trades.length, lg.trades.length, "state persists");
+  });
+
+  await group("production strategy (decide.js)", () => {
+    const D = OSF.decide;
+    const f = { net_margin_rel: 0.03, log_vol_buy_6h: 3, log_vol_sell_6h: 3, ret_24h: 0.01, z_168h: 0.5, active_24h: 0.9 };
+    ok(D.eligible(f), "normal item is eligible");
+    ok(!D.eligible({ ...f, net_margin_rel: 0.4 }), "absurd margin blocked by the guard");
+    ok(!D.eligible({ ...f, ret_24h: 0.5 }), "price spike blocked by the guard");
+    ok(!D.eligible({ ...f, active_24h: 0.2 }), "inactive item blocked");
+    const pred = { fill: 0.9, ret: 0.02, hours: 3, fwd4_q10: -0.02, fwd4_q50: 0.002, fwd4_q90: 0.03 };
+    const items = Array.from({ length: 12 }, (_, i) => ({ id: i + 1, name: "it" + i, limitLeft: 5000,
+      bar: { ah: 1050, al: 1000, hv: 20000, lv: 20000 }, f, pred: { ...pred, ret: 0.01 + i * 0.002 } }));
+    const r = D.buyPlan(items, { deployable: 5_500_000, slotsFree: 8 }, 0);
+    ok(r.plan.length <= 8, "never more orders than free slots");
+    ok(U.sum(r.plan.map((x) => x.cost)) <= 5_500_000, "never more than deployable gp");
+    ok(r.plan.every((x) => x.cost <= 5_500_000 * 0.15 + 1001), "per-item cap 15%");
+    ok(r.plan.every((x) => x.qty <= 5000), "buy limit respected");
+    ok(r.plan[0].buy === 1001, "bid = hourly instant-sell + 1");
+    const half = D.buyPlan(items, { deployable: 5_500_000, slotsFree: 8 }, -0.05);
+    ok(U.sum(half.plan.map((x) => x.cost)) <= 2_750_000 + 1, "market brake halves the gp used");
+    const bar = { ah: 1100, al: 1050 };
+    eq(D.holdingAction({ qty: 100, avgCost: 1000, heldHours: 2 }, bar, pred, 1).action, "list", "profitable holding: list at market");
+    eq(D.holdingAction({ qty: 100, avgCost: 1000, heldHours: 2 }, bar, { ...pred, fwd4_q50: -0.01 }, 1).action, "sell", "falling forecast: sell now");
+    eq(D.holdingAction({ qty: 100, avgCost: 1300, heldHours: 2 }, bar, { ...pred, fwd4_q50: -0.01, fwd4_q90: 0.01 }, 1).action, "cut", "hopeless loser: cut");
+    eq(D.holdingAction({ qty: 100, avgCost: 1100, heldHours: 2 }, bar, { ...pred, fwd4_q90: 0.08 }, 1).action, "hold", "recoverable loser: hold at breakeven");
+    eq(D.holdingAction({ qty: 100, avgCost: 1000, heldHours: 200 }, bar, pred, 1).action, "sell", "over 7 days: sell");
   });
 
   console.log(`\n${passed} passed, ${failed} failed`);
