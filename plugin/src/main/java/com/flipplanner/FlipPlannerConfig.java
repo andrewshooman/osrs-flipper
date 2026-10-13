@@ -141,4 +141,11 @@ public interface FlipPlannerConfig extends Config
 	{
 		return true;
 	}
+
+	@ConfigItem(keyName = "gpDrop", name = "GP drop on sells", description = "A floating \"+12.3K gp\" with the profit after tax when a sell finishes, like an XP drop",
+		section = shortcuts, position = 9)
+	default boolean gpDrop()
+	{
+		return true;
+	}
 }

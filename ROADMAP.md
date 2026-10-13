@@ -24,7 +24,8 @@ Record results in HANDOFF.md.
 - 0.3.1: session profit per hour, game-chat messages with profit after tax on sells.
 - 0.4.0: item tooltips (paid, breakeven, now, advice) in the inventory, bank and GE;
   "Price graph" in the right-click menu of tradeable items; "Use detected stack"
-  (coins in the inventory and bank, gp in buy offers, items at cost).
+  (coins in the inventory and bank, gp in buy offers, items at cost); a GP drop with
+  the profit when a sell finishes.
 
 ## Queue
 1. **Re-pricing instead of only cancelling (research first).** In the 5-minute replay
@@ -38,9 +39,8 @@ Record results in HANDOFF.md.
 3. **Weekly retrain.** Run `research/retrain.py`, export the model to
    `models/flip-model.js` and the plugin's `flip-model.json`, regenerate the parity
    fixtures, and release.
-4. **GP drop on finished sells.** A small floating "+12.3K" when a sell completes.
-5. **Keep iterating** on whatever the user reports from in-game testing. The GE
-   highlights, slot timers, tooltips and the menu option haven't been checked in-game
+4. **Keep iterating** on whatever the user reports from in-game testing. The GE
+   highlights, slot timers, tooltips, the menu option and the GP drop haven't been checked in-game
    yet, so those reports come first.
 
 ## Rules to keep (RuneLite Plugin Hub)

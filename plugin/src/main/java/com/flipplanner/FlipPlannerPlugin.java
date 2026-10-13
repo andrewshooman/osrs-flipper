@@ -115,6 +115,8 @@ public class FlipPlannerPlugin extends Plugin
 	@Inject
 	private ItemTooltipOverlay tooltipOverlay;
 	@Inject
+	private GpDropOverlay gpDrop;
+	@Inject
 	private Notifier notifier;
 	@Inject
 	private ConfigManager configManager;
@@ -219,6 +221,7 @@ public class FlipPlannerPlugin extends Plugin
 		overlayManager.add(overlay);
 		tooltipOverlay.setSources(() -> config.itemTooltips() && !paused ? tips : Collections.emptyMap(), () -> overlayState.slots);
 		overlayManager.add(tooltipOverlay);
+		overlayManager.add(gpDrop);
 		// New hourly prices land a few minutes after the hour; check every 5 minutes.
 		ticker = scheduler.scheduleWithFixedDelay(() -> refresh(false), 5, 300, TimeUnit.SECONDS);
 		if (client.getGameState() == GameState.LOGGED_IN)
@@ -233,6 +236,7 @@ public class FlipPlannerPlugin extends Plugin
 		ticker.cancel(false);
 		overlayManager.remove(overlay);
 		overlayManager.remove(tooltipOverlay);
+		overlayManager.remove(gpDrop);
 		shortcuts.setAdvice(null);
 		clientToolbar.removeNavigation(nav);
 		saveNow();
@@ -444,7 +448,7 @@ public class FlipPlannerPlugin extends Plugin
 			boolean live = System.currentTimeMillis() - loginAt > 8000;
 			GrandExchangeOfferState st = o.getState();
 			boolean done = st == GrandExchangeOfferState.BOUGHT || st == GrandExchangeOfferState.SOLD;
-			if (live && done && (config.notifyOffers() || config.chatMessages()))
+			if (live && done && (config.notifyOffers() || config.chatMessages() || config.gpDrop()))
 			{
 				String name = advisor.names().getOrDefault(o.getItemId(), itemManager.getItemComposition(o.getItemId()).getName());
 				String qty = String.format(java.util.Locale.US, "%,d", o.getQuantitySold());
@@ -452,6 +456,10 @@ public class FlipPlannerPlugin extends Plugin
 				String tail = st == GrandExchangeOfferState.BOUGHT ? ". Collect it and list it for sale."
 					: profit == null ? "." : String.format(java.util.Locale.US, " for %s%,d gp profit after tax.", profit >= 0 ? "+" : "", Math.round(profit));
 				String text = (st == GrandExchangeOfferState.BOUGHT ? "Bought " : "Sold ") + qty + " " + name + tail;
+				if (profit != null && config.gpDrop())
+				{
+					gpDrop.add(profit);
+				}
 				if (config.notifyOffers())
 				{
 					notifier.notify("Flip Planner: " + text);
