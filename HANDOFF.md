@@ -24,8 +24,12 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   the 48h max hold have been on since 03:00 UTC on 10-13. At 04:53 UTC it was +101k
   (+76k realised, 55 closed trades). At 08:31 UTC it was +127k (+122k realised,
   121 closed trades).
-  - **Since 2026-10-13 ~08:40 UTC it runs on GitHub Actions** (`.github/workflows/bot.yml`,
-    every ~10 minutes). The cloud session's container is shut down a few minutes
+  - **Since 2026-10-13 ~08:40 UTC it runs on GitHub Actions** (`.github/workflows/bot.yml`).
+    It has a 10-minute schedule, but GitHub's scheduler hasn't fired it for this
+    repo yet, even after re-registering it (#20). Until it does, runs are
+    dispatched by hand or from a session (`workflow_dispatch`). The bot
+    loses nothing between runs, but its hourly decisions only happen when a run
+    does. The cloud session's container is shut down a few minutes
     after the session goes idle, which stopped the local loop (03:54–04:53 and
     07:36–08:30 UTC). Each run catches up on every 5-minute bucket it missed, so
     late or skipped runs lose nothing. State lives on the `live` branch, which
