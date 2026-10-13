@@ -1,6 +1,6 @@
 # Handoff: where the project stands and what comes next
 
-*Last updated: 2026-10-13, 03:00 UTC.*
+*Last updated: 2026-10-13, 05:10 UTC.*
 
 **Goal:** use the GE tool to make the user coins by **flipping**: buying and
 selling on the GE only. Decanting, processing and alching are money-making
@@ -20,8 +20,9 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   - Holdings shows the same model advice as Orders.
   - GE tax uses the wiki's full exemption list (48 items).
 - **Live paper-trading bot** (`research/live.py`, `production` preset, model
-  `full-year-v1`): started 2026-10-12 23:06 UTC on an 11M mock stack. At 02:49 UTC
-  it was +78k (+41k realised, 10 closed trades).
+  `full-year-v1`): started 2026-10-12 23:06 UTC on an 11M mock stack. Sell priority and
+  the 48h max hold have been on since 03:00 UTC on 10-13. At 04:53 UTC it was +101k
+  (+76k realised, 55 closed trades). It was down 03:54–04:53 for a machine restart.
   - State is published to the `live` branch every 5 minutes; the app's Bot tab
     reads it.
 - **Research** (`research/`):
@@ -48,13 +49,23 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   | r4 | labels with 6h buy wait | +114k/day | +87k/day, so no gain; kept the 2h labels |
   | r5 | sell priority (cancel the least-filled buy so a holding can be listed) | **+133k/day, worst fold +60k: now on in `production`** | +90k/day, neutral (Orders keeps selling first) |
 | r5 | sell uplift (list above market on a rising forecast) | +132k/day, no gain | +90k/day, no gain |
+| r6 | LightGBM 31 leaves, 300 trees | +116k/day, worse | +86k/day, worse |
+| r7 | learning rate 0.03, 400 trees (8 of 11 folds) | worse (1,034k vs 1,169k) | worse (784k vs 806k) |
 
   Baselines lose in every fold: top-margin −187k/day and the old heuristic
   −246k/day.
 - **5-minute replay**, Aug 13 – Oct 12 2026, real 5-minute fills, model never
-  retrained:
-  - 10% share: +157k/day, realised max drawdown about 255k
-  - 5% share: +98k/day
+  retrained (`reports/replay-5m-r5.*`):
+
+  | variant | 10% share | 5% share |
+  |---|---|---|
+  | `production` (sell priority on) | +141k/day, 52/60 days positive, realised max DD 189k | +102k/day, 52/60 days |
+  | without sell priority | +157k/day, 46/60 days, max DD 254k | +98k/day, 55/60 days |
+
+  The replay and the year walk-forward disagree on sell priority's profit (−10%
+  here, +10% over the year). It's kept on for lower risk: more winning days and
+  a smaller drawdown at the bot's 10% share, and a worst year fold of +60k
+  instead of +14k. The live bot's results will settle it.
 
 ## Running things on the cloud machine
 - **Code the bot runs:** `/home/user/osrs-flipper`, kept on `main`. `bot_loop.sh`
@@ -82,14 +93,15 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 - **Durable option:** the user's PC (`Start GE Flipper.bat`, see the README).
 
 ## Next steps
-1. **Round 6, model tuning** (running): `walkforward.py --round r6 --leaves 31 --rounds 300`.
-   It's compared with round 5's `prod_hourly_sellprio` and `prod_checkin3_cap10`.
+1. **Model tuning is done for now.** Rounds 6–7 lost to the current LightGBM
+   settings (63 leaves, learning rate 0.05, 200 trees). Better gains are more
+   likely from new information, for example an item's own track record of
+   flips, or 30-day context from 6h data.
 2. **Live bot vs. backtest:** after 3–7 days, check that live profit per day
-   lands inside the replay range (+98k to +157k on 5.5M deployable). If it
+   lands inside the replay range (+102k to +141k on 5.5M deployable). If it
    doesn't, recalibrate the fill share.
-3. **More tuning** if round 6 helps: `walkforward.py --leaves`, `--lr` and
-   `--rounds`. Each new setting retrains all 11 fold models (about 50 minutes,
-   about 11GB of RAM). Run only one heavy job at a time.
+3. **Machine restarts kill every process.** The session health check restarts
+   the watchdog. A walk-forward resumes from its cached fold models.
 4. **Test `retrain.py`**, then run it weekly. It updates `research/models/current`
    and `models/flip-model.js`. Deploying to the bot means copying the model into
    `osrs-live/data/model` and pushing `live`.

@@ -1,0 +1,50 @@
+panel 8780 bars x 3429 items
+features ready (91s)
+fold 2025-12-11: baseline_top_margin=-341,806/d  baseline_v0_1=-470,978/d  production=+191,113/d  checkin=+136,886/d  production@5%=+99,846/d  (243s)
+fold 2026-01-08: baseline_top_margin=-346,872/d  baseline_v0_1=-457,739/d  production=+248,072/d  checkin=+90,772/d  production@5%=+103,880/d  (476s)
+fold 2026-02-05: baseline_top_margin=-115,409/d  baseline_v0_1=-168,396/d  production=+98,942/d  checkin=+57,104/d  production@5%=+37,766/d  (758s)
+fold 2026-03-05: baseline_top_margin=-143,628/d  baseline_v0_1=-214,335/d  production=+54,532/d  checkin=+53,946/d  production@5%=+48,612/d  (1066s)
+fold 2026-04-02: baseline_top_margin=-175,370/d  baseline_v0_1=-289,275/d  production=+74,168/d  checkin=+94,137/d  production@5%=+33,222/d  (1359s)
+fold 2026-04-30: baseline_top_margin=-125,114/d  baseline_v0_1=-203,844/d  production=+88,649/d  checkin=+70,938/d  production@5%=+32,160/d  (1661s)
+fold 2026-05-28: baseline_top_margin=-171,550/d  baseline_v0_1=-200,352/d  production=+67,339/d  checkin=+225,492/d  production@5%=+24,192/d  (1982s)
+fold 2026-06-25: baseline_top_margin=-128,870/d  baseline_v0_1=-209,776/d  production=+181,675/d  checkin=+42,423/d  production@5%=+68,215/d  (2297s)
+fold 2026-07-23: baseline_top_margin=-190,312/d  baseline_v0_1=-212,770/d  production=+120,837/d  checkin=+106,814/d  production@5%=+57,606/d  (2610s)
+fold 2026-08-20: baseline_top_margin=-101,908/d  baseline_v0_1=-84,606/d  production=+81,825/d  checkin=+24,230/d  production@5%=+31,950/d  (2951s)
+fold 2026-09-17: baseline_top_margin=-215,884/d  baseline_v0_1=-197,726/d  production=+74,214/d  checkin=+46,242/d  production@5%=+35,791/d  (3270s)
+{
+ "baseline_top_margin": {
+  "mean_profit_per_day": -186974,
+  "median_profit_per_day": -171550,
+  "folds_positive": "0/11",
+  "worst_fold": -346872,
+  "max_drawdown": 5494101
+ },
+ "baseline_v0_1": {
+  "mean_profit_per_day": -246345,
+  "median_profit_per_day": -209776,
+  "folds_positive": "0/11",
+  "worst_fold": -470978,
+  "max_drawdown": 7198917
+ },
+ "production": {
+  "mean_profit_per_day": 116487,
+  "median_profit_per_day": 88649,
+  "folds_positive": "11/11",
+  "worst_fold": 54532,
+  "max_drawdown": 794741
+ },
+ "checkin": {
+  "mean_profit_per_day": 86271,
+  "median_profit_per_day": 70938,
+  "folds_positive": "11/11",
+  "worst_fold": 24230,
+  "max_drawdown": 1567813
+ },
+ "production@5%": {
+  "mean_profit_per_day": 52112,
+  "median_profit_per_day": 37766,
+  "folds_positive": "11/11",
+  "worst_fold": 24192,
+  "max_drawdown": 469581
+ }
+}
