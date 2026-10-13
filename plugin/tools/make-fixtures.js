@@ -313,6 +313,11 @@ function predictFixture(cases) {
  */
 function patchedDecide() {
   let src = fs.readFileSync(path.join(ROOT, "js", "decide.js"), "utf8");
+  if (src.includes("opts.minExpectedGp")) {
+    // The web app has the rule itself (buyPlan(items, cap, mkt, { minExpectedGp })).
+    const D = OSF.decide, buyPlan = D.buyPlan; // the original: the recommend fixture swaps OSF.decide.buyPlan later
+    return { ...D, buyPlan: (items, cap, mkt, minGp = 0) => buyPlan(items, cap, mkt, { minExpectedGp: minGp }) };
+  }
   const edits = [
     ["function buyPlan(items, cap, mktRet24h) {", "function buyPlan(items, cap, mktRet24h, minGp = 0) {"],
     ["      plan.push(r);\n", "      if (r.expected < minGp) continue;\n      plan.push(r);\n"],
