@@ -31,8 +31,10 @@ PRESETS = {
     # For a player checking in ~3x a day (what the app's Orders tab uses).
     # Round 3: 3 check-ins/day made +90k/day, 11/11 folds positive, worst fold +35k.
     # Sell priority was neutral here in round 5 (+90k/day either way).
+    # Round 12: skip buys expected to make under 10k gp (+81k/day vs +83k, same
+    # ~8.7 buys/day, worst fold +22k vs +15k); higher minimums cost real profit.
     "checkin": {"kelly_frac": 0.15, "max_item_frac": 0.10, "min_exp_ret": 0.005,
-                "guard": True, "buy_wait_h": 6.0},
+                "guard": True, "buy_wait_h": 6.0, "min_exp_gp": 10_000},
 }
 
 
