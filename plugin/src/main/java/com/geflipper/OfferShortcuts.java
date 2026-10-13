@@ -1,7 +1,6 @@
 package com.geflipper;
 
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,6 +19,7 @@ import net.runelite.api.widgets.WidgetSizeMode;
 import net.runelite.api.widgets.WidgetTextAlignment;
 import net.runelite.api.widgets.WidgetType;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.input.KeyListener;
 import net.runelite.client.util.QuantityFormatter;
 
 /**
