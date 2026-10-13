@@ -324,6 +324,11 @@
       <div class="card">${sellRows || `<div class="empty-state">Nothing held.</div>`}</div>
       <div class="section-head"><h2>Your open GE offers</h2><span class="small muted">update these when they fill</span></div>
       <div class="card">${openRows || `<div class="empty-state">No open offers recorded.</div>`}</div>
+      ${d.decants && d.decants.length ? `<div class="section-head"><h2>Decanting (near riskless)</h2><span class="small muted">combine doses at Bob Barter by the GE</span></div>
+      <div class="card table-wrap"><table class="list"><thead><tr><th>Decant</th><th class="r">Buy each</th><th class="r">Sell each</th><th class="r">Per batch</th><th class="r">Batches</th><th class="r">Total</th></tr></thead><tbody>
+      ${d.decants.map((x) => `<tr><td class="name">${esc(x.inQty)}× ${esc(x.inName)} → ${esc(x.outQty)}× ${esc(x.outName)}</td><td class="r">${U.full(x.buyAt)}</td><td class="r">${U.full(x.sellAt)}</td>
+        <td class="r good">${U.gp(x.profitPerBatch, { plus: true })}</td><td class="r">${U.full(x.batches)}</td><td class="r good">${U.gp(x.total, { plus: true })}</td></tr>`).join("")}
+      </tbody></table><p class="small muted">Profit is after tax at instant prices (buy instantly, sell instantly). Batches are capped by the buy limit and ~5% of daily volume.</p></div>` : ""}
       <div class="section-head"><h2>New buy offers</h2><span class="small muted">${plan.length} for ${d.cap.slotsFree} free slots · ${U.gp(d.plan.deployUsed)} of ${U.gp(d.cap.deployable)} free gp${d.ctx.mkt_ret_24h < -0.03 ? " · market falling: half size" : ""}</span></div>
       <div class="card">${buyRows || `<div class="empty-state">${d.cap.slotsFree ? "Nothing worth buying right now — the model only trades when the edge clears tax and risk." : "All GE slots are busy."}</div>`}</div>`;
   }
@@ -428,6 +433,7 @@
       <div class="section-head"><h2>Daily profit</h2><span class="small muted">last 30 days with closed flips</span></div>
       <div class="card"><div id="day-chart"></div></div>
       ${st.unmatched.length ? `<div class="card advice warn" style="margin-top:10px">${st.unmatched.length} sale(s) have no matching purchase in this ledger, so they aren't counted. Log the buys to include them.</div>` : ""}
+      ${calibrationHtml(st)}
       <div class="section-head"><h2>By item</h2></div>
       <div class="card table-wrap">${st.byItem.length ? `<table class="list"><thead><tr><th>Item</th><th class="r">Profit</th><th class="r">Sold</th><th class="r">ROI</th><th class="r">Wins</th><th class="r">Tax</th></tr></thead><tbody>
         ${st.byItem.map((r) => `<tr><td class="name" data-item="${r.itemId}">${esc(itemName(r.itemId))}</td><td class="r ${signClass(r.profit)}">${U.gp(r.profit, { plus: true })}</td>
@@ -441,6 +447,33 @@
           <td class="r"><button class="btn sm danger" data-del-trade="${t.id}" title="Delete">✕</button></td></tr>`).join("")}
       </tbody></table>` : `<div class="empty-state">No trades yet.</div>`}</div>`;
     CH.barChart($("#day-chart"), days);
+  }
+
+  /** Model's predicted return (saved with each recommended offer) vs the realised return per item. */
+  function calibrationHtml(st) {
+    const pred = new Map();
+    for (const o of ledger().offers) {
+      if (o.side !== "buy" || !o.predicted || o.predicted.expRet == null || !o.filled) continue;
+      const p = pred.get(o.itemId) || { w: 0, sum: 0, n: 0 };
+      p.w += o.filled; p.sum += o.filled * o.predicted.expRet; p.n++;
+      pred.set(o.itemId, p);
+    }
+    const rows = st.byItem.filter((r) => pred.has(r.itemId)).map((r) => {
+      const p = pred.get(r.itemId);
+      return { ...r, predRet: p.sum / p.w, actRet: r.profit / r.cost };
+    });
+    if (!rows.length) return "";
+    const cost = U.sum(rows.map((r) => r.cost));
+    const predAvg = U.sum(rows.map((r) => r.predRet * r.cost)) / cost;
+    const actAvg = U.sum(rows.map((r) => r.profit)) / cost;
+    return `<div class="section-head"><h2>Model vs your results</h2><span class="small muted">trades placed from Orders</span></div>
+      <div class="card">
+        <p class="small secondary" style="margin-top:0">Predicted ${U.pct(predAvg, 2)} per flip after tax, you got <b class="${signClass(actAvg)}">${U.pct(actAvg, 2)}</b>
+        across ${rows.length} item${rows.length > 1 ? "s" : ""}. ${actAvg >= predAvg * 0.7 ? "Tracking close to the model." : "Below the model so far — fills or prices are worse than it assumes; this feeds the next retrain."}</p>
+        <div class="table-wrap"><table class="list"><thead><tr><th>Item</th><th class="r">Predicted</th><th class="r">Actual</th><th class="r">Profit</th></tr></thead><tbody>
+        ${rows.map((r) => `<tr><td class="name" data-item="${r.itemId}">${esc(itemName(r.itemId))}</td><td class="r">${U.pct(r.predRet, 2)}</td>
+          <td class="r ${signClass(r.actRet)}">${U.pct(r.actRet, 2)}</td><td class="r ${signClass(r.profit)}">${U.gp(r.profit, { plus: true })}</td></tr>`).join("")}
+        </tbody></table></div></div>`;
   }
 
   // ---------------------------------------------------------------- settings

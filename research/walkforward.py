@@ -34,6 +34,25 @@ VARIANTS = {
 # Variants also run at a cautious 5% share of real volume.
 AT_5PCT = ["model", "model_lowrisk", "model_lowrisk_guard"]
 
+# Round 3: the production preset as a sporadic player would use it.
+PROD = {**LOWRISK, "guard": True, "buy_wait_h": 6.0}
+CHECKINS = [12, 17, 23]  # UTC = about 8am, 1pm, 7pm US Eastern
+ROUNDS = {
+    "r2": (VARIANTS, AT_5PCT),
+    "r3": ({
+        "prod_hourly": PROD,
+        "prod_checkin3": {**PROD, "checkin_hours": CHECKINS},
+        "prod_checkin3_cap10": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
+        "prod_checkin3_minret8": {**PROD, "checkin_hours": CHECKINS, "min_exp_ret": 0.008},
+        "prod_checkin2": {**PROD, "checkin_hours": [12, 23]},
+    }, ["prod_checkin3"]),
+    # Round 4: same strategies, model retrained on labels that match them (see --wait-h).
+    "r4": ({
+        "prod_hourly": PROD,
+        "prod_checkin3": {**PROD, "checkin_hours": CHECKINS},
+    }, ["prod_hourly", "prod_checkin3"]),
+}
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -44,6 +63,9 @@ def main():
     ap.add_argument("--rounds", type=int, default=200)
     ap.add_argument("--min-trade-frac", type=float, default=0.2)
     ap.add_argument("--share", type=float, default=0.10)
+    ap.add_argument("--round", default="r2", choices=["r2", "r3", "r4"])
+    ap.add_argument("--wait-h", type=float, default=2.0, help="label: how long the bid may wait to fill")
+    ap.add_argument("--hold-h", type=float, default=24.0, help="label: max hold before dumping")
     ap.add_argument("--before", default=None, help="only use hourly data before this date (YYYY-MM-DD)")
     ap.add_argument("--out", default=str(ROOT / "reports" / "walkforward.json"))
     a = ap.parse_args()
@@ -60,7 +82,7 @@ def main():
     bars_day = int(86400 // P.step)
     print(f"panel {P.T} bars x {P.N} items", flush=True)
     F = features_chunked(P)
-    Y, Q = labels_chunked(P)
+    Y, Q = labels_chunked(P, wait_h=a.wait_h, hold_h=a.hold_h)
     names = sorted(F)
     mask = candidate_mask(P, F)
     embargo = int((2 + 24) * 3600 // P.step) + 1
@@ -73,7 +95,8 @@ def main():
         tm = mask.copy()
         tm[start - embargo:] = False
         # Trained fold models are cached: variant re-runs only re-simulate.
-        cache = ROOT / "models" / "wf-cache" / f"{a.min_trade_frac}-{a.rounds}-{int(P.ts[start])}"
+        lab = "" if (a.wait_h, a.hold_h) == (2.0, 24.0) else f"-w{a.wait_h:g}h{a.hold_h:g}"
+        cache = ROOT / "models" / "wf-cache" / f"{a.min_trade_frac}-{a.rounds}{lab}-{int(P.ts[start])}"
         if (cache / "meta.json").exists():
             from train import FlipModel
             model = FlipModel.load(cache)
@@ -85,9 +108,10 @@ def main():
         Ft = {k: v[warm:end] for k, v in F.items()}
         row = {"from": int(P.ts[start]), "to": int(P.ts[end - 1])}
         runs = [(STRATEGIES["top_margin"](), a.share), (STRATEGIES["v0_1"](), a.share)]
-        runs += [(ModelStrategy(model, Ft, name=vname, **kw), a.share) for vname, kw in VARIANTS.items()]
+        variants, at5 = ROUNDS[a.round]
+        runs += [(ModelStrategy(model, Ft, name=vname, **kw), a.share) for vname, kw in variants.items()]
         # Cautious 5% fill share: does the edge survive?
-        runs += [(ModelStrategy(model, Ft, name=f"{v}@5%", **VARIANTS[v]), 0.05) for v in AT_5PCT]
+        runs += [(ModelStrategy(model, Ft, name=f"{v}@5%", **variants[v]), 0.05) for v in at5]
         for S, share in runs:
             sim = Sim(test, Config(share=share), S)
             r = sim.run(start=start - warm)

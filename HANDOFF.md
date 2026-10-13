@@ -1,6 +1,6 @@
 # Handoff: where the project stands and what comes next
 
-*Last updated: 2026-10-13, 00:55 UTC.*
+*Last updated: 2026-10-13, 01:55 UTC.*
 
 **Goal:** use the GE tool to make the user coins. The user trades sporadically, a
 few check-ins a day, and wants recommendations they can follow plus easy
@@ -58,6 +58,13 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 - **Live bot:** restarted 23:00 UTC 10-12 with `models/full-year-v1` + `production` preset. Loop:
   `LIVE_DIR=/home/user/osrs-live research/bot_loop.sh` (watcher: `/home/user/osrs-data/watch_bot.sh`).
 - **Data backed up** on the `data` branch (1h year + 60 days of 5m).
+
+## Keeping the cloud bot alive
+- Start (or restart after a machine restart): `setsid nohup research/watchdog.sh >> /home/user/osrs-data/watchdog.log 2>&1 &`
+- The watchdog starts `bot_loop.sh` under `flock` (single instance) and restarts it if `state.json`
+  goes stale for 20 minutes. Processes don't survive a machine restart, so the session schedules
+  health checks.
+- The durable option is the user's PC: `Start GE Flipper.bat` (see README).
 
 ## Next steps (in order)
 1. **Live paper trading, 3–7 days.** Watch that its results land inside the replay's range
