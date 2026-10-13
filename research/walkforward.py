@@ -63,6 +63,15 @@ ROUNDS = {
         "prod_checkin3_cap10_sellprio_uplift": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10,
                                                 "sell_priority": True, "sell_uplift": True},
     }, ["prod_hourly_sellprio", "prod_checkin3_cap10_sellprio"]),
+    # Round 9: check-in settings sweep (the strategy the app's Orders tab uses).
+    "r9": ({
+        "checkin": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
+        "checkin_kelly25": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "kelly_frac": 0.25},
+        "checkin_kelly10": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "kelly_frac": 0.10},
+        "checkin_wait12": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "buy_wait_h": 12.0},
+        "checkin_minret3": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "min_exp_ret": 0.003},
+        "checkin_cap07": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.07},
+    }, ["checkin", "checkin_wait12"]),
     # Round 6: the current presets, for model tuning (--leaves, --lr, --rounds).
     "r6": ({
         "production": {**PROD, "sell_priority": True},
