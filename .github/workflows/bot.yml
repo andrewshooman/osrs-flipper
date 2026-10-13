@@ -8,7 +8,7 @@ name: paper-trading bot
 # force-push the state.
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "3-59/10 * * * *"
   workflow_dispatch:
 
 concurrency:
