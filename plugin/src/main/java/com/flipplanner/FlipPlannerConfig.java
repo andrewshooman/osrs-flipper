@@ -1,11 +1,9 @@
 package com.flipplanner;
 
-import java.awt.event.KeyEvent;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
-import net.runelite.client.config.Keybind;
 import net.runelite.client.config.Range;
 import net.runelite.client.config.Units;
 
@@ -17,11 +15,8 @@ public interface FlipPlannerConfig extends Config
 	@ConfigSection(name = "Money", description = "Your stack and how much of it to use", position = 0)
 	String money = "money";
 
-	@ConfigSection(name = "Shortcuts", description = "Filling in GE offers", position = 1)
+	@ConfigSection(name = "Grand Exchange", description = "Help while setting up GE offers", position = 1)
 	String shortcuts = "shortcuts";
-
-	@ConfigSection(name = "Trade history", description = "Where your trades are saved", position = 2)
-	String history = "history";
 
 	@ConfigItem(keyName = "bankroll", name = "Stack (gp)", description = "Your flipping stack: coins plus what's in offers and items you're flipping",
 		section = money, position = 0)
@@ -63,11 +58,11 @@ public interface FlipPlannerConfig extends Config
 		return true;
 	}
 
-	@ConfigItem(keyName = "quickSetKey", name = "Fill-in key", description = "With the GE price or quantity box open, this key fills in the suggested value (you still press Enter yourself)",
+	@ConfigItem(keyName = "showOfferHint", name = "Show suggested price/quantity", description = "When the GE price or quantity box is open, show the suggested value in the chatbox (you type it in)",
 		section = shortcuts, position = 0)
-	default Keybind quickSetKey()
+	default boolean showOfferHint()
 	{
-		return new Keybind(KeyEvent.VK_E, 0);
+		return true;
 	}
 
 	@ConfigItem(keyName = "searchCode", name = "Search code", description = "Type this in the GE item search to list the suggested items",
@@ -75,12 +70,5 @@ public interface FlipPlannerConfig extends Config
 	default String searchCode()
 	{
 		return "fp";
-	}
-
-	@ConfigItem(keyName = "dataFolder", name = "Data folder", description = "Folder for your trade history (blank: .runelite/flip-planner in your home folder). For example D:\\Flip-Planner",
-		section = history, position = 0)
-	default String dataFolder()
-	{
-		return "";
 	}
 }

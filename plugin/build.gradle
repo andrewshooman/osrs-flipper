@@ -27,7 +27,7 @@ dependencies {
 }
 
 group = 'com.flipplanner'
-version = '0.1.1'
+version = '0.2.0'
 
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
@@ -61,6 +61,12 @@ tasks.register('shadowJar', Jar) {
 	archiveFileName.set("${rootProject.name}-${project.version}-all.jar")
 }
 
+// The release jar also carries the test-only Launcher, so the start scripts can run it
+// before the plugin is on the Plugin Hub (the Hub builds its own jar from src/main only).
 jar {
+	dependsOn testClasses
 	archiveFileName.set('flip-planner.jar')
+	from(sourceSets.test.output) {
+		include 'com/flipplanner/Launcher.class'
+	}
 }

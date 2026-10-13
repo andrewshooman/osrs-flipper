@@ -373,7 +373,7 @@ public final class Recommender
 		}
 		finally
 		{
-			pool.shutdownNow();
+			pool.shutdown();
 		}
 	}
 
@@ -395,7 +395,6 @@ public final class Recommender
 		}
 		catch (InterruptedException e)
 		{
-			Thread.currentThread().interrupt();
 			throw new InterruptedIOException("Recommendation run interrupted");
 		}
 		catch (ExecutionException e)

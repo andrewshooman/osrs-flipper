@@ -9,6 +9,7 @@ import com.flipplanner.engine.Offer;
 import com.flipplanner.engine.Recommender;
 import com.flipplanner.engine.WikiPriceSource;
 import com.flipplanner.ui.PanelModel;
+import com.google.gson.Gson;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -46,9 +47,9 @@ class Advisor implements OfferShortcuts.Advice
 	private Recommender recommender;
 	private volatile PanelModel last = new PanelModel();
 
-	Advisor(OkHttpClient http, FlipPlannerConfig config, Consumer<PanelModel> show)
+	Advisor(OkHttpClient http, Gson gson, FlipPlannerConfig config, Consumer<PanelModel> show)
 	{
-		this.prices = new WikiPriceSource(http);
+		this.prices = new WikiPriceSource(http, gson);
 		this.config = config;
 		this.show = show;
 	}

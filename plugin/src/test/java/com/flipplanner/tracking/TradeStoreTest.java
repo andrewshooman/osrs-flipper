@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import net.runelite.client.util.Filepath;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -25,11 +26,18 @@ public class TradeStoreTest
 		int n;
 	}
 
-	@Test
-	public void saveLoadAndLog() throws IOException
+	private static Filepath rooted(Path p) throws IOException
 	{
-		Path dir = tmp.getRoot().toPath().resolve("nested").resolve("flip-planner");
-		TradeStore<Data> s = new TradeStore<>(new Gson(), dir, "acct", Data.class);
+		Files.createDirectories(p);
+		return Filepath.Unchecked.getRooted(p);
+	}
+
+	@Test
+	public void saveLoadLogAndExport() throws IOException
+	{
+		Path root = tmp.getRoot().toPath().resolve("plugin-data");
+		Path dir = root.resolve("flip-planner");
+		TradeStore<Data> s = new TradeStore<>(new Gson(), rooted(root).joinSegment("flip-planner"), "acct", Data.class);
 		assertNull(s.load());
 		Data d = new Data();
 		d.n = 42;
@@ -43,6 +51,10 @@ public class TradeStoreTest
 		List<String> lines = Files.readAllLines(dir.resolve("acct-offers.jsonl"), StandardCharsets.UTF_8);
 		assertEquals(2, lines.size());
 		assertEquals("{\"app\":\"flip-planner-plugin\",\"n\":43}", lines.get(0));
+
+		Path out = tmp.getRoot().toPath().resolve("elsewhere");
+		s.exportTo(rooted(out).joinSegment("copy.json"), d);
+		assertTrue(new String(Files.readAllBytes(out.resolve("copy.json")), StandardCharsets.UTF_8).contains("\"n\":43"));
 	}
 
 	@Test
@@ -50,7 +62,7 @@ public class TradeStoreTest
 	{
 		Path dir = tmp.getRoot().toPath();
 		Files.write(dir.resolve("acct.json"), "{not json".getBytes(StandardCharsets.UTF_8));
-		TradeStore<Data> s = new TradeStore<>(new Gson(), dir, "acct", Data.class);
+		TradeStore<Data> s = new TradeStore<>(new Gson(), rooted(dir), "acct", Data.class);
 		try
 		{
 			s.load();

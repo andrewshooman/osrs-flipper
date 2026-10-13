@@ -32,7 +32,13 @@ logging. Nothing places offers automatically, because that gets accounts banned.
     generated from the JS (`plugin/tools/make-fixtures.js --check` in CI).
   - `OfferTracker` and `TradeStore` keep a permanent per-account trade file in the
     web app's ledger shape.
-  - Side panel; GE shortcuts: chatbox fill-in line, E key, `fp` search code.
+  - Side panel. GE help: a chatbox line shows the suggested price or quantity, which
+    the player types in (the Plugin Hub forbids inserting chatbox text), plus the
+    `fp` search code. 0.2.0 is Hub-ready:
+    - files go through RuneLite's `Filepath`, in `.runelite/plugin-data/flip-planner`,
+      with an Export button
+    - it uses the injected Gson and OkHttp, and makes no `Thread.interrupt` calls
+    - `internalName = flip-planner`, BSD-2 LICENSE, `icon.png`, `build=standard`
   - It runs through `Launcher` with the player's own RuneLite install (`plugin/dist`
     start scripts) until it's on the Plugin Hub.
   - **Not yet checked in-game.**

@@ -57,11 +57,7 @@ public class WikiPriceSource implements PriceSource
 	private final Map<Long, Map<Integer, HourPoint>> snapshots = lru(SNAPSHOTS_KEPT);
 	private final Map<Integer, Cached<List<HourPoint>>> series = lru(SERIES_KEPT);
 
-	public WikiPriceSource(OkHttpClient http)
-	{
-		this(http, new Gson());
-	}
-
+	/** Pass RuneLite's injected OkHttpClient and Gson (plugins must not create their own). */
 	public WikiPriceSource(OkHttpClient http, Gson gson)
 	{
 		this(http, gson, API_BASE, System::currentTimeMillis);
@@ -220,7 +216,6 @@ public class WikiPriceSource implements PriceSource
 		}
 		catch (InterruptedException e)
 		{
-			Thread.currentThread().interrupt();
 			throw new InterruptedIOException("Interrupted waiting to fetch " + path);
 		}
 		try (Response res = http.newCall(req).execute())

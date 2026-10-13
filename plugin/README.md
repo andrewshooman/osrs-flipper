@@ -4,15 +4,19 @@ Flip Planner brings the model behind the GE Flipper web app (https://andrewshoom
 
 - **What to buy.** The side panel lists the model's buy orders for your stack: the item, price, quantity, where to sell, and the expected profit. Only orders worth the clicks are shown, so some check-ins have nothing to buy. That's fine.
 - **What to do with what you hold.** For each item you hold, the panel says list at a price, hold (with the breakeven price), sell now, or cut.
-- **Shortcuts in the GE:**
+- **Help in the GE:**
   - **Search:** type `fp` in the GE item search to list the suggested items.
-  - **Price and quantity:** when the price or quantity box is open, a line in the chatbox shows the suggested number. Click it, or press **E**, and the number is filled in. You still press Enter and Confirm yourself.
+  - **Price and quantity:** when the price or quantity box is open, a line in the chatbox shows the suggested number, for example *"Flip Planner suggests: buy at 1,234 gp each"*. You type it in yourself. RuneLite doesn't allow plugins to type into the chatbox.
 - **Trade tracking.** Every GE offer you make is recorded with its fills and average prices, including fills that happened while you were logged out. Your profit after tax shows in the panel.
-- **Permanent history on your PC.** Trades are saved as you make them to `.runelite/flip-planner/` in your home folder, or to any folder you choose in the plugin's settings (for example `D:\Flip-Planner`). The web app's **Import RuneLite** button reads this file too.
+- **Permanent history on your PC.** Trades are saved as you make them in RuneLite's data folder for the plugin: `.runelite/plugin-data/flip-planner/` in your home folder. **Export trades…** at the bottom of the panel saves a copy anywhere you choose (for example `D:\Flip-Planner`). The web app's **Import RuneLite** button reads either file.
 
-Nothing is automated. Every offer is placed by you, and every shortcut needs your click or key press. This keeps to the same rules as the flipping plugins already on the Plugin Hub.
+Nothing is automated: you place every offer and type every number. Prices come from the OSRS Wiki's public real-time prices API (https://prices.runescape.wiki), requested with a descriptive User-Agent. No player data is sent anywhere.
 
-## Testing it on your RuneLite (before it's on the Plugin Hub)
+## Installing
+
+Once it's accepted on the Plugin Hub: in RuneLite, open the wrench (Configuration) → **Plugin Hub** → search **Flip Planner** → **Install**.
+
+## Testing it before it's on the Plugin Hub (optional)
 
 RuneLite only loads Plugin Hub plugins, unless the client is started outside the Jagex
 Launcher. The start script does that with your own RuneLite install: it uses RuneLite's
@@ -54,12 +58,11 @@ On Mac or Linux, run `start-runelite-flip-planner.sh` instead of the `.bat`.
       your items, then profit.
 - [ ] Type `fp` in the GE item search. Do the suggested items show up as the results?
 - [ ] Start a buy for a suggested item and click **Enter price**. Does a line
-      *"Flip Planner: click or press E to fill in …"* appear in the chatbox? Does
-      clicking it or pressing **E** put the number in the box? (You press Enter yourself.)
+      *"Flip Planner suggests: buy at … gp each"* appear in the chatbox?
 - [ ] The same for **Enter quantity**.
 - [ ] Place an offer, let it fill (or partly fill), and log out and back in. Is the trade
       in the panel's profit and in
-      `%USERPROFILE%\.runelite\flip-planner\account-<number>.json`, counted once?
+      `%USERPROFILE%\.runelite\plugin-data\flip-planner\account-<number>.json`, counted once?
 
 To build `flip-planner.jar` yourself, you need JDK 11 or newer. Run `./gradlew jar` here, and the jar is in `build/libs/`.
 
@@ -73,5 +76,5 @@ To build `flip-planner.jar` yourself, you need JDK 11 or newer. Run `./gradlew j
 - `tracking/`:
   - `OfferTracker`: GE offer updates in, offers and fills out. It handles the login burst, and offers that changed while you were logged out.
   - `TradeStore`: the trade file and the raw offer log.
-- `OfferShortcuts`: the chatbox fill-in line, the fill-in key, and the search code.
+- `OfferShortcuts`: the suggested price/quantity line in the chatbox and the GE search code.
 - `ui/FlipperPanel`: the side panel.
