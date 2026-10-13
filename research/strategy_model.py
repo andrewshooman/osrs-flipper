@@ -44,6 +44,9 @@ class ModelStrategy(Base):
     fast_cut = False              # cut as soon as the median forecast says it falls further
     # Pump-and-dump guard: skip items whose price just spiked or whose margin is
     # implausibly wide — the pattern behind the biggest historical losses.
+    # Check-in mode: only act at these UTC hours (like a player who logs in a few
+    # times a day). Offers keep filling in between. None = act every hour.
+    checkin_hours = None
     guard = False
     guard_max_margin = 0.15       # net margin / bid
     guard_max_ret_24h = 0.25      # log return over 24h
@@ -67,7 +70,15 @@ class ModelStrategy(Base):
         return np.column_stack([c[t, idx] for c in self.cols]).astype(np.float32)
 
     # ---------------------------------------------------------------- exits
+    def _asleep(self, t) -> bool:
+        if not self.checkin_hours:
+            return False
+        decision_hour = int((self.P.ts[t] + self.P.step) // 3600 % 24)
+        return decision_hour not in self.checkin_hours
+
     def manage(self, t, sim):
+        if self._asleep(t):
+            return
         P = self.P
         for o in list(sim.offers):
             if o.side == "buy" and t - o.placed >= self.bars(self.buy_wait_h):
@@ -116,6 +127,8 @@ class ModelStrategy(Base):
 
     # ---------------------------------------------------------------- entries
     def enter(self, t, sim):
+        if self._asleep(t):
+            return
         if sim.free_slots() <= 0 or sim.deployable() <= 0:
             return
         P, F = self.P, self.F

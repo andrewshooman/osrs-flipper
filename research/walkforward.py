@@ -34,6 +34,20 @@ VARIANTS = {
 # Variants also run at a cautious 5% share of real volume.
 AT_5PCT = ["model", "model_lowrisk", "model_lowrisk_guard"]
 
+# Round 3: the production preset as a sporadic player would use it.
+PROD = {**LOWRISK, "guard": True, "buy_wait_h": 6.0}
+CHECKINS = [12, 17, 23]  # UTC = about 8am, 1pm, 7pm US Eastern
+ROUNDS = {
+    "r2": (VARIANTS, AT_5PCT),
+    "r3": ({
+        "prod_hourly": PROD,
+        "prod_checkin3": {**PROD, "checkin_hours": CHECKINS},
+        "prod_checkin3_cap10": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
+        "prod_checkin3_minret8": {**PROD, "checkin_hours": CHECKINS, "min_exp_ret": 0.008},
+        "prod_checkin2": {**PROD, "checkin_hours": [12, 23]},
+    }, ["prod_checkin3"]),
+}
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -44,6 +58,7 @@ def main():
     ap.add_argument("--rounds", type=int, default=200)
     ap.add_argument("--min-trade-frac", type=float, default=0.2)
     ap.add_argument("--share", type=float, default=0.10)
+    ap.add_argument("--round", default="r2", choices=["r2", "r3"])
     ap.add_argument("--before", default=None, help="only use hourly data before this date (YYYY-MM-DD)")
     ap.add_argument("--out", default=str(ROOT / "reports" / "walkforward.json"))
     a = ap.parse_args()
@@ -85,9 +100,10 @@ def main():
         Ft = {k: v[warm:end] for k, v in F.items()}
         row = {"from": int(P.ts[start]), "to": int(P.ts[end - 1])}
         runs = [(STRATEGIES["top_margin"](), a.share), (STRATEGIES["v0_1"](), a.share)]
-        runs += [(ModelStrategy(model, Ft, name=vname, **kw), a.share) for vname, kw in VARIANTS.items()]
+        variants, at5 = ROUNDS[a.round]
+        runs += [(ModelStrategy(model, Ft, name=vname, **kw), a.share) for vname, kw in variants.items()]
         # Cautious 5% fill share: does the edge survive?
-        runs += [(ModelStrategy(model, Ft, name=f"{v}@5%", **VARIANTS[v]), 0.05) for v in AT_5PCT]
+        runs += [(ModelStrategy(model, Ft, name=f"{v}@5%", **variants[v]), 0.05) for v in at5]
         for S, share in runs:
             sim = Sim(test, Config(share=share), S)
             r = sim.run(start=start - warm)
