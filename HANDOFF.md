@@ -22,9 +22,14 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 - **Live paper-trading bot** (`research/live.py`, `production` preset, model
   `full-year-v1`): started 2026-10-12 23:06 UTC on an 11M mock stack. Sell priority and
   the 48h max hold have been on since 03:00 UTC on 10-13. At 04:53 UTC it was +101k
-  (+76k realised, 55 closed trades). It was down 03:54–04:53 for a machine restart.
-  - State is published to the `live` branch every 5 minutes; the app's Bot tab
-    reads it.
+  (+76k realised, 55 closed trades). At 08:31 UTC it was +127k (+122k realised,
+  121 closed trades).
+  - **Since 2026-10-13 ~08:40 UTC it runs on GitHub Actions** (`.github/workflows/bot.yml`,
+    every ~10 minutes). The cloud session's container is shut down a few minutes
+    after the session goes idle, which stopped the local loop (03:54–04:53 and
+    07:36–08:30 UTC). Each run catches up on every 5-minute bucket it missed, so
+    late or skipped runs lose nothing. State lives on the `live` branch, which
+    the app's Bot tab reads.
 - **Research** (`research/`):
   - `collect.py`: downloads snapshots.
   - `panel.py`: builds the time × item price panel.
@@ -78,21 +83,17 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   instead of +14k. The live bot's results will settle it.
 
 ## Running things on the cloud machine
-- **Code the bot runs:** `/home/user/osrs-flipper`, kept on `main`. `bot_loop.sh`
-  runs `research/live.py` from there every 5 minutes, so a branch switch there
-  changes the bot. Develop in the worktree `/home/user/osrs-dev` instead.
+- **The bot is not run here any more** (see above: GitHub Actions). Never run
+  `bot_loop.sh` against the `live` branch while the Actions schedule is on, because
+  both force-push the state. Deploy code changes to the bot by merging to `main`.
+- **Checkouts:** `/home/user/osrs-flipper` stays on `main`; develop in the
+  worktree `/home/user/osrs-dev`.
 - **Bot state and model:** `/home/user/osrs-live`, a checkout of the `live` branch:
   - `data/model`: the model
   - `data/live/state.pkl`: the bot's state
-- **Watchdog:**
-
-  ```
-  setsid nohup /home/user/osrs-data/watchdog.sh >> /home/user/osrs-data/watchdog.log 2>&1 &
-  ```
-
-  It runs `bot_loop.sh` under `flock` and restarts it if `state.json` is stale
-  for 20 minutes. Processes don't survive a machine restart. Session health
-  checks restart the watchdog.
+- **Watchdog (retired):** `/home/user/osrs-data/watchdog.sh` ran `bot_loop.sh`
+  under `flock`. It's only useful for running the bot locally with the Actions
+  schedule disabled.
 - **Data:** `/home/user/osrs-data`:
   - 1h snapshots: a year, back to 2025-10-12
   - 5m snapshots: from 2026-08-13
@@ -110,8 +111,9 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 2. **Live bot vs. backtest:** after 3–7 days, check that live profit per day
    lands inside the replay range (+102k to +141k on 5.5M deployable). If it
    doesn't, recalibrate the fill share.
-3. **Machine restarts kill every process.** The session health check restarts
-   the watchdog. A walk-forward resumes from its cached fold models.
+3. **The cloud container is reclaimed when the session idles**, which kills every
+   process. Long jobs (walk-forward, replay) only finish while the session is
+   active. A walk-forward resumes from its cached fold models.
 4. **Run `retrain.py` weekly** (tested, about 15 minutes). It updates
    `research/models/current` and `models/flip-model.js`. Deploying to the bot
    means copying the model into `osrs-live/data/model` and pushing `live`.
