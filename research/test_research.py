@@ -44,5 +44,14 @@ ModelStrategy._free_slot(ModelStrategy.__new__(ModelStrategy), 5, sim)
 ok(len(sim.offers) == 7 and all(o.item != 3 for o in sim.offers), "sell priority cancels the least-filled buy")
 ok(sim.place_sell(5, 20, 120.0), "freed slot takes the sell")
 
+# A sim pickled before the click counters existed (the live bot's saved state) still trades.
+import pickle
+sim = Sim(P, Config(), STRATEGIES["v0_1"]())
+del sim.__dict__["n_buys"], sim.__dict__["n_sells"]
+old = pickle.loads(pickle.dumps(sim))
+ok(old.place_buy(0, 1, float(P.al[0, 1] or 100), 1) and old.n_buys == 1, "old saved sim can still buy")
+old.pos[2] = Position(qty=3, cost=300.0, opened=0)
+ok(old.place_sell(0, 2, 120.0) and old.n_sells == 1, "old saved sim can still sell")
+
 print("research checks:", "OK" if not fails else "FAILED\n  " + "\n  ".join(fails))
 raise SystemExit(1 if fails else 0)
