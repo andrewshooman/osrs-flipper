@@ -351,7 +351,8 @@
           <button class="btn sm" data-cancel="${o.id}">Cancelled it</button></div>`).join("")}</div>` : ""}
       <div class="section-head"><h2>Your items</h2><span class="small muted">${holds.length ? "sell, hold or cut" : ""}</span></div>
       <div class="card">${sellRows || `<div class="empty-state">Nothing held.</div>`}</div>
-      <div class="section-head"><h2>Your open GE offers</h2><span class="small muted">update these when they fill</span></div>
+      <div class="section-head"><h2>Your open GE offers</h2><span class="small muted">update these when they fill</span><span class="spacer"></span>
+        <label class="btn sm" title="Import finished GE offers from the Flipping Utilities RuneLite plugin">Import RuneLite<input type="file" accept=".json,application/json" class="import-fu" hidden></label></div>
       <div class="card">${openRows || `<div class="empty-state">No open offers recorded.</div>`}</div>
       ${plan.length ? `<div class="card" style="margin-top:12px"><b class="good">${U.gp(U.sum(plan.map((r) => r.expected)), { plus: true })}</b> expected if these buy orders fill and sell,
         using ${U.gp(d.plan.deployUsed)}. Check back in about ${U.duration(Math.min(6, Math.max(...plan.map((r) => r.hours))))}
@@ -454,7 +455,8 @@
       <div class="section-head"><h2>Profit — ${isPractice() ? "practice" : "real"}</h2><span class="spacer"></span>
         <button class="btn sm" data-log-trade="1">Log trade</button>
         <button class="btn sm" id="export-csv">Export CSV</button>
-        <label class="btn sm">Import CSV<input type="file" accept=".csv,text/csv" id="import-csv" hidden></label></div>
+        <label class="btn sm">Import CSV<input type="file" accept=".csv,text/csv" id="import-csv" hidden></label>
+        <label class="btn sm">Import RuneLite<input type="file" accept=".json,application/json" class="import-fu" hidden></label></div>
       <div class="capital" style="padding:0;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">
         <div class="stat"><div class="label">Realised</div><div class="value ${signClass(st.profit)}">${U.gp(st.profit, { plus: true })}</div><div class="sub">after ${U.gp(st.tax)} tax</div></div>
         <div class="stat"><div class="label">Return on cost</div><div class="value">${U.pct(st.roi, 2)}</div><div class="sub">${st.flips} closed sells</div></div>
@@ -852,6 +854,16 @@
           const trades = L.fromCSV(await el.files[0].text());
           ledger().trades.push(...trades); save(); renderAll(); toast(`Imported ${trades.length} trades`);
         } catch (err) { toast("Import failed: " + esc(err.message)); }
+      }
+      if (el.classList && el.classList.contains("import-fu") && el.files[0]) {
+        try {
+          const list = L.fromFlippingUtilities(JSON.parse(await el.files[0].text()));
+          const r = L.importOffers(ledger(), list);
+          save(); renderAll(); if (S.view === "orders" && r.added) loadOrders(); // advice for what you now hold
+          toast(r.added ? `Imported ${r.added} finished GE offer${r.added === 1 ? "" : "s"} from RuneLite${r.matched ? ` (${r.matched} matched your logged offers)` : ""}`
+            : `Nothing new to import${r.skipped ? ` (${r.skipped} already imported)` : ""}`);
+        } catch (err) { toast("Import failed: " + esc(err.message)); }
+        el.value = "";
       }
       if (el.id === "import-json" && el.files[0]) {
         try {

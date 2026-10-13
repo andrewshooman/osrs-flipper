@@ -281,6 +281,32 @@ function series(n, stepSec, fn, now = Date.now()) {
     const o = L.placeOffer(lg, { itemId: top.id, side: "buy", qty: top.qty, price: top.buy, placedAt: Date.now() - 3 * H });
     const fills = await OSF.engine.syncPractice(state);
     ok(fills.length > 0 && o.filled > 0, "practice offer filled from history");
+    // RuneLite import: Flipping Utilities save file -> finished offers -> ledger.
+    const sec = (iso) => ({ seconds: Date.parse(iso) / 1000, nanos: 0 });
+    const fu = { trades: [
+      { id: 2, name: "Cannonball", h: { sO: [
+        { b: true, id: 2, cQIT: 1000, p: 160, t: sec("2026-10-13T10:00:00Z"), s: 0, st: "BOUGHT", tQIT: 1000 },
+        { b: false, id: 2, cQIT: 600, p: 170, t: sec("2026-10-13T12:00:00Z"), s: 1, st: "CANCELLED_SELL", tQIT: 1000 },
+        { b: false, id: 2, cQIT: 300, p: 171, t: sec("2026-10-13T13:00:00Z"), s: 2, st: "SELLING", tQIT: 400 } ] } },
+      { id: 561, name: "Nature rune", h: { sO: [
+        { b: true, id: 561, cQIT: 0, p: 0, t: "2026-10-13T11:00:00Z", s: 3, st: "CANCELLED_BUY", tQIT: 500 },
+        { b: true, id: 561, cQIT: 200, p: 180, t: Date.parse("2026-10-13T11:30:00Z"), s: 4, st: "BOUGHT", tQIT: 200 } ] } } ] };
+    const fl = L.fromFlippingUtilities(fu);
+    eq(fl.length, 3, "only finished offers with fills are imported");
+    eq(fl.map((x) => `${x.itemId}:${x.side}:${x.qty}`).join(","), "2:buy:1000,561:buy:200,2:sell:600", "sides, quantities and order by time");
+    const rl = L.emptyLedger();
+    const logged = L.placeOffer(rl, { itemId: 2, side: "buy", qty: 1000, price: 161, placedAt: Date.parse("2026-10-13T09:00:00Z"), predicted: { expRet: 0.02 } });
+    const r1 = L.importOffers(rl, fl);
+    eq(r1.added, 3, "three offers added"); eq(r1.matched, 1, "the logged buy offer is matched");
+    eq(logged.status, "done", "matched offer closed"); eq(logged.filled, 1000, "matched offer filled");
+    eq(rl.trades.find((t) => t.offerId === logged.id).price, 160, "fill uses the actual average price");
+    eq(L.importOffers(rl, fl).skipped, 3, "re-importing the same file adds nothing");
+    eq(rl.trades.length, 3, "no duplicate trades");
+    const sold = L.stats(rl);
+    eq(Math.round(sold.profit), 600 * (170 - U.taxPerItem(170, 2) - 160), "profit after tax on the imported sell");
+    let bad = false; try { L.fromFlippingUtilities({ foo: 1 }); } catch (e) { bad = true; }
+    ok(bad, "rejects files that aren't Flipping Utilities saves");
+
     // 7 GE slots by default (one left for your own trades); old saved defaults move once.
     eq(OSF.store.fresh().settings.slots, 7, "fresh settings use 7 slots");
     eq(OSF.store.normalise({ settings: { slots: 8 } }).settings.slots, 7, "old 8-slot default moves to 7");

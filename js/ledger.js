@@ -15,7 +15,7 @@
   "use strict";
   const C = OSF.config, U = OSF.util;
 
-  const emptyLedger = () => ({ trades: [], offers: [] });
+  const emptyLedger = () => ({ trades: [], offers: [], imported: [] });
 
   const byTime = (a, b) => a.ts - b.ts || (a.side === "buy" ? -1 : 1) - (b.side === "buy" ? -1 : 1);
 
@@ -197,8 +197,63 @@
     }).filter((t) => t.ts && t.itemId && (t.side === "buy" || t.side === "sell") && t.qty > 0 && t.price > 0);
   }
 
+  // ---- RuneLite: the Flipping Utilities plugin's save file ------------------
+  // ~/.runelite/flipping/<name>.json holds, per item, the latest state of each GE
+  // offer: b = buy, cQIT = quantity filled, p = average price before tax, t = time,
+  // s = slot, st = offer state. Only finished offers are used, so offers still
+  // running are picked up once they finish and nothing is counted twice.
+  const FU_FINISHED = new Set(["BOUGHT", "SOLD", "CANCELLED_BUY", "CANCELLED_SELL"]);
+  function fuTime(t) {
+    if (t == null) return NaN;
+    if (typeof t === "object") return (t.seconds ?? t.epochSecond ?? NaN) * 1000 + Math.floor((t.nanos || 0) / 1e6);
+    if (typeof t === "number") return t > 1e12 ? t : t * 1000;
+    return Date.parse(t);
+  }
+  /** Finished GE offers from a Flipping Utilities save file, oldest first. */
+  function fromFlippingUtilities(data) {
+    if (!data || !Array.isArray(data.trades)) throw new Error("Not a Flipping Utilities file (.runelite/flipping/<name>.json)");
+    const out = [];
+    for (const it of data.trades) {
+      for (const e of ((it && it.h) || {}).sO || []) {
+        const qty = Number(e.cQIT), price = Number(e.p), ts = fuTime(e.t), itemId = Number(e.id ?? it.id);
+        if (!FU_FINISHED.has(e.st) || !(qty > 0) || !(price > 0) || !isFinite(ts) || !(itemId > 0)) continue;
+        const side = e.b ? "buy" : "sell";
+        out.push({ itemId, side, qty, price, ts, key: ["fu", itemId, side, e.s, ts, qty, price].join(":") });
+      }
+    }
+    return out.sort((a, b) => a.ts - b.ts);
+  }
+  /**
+   * Adds imported offers to the ledger. Each fills the matching open offer you logged
+   * (same item and side, placed before it finished) and closes it, since the in-game
+   * offer is done; anything left over becomes a plain trade. Already-imported offers
+   * are skipped. Returns { added, matched, skipped }.
+   */
+  function importOffers(ledger, list) {
+    ledger.imported = ledger.imported || [];
+    const seen = new Set(ledger.imported);
+    let added = 0, matched = 0, skipped = 0;
+    for (const x of list) {
+      if (seen.has(x.key)) { skipped++; continue; }
+      seen.add(x.key); ledger.imported.push(x.key);
+      const o = ledger.offers.filter((y) => y.status === "open" && y.itemId === x.itemId && y.side === x.side && y.placedAt <= x.ts + 60e3)
+        .sort((a, b) => a.placedAt - b.placedAt)[0];
+      let left = x.qty;
+      if (o) {
+        const t = fillOffer(ledger, o.id, left, x.ts, x.price);
+        if (t) left -= t.qty;
+        if (o.status === "open") { o.status = o.filled > 0 ? "done" : "cancelled"; o.closedAt = x.ts; }
+        matched++;
+      }
+      if (left > 0) addTrade(ledger, { itemId: x.itemId, side: x.side, qty: left, price: x.price, ts: x.ts, note: "runelite" });
+      added++;
+    }
+    return { added, matched, skipped };
+  }
+
   OSF.ledger = {
     emptyLedger, positions, buyLimitUsage, remainingLimit, openOffers, capital,
     addTrade, removeTrade, placeOffer, fillOffer, cancelOffer, stats, toCSV, fromCSV, dayKey,
+    fromFlippingUtilities, importOffers,
   };
 })(window.OSF = window.OSF || {});
