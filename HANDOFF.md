@@ -1,6 +1,6 @@
 # Handoff: where the project stands and what comes next
 
-*Last updated: 2026-10-13, 05:10 UTC.*
+*Last updated: 2026-10-13, 18:00 UTC.*
 
 **Goal:** use the GE tool to make the user coins by **flipping**: buying and
 selling on the GE only. Decanting, processing and alching are money-making
@@ -18,6 +18,26 @@ logging. Nothing places offers automatically, because that gets accounts banned.
     - offers to tidy up (older than 6h, or blocking a slot needed for a sell)
     - new buy offers for the slots left over
   - Holdings shows the same model advice as Orders.
+  - Orders only suggests buys expected to make at least **10k gp** (Settings → Min
+    profit per order; walk-forward r12). Some check-ins have fewer orders than free
+    slots, or none.
+  - **Trade file on your PC** (Settings): the File System Access API keeps a JSON copy
+    of everything in a file the user picks (Chrome/Edge). The app restores from it if
+    browser storage is cleared (`js/tradefile.js`).
+  - **Import RuneLite** reads the GE Flipper plugin's trade file or a Flipping
+    Utilities save.
+- **RuneLite plugin** (`plugin/`, release `plugin-v0.1.0`, a pre-release zip on GitHub
+  Releases):
+  - The Java engine (`engine/`) is a bit-identical port of the JS, checked by fixtures
+    generated from the JS (`plugin/tools/make-fixtures.js --check` in CI).
+  - `OfferTracker` and `TradeStore` keep a permanent per-account trade file in the
+    web app's ledger shape.
+  - Side panel; GE shortcuts: chatbox fill-in line, E key, `gf` search code.
+  - It runs through `Launcher` with the player's own RuneLite install (`plugin/dist`
+    start scripts) until it's on the Plugin Hub.
+  - **Not yet checked in-game.**
+  - New releases: run the "plugin release" workflow with a version. Tag pushes are
+    refused from the cloud session.
   - GE tax uses the wiki's full exemption list (48 items).
 - **Live paper-trading bot** (`research/live.py`, `production` preset, model
   `full-year-v1`): started 2026-10-12 23:06 UTC on an 11M mock stack. Sell priority and
