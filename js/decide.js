@@ -36,8 +36,11 @@
   /**
    * Buy plan. items: [{id, name, limitLeft, bar: {ah, al, hv, lv}, f, pred}]
    * cap: {deployable, slotsFree}. Returns ranked orders that fit gp + slots.
+   * opts.minExpectedGp: skip orders expected to make less than this (not worth
+   * the clicks); free slots are simply left empty.
    */
-  function buyPlan(items, cap, mktRet24h) {
+  function buyPlan(items, cap, mktRet24h, opts = {}) {
+    const minGp = opts.minExpectedGp || 0;
     let deploy = cap.deployable;
     if (mktRet24h < -0.03) deploy *= 0.5; // whole market falling: half size
     const ideas = [];
@@ -76,6 +79,7 @@
         if (q < 1) continue;
         Object.assign(r, { qty: q, cost: q * r.buy, expected: q * r.buy * r.expRet });
       }
+      if (r.expected < minGp) continue;
       plan.push(r);
       left -= r.cost;
       slots--;
