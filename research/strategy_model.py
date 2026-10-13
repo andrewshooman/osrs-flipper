@@ -45,6 +45,7 @@ class ModelStrategy(Base):
 
     # Tunables (variants override these).
     min_daily_volume = 0          # skip items trading less than this per day (both sides)
+    min_exp_gp = 0.0              # skip orders expected to make less than this many gp (not worth the clicks)
     max_item_frac = None          # cap per item (fraction of deployable); None = Config default
     fast_cut = False              # cut as soon as the median forecast says it falls further
     # Pump-and-dump guard: skip items whose price just spiked or whose margin is
@@ -193,4 +194,7 @@ class ModelStrategy(Base):
         for j in np.argsort(-score):
             if score[j] <= 0 or sim.free_slots() <= 0 or sim.deployable() < buy[j]:
                 break
-            sim.place_buy(t, int(idx[j]), buy[j], int(qty[j]))
+            q = min(qty[j], sim.deployable() // buy[j])
+            if self.min_exp_gp and q * buy[j] * exp_ret[j] < self.min_exp_gp:
+                continue
+            sim.place_buy(t, int(idx[j]), buy[j], int(q))
