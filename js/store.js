@@ -19,10 +19,14 @@
   function normalise(s) {
     const base = fresh();
     if (!s || typeof s !== "object") return base;
+    const settings = { ...base.settings, ...(s.settings || {}) };
+    // The default went from 8 GE slots to 7 (one left free for your own trades).
+    // Saved settings still on the old default move to 7, once; a different choice is kept.
+    if (!(s.settings || {}).slotsDefault7 && settings.slots === 8) settings.slots = 7;
     return {
       ...base,
       ...s,
-      settings: { ...base.settings, ...(s.settings || {}) },
+      settings,
       ledgers: {
         practice: { ...OSF.ledger.emptyLedger(), ...((s.ledgers || {}).practice || {}) },
         real: { ...OSF.ledger.emptyLedger(), ...((s.ledgers || {}).real || {}) },

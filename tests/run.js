@@ -126,7 +126,7 @@ function series(n, stepSec, fn, now = Date.now()) {
     L.placeOffer(lg, { itemId: 2, side: "buy", qty: 100, price: 5000 });
     cap = L.capital(lg, s, 11_000_000);
     eq(cap.deployable, 5_500_000 - 1_000_000 - 500_000, "holdings and buy offers use deployable gp");
-    eq(cap.slotsFree, 7, "one slot in use");
+    eq(cap.slotsFree, 6, "one of the 7 tool slots in use");
   });
 
   await group("offers + fills", () => {
@@ -281,6 +281,11 @@ function series(n, stepSec, fn, now = Date.now()) {
     const o = L.placeOffer(lg, { itemId: top.id, side: "buy", qty: top.qty, price: top.buy, placedAt: Date.now() - 3 * H });
     const fills = await OSF.engine.syncPractice(state);
     ok(fills.length > 0 && o.filled > 0, "practice offer filled from history");
+    // 7 GE slots by default (one left for your own trades); old saved defaults move once.
+    eq(OSF.store.fresh().settings.slots, 7, "fresh settings use 7 slots");
+    eq(OSF.store.normalise({ settings: { slots: 8 } }).settings.slots, 7, "old 8-slot default moves to 7");
+    eq(OSF.store.normalise({ settings: { slots: 5 } }).settings.slots, 5, "a custom slot count is kept");
+    eq(OSF.store.normalise({ settings: { slots: 8, slotsDefault7: true } }).settings.slots, 8, "choosing 8 after the move sticks");
     OSF.store.save(state);
     eq(OSF.store.load().ledgers.practice.trades.length, lg.trades.length, "state persists");
   });
