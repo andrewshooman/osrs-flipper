@@ -38,6 +38,7 @@ public class WikiPriceSource implements PriceSource
 	static final long MAPPING_TTL = 24 * HOUR;
 	static final long AVG24H_TTL = 30 * MINUTE;
 	static final long LATEST_TTL = MINUTE;
+	static final long FIVE_MIN_TTL = MINUTE;
 	static final long SERIES_TTL = 30 * MINUTE;
 	/** An hourly bar shows up in /timeseries shortly after its hour ends. */
 	static final long BAR_GRACE = MINUTE;
@@ -54,6 +55,7 @@ public class WikiPriceSource implements PriceSource
 	private final Slot<Map<Integer, ItemMeta>> mapping = new Slot<>();
 	private final Slot<Map<Integer, HourPoint>> avg24h = new Slot<>();
 	private final Slot<Map<Integer, long[]>> latest = new Slot<>();
+	private final Slot<Map<Integer, HourPoint>> fiveMin = new Slot<>();
 	private final Map<Long, Map<Integer, HourPoint>> snapshots = lru(SNAPSHOTS_KEPT);
 	private final Map<Integer, Cached<List<HourPoint>>> series = lru(SERIES_KEPT);
 
@@ -199,6 +201,12 @@ public class WikiPriceSource implements PriceSource
 			}
 			return Collections.unmodifiableMap(out);
 		});
+	}
+
+	/** The newest 5-minute bucket for every item that traded in it (timestamp = the bucket's start). */
+	public Map<Integer, HourPoint> latest5m() throws IOException
+	{
+		return fiveMin.get(FIVE_MIN_TTL, () -> points(get("/5m")));
 	}
 
 	// ---- HTTP + parsing ----

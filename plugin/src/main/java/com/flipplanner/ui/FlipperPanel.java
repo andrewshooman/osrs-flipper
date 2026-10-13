@@ -289,6 +289,15 @@ public class FlipperPanel extends PluginPanel
 			body.add(note(esc(m.error), BAD));
 		}
 
+		if (!m.dips.isEmpty())
+		{
+			body.add(section("Dip alerts"));
+			for (String d : m.dips)
+			{
+				body.add(note(esc(d), WARN));
+			}
+		}
+
 		body.add(section("Buy"));
 		if (m.buys.isEmpty())
 		{

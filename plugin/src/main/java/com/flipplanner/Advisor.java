@@ -51,6 +51,8 @@ class Advisor implements OfferShortcuts.Advice
 	/** Coins and platinum in the inventory and bank; null until both have been seen. */
 	private volatile Long cash;
 	private volatile Long runCash;
+	/** Live dip alerts: item -> {price, qty}, and their panel lines, newest first. */
+	private volatile Map<Integer, long[]> dipBuys = Collections.emptyMap();
 	private volatile PanelModel last = new PanelModel();
 
 	Advisor(OkHttpClient http, Gson gson, FlipPlannerConfig config, Consumer<PanelModel> show)
@@ -103,6 +105,16 @@ class Advisor implements OfferShortcuts.Advice
 		return Math.abs(c - used) >= Math.max(100_000L, used / 100);
 	}
 
+	/** Shows dip alerts in the panel and makes them findable with the search code and price hint. */
+	synchronized void setDips(Map<Integer, long[]> buys, List<String> lines)
+	{
+		dipBuys = buys;
+		last = last.copy();
+		last.dips.clear();
+		last.dips.addAll(lines);
+		push(last);
+	}
+
 	Recommender.Result lastResult()
 	{
 		return lastResult;
@@ -119,7 +131,7 @@ class Advisor implements OfferShortcuts.Advice
 	}
 
 	/** Item ids from the "Never suggest" setting: ids as they are, names looked up in the item list. */
-	private java.util.Set<Integer> blocked()
+	java.util.Set<Integer> blocked()
 	{
 		java.util.Set<Integer> ids = new java.util.HashSet<>();
 		String raw = config.blockedItems();
@@ -202,6 +214,7 @@ class Advisor implements OfferShortcuts.Advice
 
 		PanelModel m = new PanelModel();
 		m.tradeFile = tradeFile;
+		m.dips.addAll(last.dips);
 		try
 		{
 			if (recommender == null)
@@ -362,7 +375,8 @@ class Advisor implements OfferShortcuts.Advice
 	@Override
 	public long[] buy(int itemId)
 	{
-		return buys.get(itemId);
+		long[] b = buys.get(itemId);
+		return b != null ? b : dipBuys.get(itemId);
 	}
 
 	@Override
@@ -374,6 +388,18 @@ class Advisor implements OfferShortcuts.Advice
 	@Override
 	public List<Integer> searchItems()
 	{
-		return searchItems;
+		if (dipBuys.isEmpty())
+		{
+			return searchItems;
+		}
+		List<Integer> all = new ArrayList<>(dipBuys.keySet());
+		for (Integer id : searchItems)
+		{
+			if (!all.contains(id))
+			{
+				all.add(id);
+			}
+		}
+		return all;
 	}
 }

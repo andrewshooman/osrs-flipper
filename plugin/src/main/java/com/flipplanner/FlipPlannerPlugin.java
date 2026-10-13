@@ -129,12 +129,18 @@ public class FlipPlannerPlugin extends Plugin
 
 	private final Object lock = new Object();
 	private ExecutorService worker;
-	/** Price graphs load here, so a click doesn't wait behind a model run on {@link #worker}. */
-	private ExecutorService graphs;
+	/** Side jobs (price graphs, dip checks) run here, so they don't wait behind a model run on {@link #worker}. */
+	private ExecutorService side;
 	private FlipperPanel panel;
 	private NavigationButton nav;
 	private Advisor advisor;
 	private ScheduledFuture<?> ticker;
+	private ScheduledFuture<?> dipTicker;
+	/** When each item last raised a dip alert (one per item per 6 hours). */
+	private final java.util.Map<Integer, Long> dipAlerted = new ConcurrentHashMap<>();
+	/** Dip alerts still worth acting on, newest first; touched only on the side executor. */
+	private final java.util.List<Object[]> liveDips = new java.util.ArrayList<>();
+	private volatile long lastDipBucket;
 	private ScheduledFuture<?> pendingSave;
 	private ScheduledFuture<?> pendingRefresh;
 	private volatile GeOverlay.State overlayState = new GeOverlay.State();
@@ -171,9 +177,9 @@ public class FlipPlannerPlugin extends Plugin
 			t.setDaemon(true);
 			return t;
 		});
-		graphs = Executors.newSingleThreadExecutor(r ->
+		side = Executors.newSingleThreadExecutor(r ->
 		{
-			Thread t = new Thread(r, "flip-planner-graphs");
+			Thread t = new Thread(r, "flip-planner-side");
 			t.setDaemon(true);
 			return t;
 		});
@@ -238,6 +244,8 @@ public class FlipPlannerPlugin extends Plugin
 		overlayManager.add(gpDrop);
 		// New hourly prices land a few minutes after the hour; check every 5 minutes.
 		ticker = scheduler.scheduleWithFixedDelay(() -> refresh(false), 5, 300, TimeUnit.SECONDS);
+		// The wiki publishes a 5-minute bucket about a minute after it ends: checking every 2 minutes is plenty.
+		dipTicker = scheduler.scheduleWithFixedDelay(() -> side.execute(this::checkDips), 30, 120, TimeUnit.SECONDS);
 		// Turned on while logged in: RuneLite replays item containers but not GE offers, so read the slots now.
 		clientThread.invokeLater(() ->
 		{
@@ -267,6 +275,7 @@ public class FlipPlannerPlugin extends Plugin
 	protected void shutDown()
 	{
 		ticker.cancel(false);
+		dipTicker.cancel(false);
 		if (pendingSave != null)
 		{
 			pendingSave.cancel(false);
@@ -282,7 +291,7 @@ public class FlipPlannerPlugin extends Plugin
 		clientToolbar.removeNavigation(nav);
 		saveNow();
 		worker.shutdown();
-		graphs.shutdown();
+		side.shutdown();
 		overlayState = new GeOverlay.State();
 		tips = Collections.emptyMap();
 		synchronized (lock)
@@ -852,10 +861,86 @@ public class FlipPlannerPlugin extends Plugin
 		refresh(true);
 	}
 
+	/** How long a dip alert stays in the panel: acting later than this didn't pay in testing. */
+	private static final long DIP_SHOW_MS = 30 * 60_000L;
+
+	/** Looks for dips in the newest 5-minute prices and alerts about the best two. Side executor. */
+	private void checkDips()
+	{
+		long now = System.currentTimeMillis();
+		if (!config.dipAlerts() || paused || client.getGameState() != GameState.LOGGED_IN)
+		{
+			publishDips(now, !config.dipAlerts(), false);
+			return;
+		}
+		try
+		{
+			com.flipplanner.engine.WikiPriceSource src = advisor.prices();
+			java.util.Map<Integer, com.flipplanner.engine.HourPoint> five = src.latest5m();
+			long bucket = five.isEmpty() ? 0 : five.values().iterator().next().timestamp;
+			if (bucket == 0 || bucket == lastDipBucket)
+			{
+				publishDips(now, false, false);
+				return;
+			}
+			lastDipBucket = bucket;
+			dipAlerted.values().removeIf(t -> now - t > DipAlerts.COOLDOWN_MS);
+			Set<Integer> skip = new java.util.HashSet<>(advisor.blocked());
+			skip.addAll(dipAlerted.keySet());
+			Recommender.Result r = advisor.lastResult();
+			double free = r != null ? r.capital.deployable : DipAlerts.CAP;
+			java.util.List<DipAlerts.Alert> found = DipAlerts.find(five, src.avg24h(), src.mapping(), skip, config.members(),
+				config.dipDrop() / 100.0, free);
+			for (DipAlerts.Alert a : found.subList(0, Math.min(2, found.size())))
+			{
+				dipAlerted.put(a.itemId, now);
+				liveDips.add(0, new Object[]{a, now});
+				notifier.notify("Flip Planner dip: " + a.text());
+				if (config.chatMessages())
+				{
+					chatMessageManager.queue(QueuedMessage.builder()
+						.type(ChatMessageType.GAMEMESSAGE)
+						.runeLiteFormattedMessage(new ChatMessageBuilder()
+							.append(ChatColorType.HIGHLIGHT).append("Flip Planner dip: ")
+							.append(ChatColorType.NORMAL).append(a.text())
+							.build())
+						.build());
+				}
+			}
+			publishDips(now, false, !found.isEmpty());
+		}
+		catch (IOException e)
+		{
+			log.debug("Flip Planner: dip check failed", e);
+		}
+	}
+
+	/** Drops dip alerts older than {@link #DIP_SHOW_MS} (or all of them) and shows the rest if anything changed. Side executor. */
+	private void publishDips(long now, boolean clear, boolean added)
+	{
+		int before = liveDips.size();
+		liveDips.removeIf(d -> clear || now - (long) d[1] > DIP_SHOW_MS);
+		if (!added && liveDips.size() == before)
+		{
+			return;
+		}
+		java.util.Map<Integer, long[]> buys = new java.util.HashMap<>();
+		java.util.List<String> lines = new java.util.ArrayList<>();
+		java.time.format.DateTimeFormatter hm = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+		for (Object[] d : liveDips)
+		{
+			DipAlerts.Alert a = (DipAlerts.Alert) d[0];
+			buys.putIfAbsent(a.itemId, new long[]{a.price, a.qty});
+			lines.add(java.time.Instant.ofEpochMilli((long) d[1]).atZone(java.time.ZoneId.systemDefault()).toLocalTime().format(hm)
+				+ " " + a.text());
+		}
+		advisor.setDips(buys, lines);
+	}
+
 	/** Opens the price graph for an item (history is fetched on its own thread). */
 	private void openGraph(java.awt.Component parent, int itemId, String name, Double buy, Double sell)
 	{
-		graphs.execute(() ->
+		side.execute(() ->
 		{
 			try
 			{
