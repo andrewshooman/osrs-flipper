@@ -18,7 +18,7 @@ public interface FlipPlannerConfig extends Config
 	@ConfigSection(name = "Grand Exchange", description = "Help while setting up GE offers", position = 1)
 	String shortcuts = "shortcuts";
 
-	@ConfigItem(keyName = "bankroll", name = "Stack (gp)", description = "Your flipping stack: coins plus what's in offers and items you're flipping",
+	@ConfigItem(keyName = "bankroll", name = "Stack (gp)", description = "Your flipping stack: coins plus what's in offers and items you're flipping. Not used while Use detected stack is on and your bank has been seen.",
 		section = money, position = 0)
 	@Units(" gp")
 	default int bankroll()
@@ -26,8 +26,15 @@ public interface FlipPlannerConfig extends Config
 		return 11_000_000;
 	}
 
-	@ConfigItem(keyName = "reservePercent", name = "Cash reserve", description = "Share of the stack that is never used",
+	@ConfigItem(keyName = "useDetectedStack", name = "Use detected stack", description = "Plan with the stack counted in the game: coins and platinum tokens in your inventory and bank, gp in buy offers and items you're flipping. Open your bank once so it can count your coins. Off: use the Stack setting above.",
 		section = money, position = 1)
+	default boolean useDetectedStack()
+	{
+		return false;
+	}
+
+	@ConfigItem(keyName = "reservePercent", name = "Cash reserve", description = "Share of the stack that is never used",
+		section = money, position = 2)
 	@Range(max = 90)
 	@Units(Units.PERCENT)
 	default int reservePercent()
@@ -36,7 +43,7 @@ public interface FlipPlannerConfig extends Config
 	}
 
 	@ConfigItem(keyName = "slots", name = "GE slots to use", description = "How many GE slots suggestions may use; the rest stay free for your own trades",
-		section = money, position = 2)
+		section = money, position = 3)
 	@Range(min = 1, max = 8)
 	default int slots()
 	{
@@ -44,7 +51,7 @@ public interface FlipPlannerConfig extends Config
 	}
 
 	@ConfigItem(keyName = "minOrderProfit", name = "Min profit per order", description = "Only suggest buys expected to make at least this much after tax. Fewer, bigger orders: small ones aren't worth the clicks.",
-		section = money, position = 3)
+		section = money, position = 4)
 	@Units(" gp")
 	default int minOrderProfit()
 	{
@@ -52,21 +59,21 @@ public interface FlipPlannerConfig extends Config
 	}
 
 	@ConfigItem(keyName = "members", name = "Members items", description = "Include members-only items",
-		section = money, position = 4)
+		section = money, position = 5)
 	default boolean members()
 	{
 		return true;
 	}
 
 	@ConfigItem(keyName = "sellOnly", name = "Sell-only mode", description = "Stop suggesting new buys; only help sell what you hold (e.g. before logging off for a while)",
-		section = money, position = 5)
+		section = money, position = 6)
 	default boolean sellOnly()
 	{
 		return false;
 	}
 
 	@ConfigItem(keyName = "blockedItems", name = "Never suggest", description = "Items never to suggest buying: names or item ids, comma-separated (right-click a suggestion in the panel to add one)",
-		section = money, position = 6)
+		section = money, position = 7)
 	default String blockedItems()
 	{
 		return "";
@@ -131,6 +138,13 @@ public interface FlipPlannerConfig extends Config
 	@ConfigItem(keyName = "priceGraphMenu", name = "Price graph menu option", description = "Adds \"Price graph\" to the right-click menu of items in the inventory, bank and GE",
 		section = shortcuts, position = 8)
 	default boolean priceGraphMenu()
+	{
+		return true;
+	}
+
+	@ConfigItem(keyName = "gpDrop", name = "GP drop on sells", description = "A floating \"+12.3K gp\" with the profit after tax when a sell finishes, like an XP drop",
+		section = shortcuts, position = 9)
+	default boolean gpDrop()
 	{
 		return true;
 	}

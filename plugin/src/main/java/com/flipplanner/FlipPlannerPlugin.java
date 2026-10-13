@@ -33,6 +33,7 @@ import net.runelite.api.MenuEntry;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GrandExchangeOfferChanged;
 import net.runelite.api.events.GrandExchangeSearched;
+import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuOpened;
 import net.runelite.api.events.VarClientIntChanged;
 import net.runelite.api.ChatMessageType;
@@ -73,6 +74,9 @@ public class FlipPlannerPlugin extends Plugin
 		String name;
 		LedgerData ledger = new LedgerData();
 		OfferTracker.SlotState[] slots = new OfferTracker.SlotState[OfferTracker.SLOTS];
+		/** Coins and platinum in the bank when it was last open; null if never seen. */
+		Long bankCoins;
+		long bankSeenAt;
 	}
 
 	/** One raw offer update, appended to the offer log. */
@@ -111,6 +115,8 @@ public class FlipPlannerPlugin extends Plugin
 	@Inject
 	private ItemTooltipOverlay tooltipOverlay;
 	@Inject
+	private GpDropOverlay gpDrop;
+	@Inject
 	private Notifier notifier;
 	@Inject
 	private ConfigManager configManager;
@@ -133,6 +139,8 @@ public class FlipPlannerPlugin extends Plugin
 	private volatile long loginAt;
 	private volatile long planNotifiedBar = -1;
 	private volatile long sessionStart;
+	/** Coins and platinum in the inventory; -1 until seen after login. */
+	private volatile long invCoins = -1;
 
 	// Guarded by lock.
 	private long account = -1;
@@ -213,6 +221,7 @@ public class FlipPlannerPlugin extends Plugin
 		overlayManager.add(overlay);
 		tooltipOverlay.setSources(() -> config.itemTooltips() && !paused ? tips : Collections.emptyMap(), () -> overlayState.slots);
 		overlayManager.add(tooltipOverlay);
+		overlayManager.add(gpDrop);
 		// New hourly prices land a few minutes after the hour; check every 5 minutes.
 		ticker = scheduler.scheduleWithFixedDelay(() -> refresh(false), 5, 300, TimeUnit.SECONDS);
 		if (client.getGameState() == GameState.LOGGED_IN)
@@ -227,6 +236,7 @@ public class FlipPlannerPlugin extends Plugin
 		ticker.cancel(false);
 		overlayManager.remove(overlay);
 		overlayManager.remove(tooltipOverlay);
+		overlayManager.remove(gpDrop);
 		shortcuts.setAdvice(null);
 		clientToolbar.removeNavigation(nav);
 		saveNow();
@@ -299,6 +309,7 @@ public class FlipPlannerPlugin extends Plugin
 			d.slots = tracker.getSlots();
 			advisor.setTradeFile(s.file().toString());
 		}
+		updateCash(false);
 		refresh(true);
 		return true;
 	}
@@ -381,6 +392,8 @@ public class FlipPlannerPlugin extends Plugin
 			if (e.getGameState() == GameState.LOGIN_SCREEN)
 			{
 				sessionStart = 0; // logging back in starts a new session
+				invCoins = -1;
+				advisor.setCash(null);
 			}
 		}
 	}
@@ -435,7 +448,7 @@ public class FlipPlannerPlugin extends Plugin
 			boolean live = System.currentTimeMillis() - loginAt > 8000;
 			GrandExchangeOfferState st = o.getState();
 			boolean done = st == GrandExchangeOfferState.BOUGHT || st == GrandExchangeOfferState.SOLD;
-			if (live && done && (config.notifyOffers() || config.chatMessages()))
+			if (live && done && (config.notifyOffers() || config.chatMessages() || config.gpDrop()))
 			{
 				String name = advisor.names().getOrDefault(o.getItemId(), itemManager.getItemComposition(o.getItemId()).getName());
 				String qty = String.format(java.util.Locale.US, "%,d", o.getQuantitySold());
@@ -443,6 +456,10 @@ public class FlipPlannerPlugin extends Plugin
 				String tail = st == GrandExchangeOfferState.BOUGHT ? ". Collect it and list it for sale."
 					: profit == null ? "." : String.format(java.util.Locale.US, " for %s%,d gp profit after tax.", profit >= 0 ? "+" : "", Math.round(profit));
 				String text = (st == GrandExchangeOfferState.BOUGHT ? "Bought " : "Sold ") + qty + " " + name + tail;
+				if (profit != null && config.gpDrop())
+				{
+					gpDrop.add(profit);
+				}
 				if (config.notifyOffers())
 				{
 					notifier.notify("Flip Planner: " + text);
@@ -465,6 +482,55 @@ public class FlipPlannerPlugin extends Plugin
 			{
 				pendingRefresh = scheduler.schedule(() -> refresh(true), 3, TimeUnit.SECONDS);
 			}
+		}
+	}
+
+	/** Counts coins in the inventory, and in the bank while it's open (remembered per account). */
+	@Subscribe
+	public void onItemContainerChanged(ItemContainerChanged e)
+	{
+		int id = e.getContainerId();
+		if (id != net.runelite.api.gameval.InventoryID.INV && id != net.runelite.api.gameval.InventoryID.BANK)
+		{
+			return;
+		}
+		long gp = StackDetect.cash(e.getItemContainer().getItems());
+		if (id == net.runelite.api.gameval.InventoryID.INV)
+		{
+			invCoins = gp;
+		}
+		else
+		{
+			synchronized (lock)
+			{
+				if (data == null)
+				{
+					return;
+				}
+				data.bankSeenAt = System.currentTimeMillis();
+				if (data.bankCoins == null || data.bankCoins != gp)
+				{
+					data.bankCoins = gp;
+					scheduleSave();
+				}
+			}
+		}
+		updateCash(true);
+	}
+
+	/** Passes inventory + bank coins to the advisor; re-plans when asked, they moved, and the stack is detected. Client thread. */
+	private void updateCash(boolean replan)
+	{
+		Long bank;
+		synchronized (lock)
+		{
+			bank = data == null ? null : data.bankCoins;
+		}
+		long inv = invCoins;
+		Long cash = inv < 0 || bank == null ? null : inv + bank;
+		if (advisor.setCash(cash) && replan && config.useDetectedStack() && (pendingRefresh == null || pendingRefresh.isDone()))
+		{
+			pendingRefresh = scheduler.schedule(() -> refresh(true), 3, TimeUnit.SECONDS);
 		}
 	}
 

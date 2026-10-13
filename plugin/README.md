@@ -18,7 +18,7 @@ Flip Planner brings the model behind the GE Flipper web app (https://andrewshoom
   - then *Confirm*
 
   Each slot also shows how long its offer has been up: green while it's fine, amber when it's getting old, red when it should be cancelled, blue when it needs collecting.
-- **Notifications** when a buy or sell completes, and optionally when a new hourly plan has buys for your free slots. Optional game-chat messages too, with the profit after tax when a sell finishes.
+- **Notifications** when a buy or sell completes, and optionally when a new hourly plan has buys for your free slots. Optional game-chat messages too, with the profit after tax when a sell finishes, and a *GP drop*: a floating "+12.3K gp" at the right of the game view, like an XP drop.
 - **Stats and price graphs.**
   - The Stats tab shows profit for today, the last 7 days and all time, plus flips, win rate, ROI, tax paid, daily profit bars, best and worst items, and recent flips.
   - Profit and gp per hour for the current session, since you logged in.
@@ -29,6 +29,7 @@ Flip Planner brings the model behind the GE Flipper web app (https://andrewshoom
   - *Sell-only mode* stops new buys.
   - *Never suggest* blocks items; right-click a suggestion to add it.
   - *Min profit per order* hides orders that aren't worth the clicks.
+  - *Use detected stack* plans with the money the game shows: coins and platinum tokens in your inventory and bank, gp in buy offers, and the items you're flipping at cost. Open your bank once so it can count your coins. The Profit section shows the detected stack either way.
 - **What to buy.** The side panel lists the model's buy orders for your stack: the item, price, quantity, where to sell, and the expected profit. Only orders worth the clicks are shown, so some check-ins have nothing to buy. That's fine.
 - **What to do with what you hold.** For each item you hold, the panel says list at a price, hold (with the breakeven price), sell now, or cut.
 - **Help in the GE:**

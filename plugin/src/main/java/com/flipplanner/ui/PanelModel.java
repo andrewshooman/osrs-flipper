@@ -49,6 +49,8 @@ public class PanelModel
 	public double sessionHours;
 	public double winRate = Double.NaN;
 	public String tradeFile = "";
+	/** The detected stack and its parts, or a hint to open the bank; null to show nothing. */
+	public String stackNote;
 	/** For the Stats tab; null until the first run. */
 	public Ledger.Stats stats;
 	public Map<Integer, String> names = Collections.emptyMap();
@@ -73,6 +75,7 @@ public class PanelModel
 		m.sessionHours = sessionHours;
 		m.winRate = winRate;
 		m.tradeFile = tradeFile;
+		m.stackNote = stackNote;
 		m.stats = stats;
 		m.names = names;
 		return m;
