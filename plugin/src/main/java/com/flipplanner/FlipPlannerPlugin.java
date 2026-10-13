@@ -1,7 +1,9 @@
 package com.flipplanner;
 
+import com.flipplanner.engine.BuyIdea;
 import com.flipplanner.engine.LedgerData;
 import com.flipplanner.engine.Offer;
+import com.flipplanner.engine.Recommender;
 import com.flipplanner.engine.Trade;
 import com.flipplanner.tracking.OfferTracker;
 import com.flipplanner.tracking.TradeStore;
@@ -9,13 +11,17 @@ import com.flipplanner.ui.FlipperPanel;
 import com.google.gson.Gson;
 import com.google.inject.Provides;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
+import javax.swing.SwingUtilities;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
@@ -25,6 +31,7 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GrandExchangeOfferChanged;
 import net.runelite.api.events.GrandExchangeSearched;
 import net.runelite.api.events.VarClientIntChanged;
+import net.runelite.client.Notifier;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
@@ -33,6 +40,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
+import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.Filepath;
 import net.runelite.client.util.ImageUtil;
 import okhttp3.OkHttpClient;
@@ -41,7 +49,7 @@ import okhttp3.OkHttpClient;
 @PluginDescriptor(
 	name = "Flip Planner",
 	internalName = "flip-planner",
-	description = "Model-ranked GE buy suggestions, trade tracking with profit after tax, and one-click price/quantity entry",
+	description = "GE flipping plans from a tested model: the next action to take, GE highlights, trade tracking and profit after tax",
 	tags = {"grand exchange", "ge", "flipping", "flip", "merching", "profit", "trading"}
 )
 public class FlipPlannerPlugin extends Plugin
@@ -87,6 +95,14 @@ public class FlipPlannerPlugin extends Plugin
 	private ScheduledExecutorService scheduler;
 	@Inject
 	private OfferShortcuts shortcuts;
+	@Inject
+	private OverlayManager overlayManager;
+	@Inject
+	private GeOverlay overlay;
+	@Inject
+	private Notifier notifier;
+	@Inject
+	private ConfigManager configManager;
 
 	private final Object lock = new Object();
 	private ExecutorService worker;
@@ -96,6 +112,12 @@ public class FlipPlannerPlugin extends Plugin
 	private ScheduledFuture<?> ticker;
 	private ScheduledFuture<?> pendingSave;
 	private ScheduledFuture<?> pendingRefresh;
+	private volatile GeOverlay.State overlayState = new GeOverlay.State();
+	private volatile boolean paused;
+	private final Set<Integer> skipped = ConcurrentHashMap.newKeySet();
+	private volatile long skippedBar = -1;
+	private volatile long loginAt;
+	private volatile long planNotifiedBar = -1;
 
 	// Guarded by lock.
 	private long account = -1;
@@ -118,7 +140,50 @@ public class FlipPlannerPlugin extends Plugin
 			t.setDaemon(true);
 			return t;
 		});
-		panel = new FlipperPanel(itemManager, () -> refresh(true), this::exportTrades);
+		panel = new FlipperPanel(itemManager, new FlipperPanel.Actions()
+		{
+			@Override
+			public void refresh()
+			{
+				FlipPlannerPlugin.this.refresh(true);
+			}
+
+			@Override
+			public void export()
+			{
+				exportTrades();
+			}
+
+			@Override
+			public void skip()
+			{
+				NextAction a = overlayState.action;
+				if (a != null && a.type == NextAction.Type.BUY)
+				{
+					skipped.add(a.itemId);
+					updateNext();
+				}
+			}
+
+			@Override
+			public void togglePause()
+			{
+				paused = !paused;
+				updateNext();
+			}
+
+			@Override
+			public void block(int itemId, String name)
+			{
+				blockItem(name);
+			}
+
+			@Override
+			public void graph(int itemId, String name, Double buy, Double sell)
+			{
+				openGraph(itemId, name, buy, sell);
+			}
+		});
 		nav = NavigationButton.builder()
 			.tooltip("Flip Planner")
 			.icon(ImageUtil.loadImageResource(FlipPlannerPlugin.class, "icon.png"))
@@ -127,7 +192,10 @@ public class FlipPlannerPlugin extends Plugin
 			.build();
 		clientToolbar.addNavigation(nav);
 		advisor = new Advisor(okHttpClient, gson, config, panel::show);
+		advisor.setOnResult(this::onPlan);
 		shortcuts.setAdvice(advisor);
+		overlay.setState(() -> overlayState);
+		overlayManager.add(overlay);
 		// New hourly prices land a few minutes after the hour; check every 5 minutes.
 		ticker = scheduler.scheduleWithFixedDelay(() -> refresh(false), 5, 300, TimeUnit.SECONDS);
 		if (client.getGameState() == GameState.LOGGED_IN)
@@ -140,6 +208,7 @@ public class FlipPlannerPlugin extends Plugin
 	protected void shutDown()
 	{
 		ticker.cancel(false);
+		overlayManager.remove(overlay);
 		shortcuts.setAdvice(null);
 		clientToolbar.removeNavigation(nav);
 		saveNow();
@@ -277,7 +346,15 @@ public class FlipPlannerPlugin extends Plugin
 	{
 		if (e.getGameState() == GameState.LOGGED_IN)
 		{
+			if (loginAt == 0 || client.getTickCount() < 5)
+			{
+				loginAt = System.currentTimeMillis();
+			}
 			loadAccount();
+		}
+		else if (e.getGameState() == GameState.LOGIN_SCREEN || e.getGameState() == GameState.HOPPING)
+		{
+			loginAt = System.currentTimeMillis();
 		}
 	}
 
@@ -327,6 +404,17 @@ public class FlipPlannerPlugin extends Plugin
 		});
 		if (changed)
 		{
+			// The client replays every slot right after login: only notify about live changes.
+			boolean live = System.currentTimeMillis() - loginAt > 8000;
+			GrandExchangeOfferState st = o.getState();
+			if (live && config.notifyOffers() && (st == GrandExchangeOfferState.BOUGHT || st == GrandExchangeOfferState.SOLD))
+			{
+				String name = advisor.names().getOrDefault(o.getItemId(), itemManager.getItemComposition(o.getItemId()).getName());
+				notifier.notify("Flip Planner: " + (st == GrandExchangeOfferState.BOUGHT ? "bought " : "sold ")
+					+ String.format(java.util.Locale.US, "%,d", o.getQuantitySold()) + " " + name
+					+ (st == GrandExchangeOfferState.BOUGHT ? ". Collect it and list it for sale." : "."));
+			}
+			updateNext();
 			scheduleSave();
 			// Holdings changed: re-plan soon (prices are cached, so this is quick).
 			if (pendingRefresh == null || pendingRefresh.isDone())
@@ -426,6 +514,128 @@ public class FlipPlannerPlugin extends Plugin
 		worker.execute(() -> advisor.run(snapshot, force));
 	}
 
+	/** Worker thread, after each model run. */
+	private void onPlan()
+	{
+		Recommender.Result r = advisor.lastResult();
+		if (r != null && r.barTs != skippedBar)
+		{
+			skipped.clear();
+			skippedBar = r.barTs;
+		}
+		NextAction a = updateNext();
+		if (r != null && a != null && a.type == NextAction.Type.BUY && config.notifyPlan() && !paused && r.barTs > planNotifiedBar
+			&& System.currentTimeMillis() - loginAt > 8000)
+		{
+			planNotifiedBar = r.barTs;
+			notifier.notify("Flip Planner: new buys to place. Next: " + a.title + " " + a.detail);
+		}
+	}
+
+	/** Recomputes the next action from the tracked slots and the latest plan. Any thread. */
+	private NextAction updateNext()
+	{
+		NextAction.Input in = new NextAction.Input();
+		in.now = System.currentTimeMillis();
+		in.sellOnly = config.sellOnly();
+		in.maxSlots = config.slots();
+		in.skipped = skipped;
+		in.buyWaitHours = com.flipplanner.engine.Decide.P.BUY_WAIT_HOURS;
+		in.nextPlanAt = (in.now / 3_600_000L + 1) * 3_600_000L + 5 * 60_000L;
+		synchronized (lock)
+		{
+			if (tracker == null || data == null)
+			{
+				return null;
+			}
+			OfferTracker.SlotState[] src = tracker.getSlots();
+			for (int i = 0; i < src.length; i++)
+			{
+				OfferTracker.SlotState s = src[i];
+				in.slots[i] = s;
+				if (s != null)
+				{
+					for (Offer o : data.ledger.offers)
+					{
+						if (o.id.equals(s.offerId))
+						{
+							in.placedAt[i] = o.placedAt;
+							break;
+						}
+					}
+				}
+			}
+		}
+		Recommender.Result r = advisor.lastResult();
+		if (r != null)
+		{
+			for (BuyIdea b : r.plan)
+			{
+				in.buys.add(new NextAction.Buy(b.id, b.name, b.buy, (long) b.qty, b.expected));
+			}
+			for (Recommender.HoldView h : r.holds)
+			{
+				long price = h.action.price == null ? 0 : Math.round(h.action.price);
+				in.holds.add(new NextAction.Hold(h.itemId, h.name != null ? h.name : "item " + h.itemId, h.qty, h.action.action, price, h.listing != null));
+			}
+			for (Offer o : r.makeRoom)
+			{
+				in.makeRoom.add(o.id);
+			}
+		}
+		NextAction a = NextAction.pick(in);
+		GeOverlay.State st = new GeOverlay.State();
+		st.action = paused || r == null ? null : a;
+		st.slots = in.slots;
+		st.placedAt = in.placedAt;
+		st.buyWaitHours = in.buyWaitHours;
+		st.highlight = config.highlightActions() && !paused;
+		st.timers = config.slotTimers();
+		overlayState = st;
+		boolean p = paused;
+		SwingUtilities.invokeLater(() ->
+		{
+			if (p)
+			{
+				panel.showNext("Paused", "Suggestions and GE highlights are off. Your trades are still tracked.", false, true);
+			}
+			else if (r == null)
+			{
+				panel.showNext("Waiting for prices…", "The first plan takes about 10 seconds after you log in.", false, false);
+			}
+			else
+			{
+				panel.showNext(a.title, a.detail, a.type == NextAction.Type.BUY, false);
+			}
+		});
+		return a;
+	}
+
+	/** Adds an item to the "Never suggest" setting and re-plans. Swing thread. */
+	private void blockItem(String name)
+	{
+		String cur = config.blockedItems() == null ? "" : config.blockedItems().trim();
+		configManager.setConfiguration(FlipPlannerConfig.GROUP, "blockedItems", cur.isEmpty() ? name : cur + ", " + name);
+		refresh(true);
+	}
+
+	/** Opens the price graph for an item (history is fetched on the worker thread). */
+	private void openGraph(int itemId, String name, Double buy, Double sell)
+	{
+		worker.execute(() ->
+		{
+			try
+			{
+				java.util.List<com.flipplanner.engine.HourPoint> pts = advisor.prices().timeseries1h(itemId);
+				SwingUtilities.invokeLater(() -> com.flipplanner.ui.PriceGraphDialog.open(panel, name, pts, buy, sell));
+			}
+			catch (IOException ex)
+			{
+				advisor.setError("Couldn't load the price history: " + ex.getMessage());
+			}
+		});
+	}
+
 	@Subscribe
 	public void onVarClientIntChanged(VarClientIntChanged e)
 	{
@@ -446,5 +656,6 @@ public class FlipPlannerPlugin extends Plugin
 			return;
 		}
 		refresh(true);
+		updateNext();
 	}
 }

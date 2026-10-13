@@ -2,6 +2,30 @@
 
 Flip Planner brings the model behind the GE Flipper web app (https://andrewshooman.github.io/osrs-flipper/) into RuneLite:
 
+- **Next action, one at a time.** A card at the top of the panel says the single thing to do now, in this order:
+  - collect finished offers
+  - cancel a buy that's gone stale or blocks a sell
+  - sell what you hold
+  - place the next buy
+  - or wait
+
+  **Skip** suggests a different item. **Pause** turns the suggestions and highlights off.
+- **GE highlights.** The GE screen outlines what to click next:
+  - *Collect*
+  - an empty slot's *Buy* button, or the item to sell in your inventory
+  - the suggested item in the search results
+  - the price and quantity buttons, until they match the suggestion
+  - then *Confirm*
+
+  Each slot also shows how long its offer has been up: green while it's fine, amber when it's getting old, red when it should be cancelled, blue when it needs collecting.
+- **Notifications** when a buy or sell completes, and optionally when a new hourly plan has buys for your free slots.
+- **Stats and price graphs.**
+  - The Stats tab shows profit for today, the last 7 days and all time, plus flips, win rate, ROI, tax paid, daily profit bars, best and worst items, and recent flips.
+  - Right-click a suggestion or a holding for a 7-day price graph with the suggested buy and sell prices marked.
+- **Your rules.**
+  - *Sell-only mode* stops new buys.
+  - *Never suggest* blocks items; right-click a suggestion to add it.
+  - *Min profit per order* hides orders that aren't worth the clicks.
 - **What to buy.** The side panel lists the model's buy orders for your stack: the item, price, quantity, where to sell, and the expected profit. Only orders worth the clicks are shown, so some check-ins have nothing to buy. That's fine.
 - **What to do with what you hold.** For each item you hold, the panel says list at a price, hold (with the breakeven price), sell now, or cut.
 - **Help in the GE:**
