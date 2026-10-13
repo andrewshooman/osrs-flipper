@@ -23,7 +23,8 @@ Record results in HANDOFF.md.
 ## Done
 - 0.3.1: session profit per hour, game-chat messages with profit after tax on sells.
 - 0.4.0: item tooltips (paid, breakeven, now, advice) in the inventory, bank and GE;
-  "Price graph" in the right-click menu of tradeable items.
+  "Price graph" in the right-click menu of tradeable items; "Use detected stack"
+  (coins in the inventory and bank, gp in buy offers, items at cost).
 
 ## Queue
 1. **Re-pricing instead of only cancelling (research first).** In the 5-minute replay
@@ -34,13 +35,11 @@ Record results in HANDOFF.md.
 2. **Opportunity alerts (research first).** Use the 5-minute data to find sharp drops on
    liquid items that revert within hours. Backtest it. Ship as an optional alert only
    if it's profitable after tax in the replay.
-3. **Detect the stack.** Coins in the inventory, plus the bank (cached when opened),
-   plus gp in GE offers, plus holdings at cost. Add a setting, "Use detected stack".
-4. **Weekly retrain.** Run `research/retrain.py`, export the model to
+3. **Weekly retrain.** Run `research/retrain.py`, export the model to
    `models/flip-model.js` and the plugin's `flip-model.json`, regenerate the parity
    fixtures, and release.
-5. **GP drop on finished sells.** A small floating "+12.3K" when a sell completes.
-6. **Keep iterating** on whatever the user reports from in-game testing. The GE
+4. **GP drop on finished sells.** A small floating "+12.3K" when a sell completes.
+5. **Keep iterating** on whatever the user reports from in-game testing. The GE
    highlights, slot timers, tooltips and the menu option haven't been checked in-game
    yet, so those reports come first.
 

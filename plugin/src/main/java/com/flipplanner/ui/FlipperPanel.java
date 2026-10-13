@@ -326,6 +326,10 @@ public class FlipperPanel extends PluginPanel
 		}
 
 		body.add(section("Profit"));
+		if (m.stackNote != null)
+		{
+			body.add(note(esc(m.stackNote), ColorScheme.LIGHT_GRAY_COLOR));
+		}
 		if (m.sessionHours > 0.05)
 		{
 			body.add(note(String.format(Locale.US, "This session %s in %s (%s/h)", signed(m.sessionProfit), hours(m.sessionHours),

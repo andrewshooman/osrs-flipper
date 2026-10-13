@@ -29,6 +29,7 @@ Flip Planner brings the model behind the GE Flipper web app (https://andrewshoom
   - *Sell-only mode* stops new buys.
   - *Never suggest* blocks items; right-click a suggestion to add it.
   - *Min profit per order* hides orders that aren't worth the clicks.
+  - *Use detected stack* plans with the money the game shows: coins and platinum tokens in your inventory and bank, gp in buy offers, and the items you're flipping at cost. Open your bank once so it can count your coins. The Profit section shows the detected stack either way.
 - **What to buy.** The side panel lists the model's buy orders for your stack: the item, price, quantity, where to sell, and the expected profit. Only orders worth the clicks are shown, so some check-ins have nothing to buy. That's fine.
 - **What to do with what you hold.** For each item you hold, the panel says list at a price, hold (with the breakeven price), sell now, or cut.
 - **Help in the GE:**

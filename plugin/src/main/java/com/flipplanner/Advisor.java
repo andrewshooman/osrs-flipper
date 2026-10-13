@@ -48,6 +48,9 @@ class Advisor implements OfferShortcuts.Advice
 	private volatile Recommender.Result lastResult;
 	private Runnable onResult = () -> { };
 	private volatile long sessionStart;
+	/** Coins and platinum in the inventory and bank; null until both have been seen. */
+	private volatile Long cash;
+	private volatile Long runCash;
 	private volatile PanelModel last = new PanelModel();
 
 	Advisor(OkHttpClient http, Gson gson, FlipPlannerConfig config, Consumer<PanelModel> show)
@@ -83,6 +86,21 @@ class Advisor implements OfferShortcuts.Advice
 	void setSessionStart(long ms)
 	{
 		sessionStart = ms;
+	}
+
+	/**
+	 * The player's coins (inventory + bank). Returns true when they moved enough since
+	 * the last run to be worth re-planning.
+	 */
+	boolean setCash(Long c)
+	{
+		cash = c;
+		Long used = runCash;
+		if (used == null || c == null)
+		{
+			return used != null || c != null;
+		}
+		return Math.abs(c - used) >= Math.max(100_000L, used / 100);
 	}
 
 	Recommender.Result lastResult()
@@ -174,6 +192,13 @@ class Advisor implements OfferShortcuts.Advice
 		s.slots = config.slots();
 		s.minExpectedGp = config.minOrderProfit();
 		s.excludedIds = blocked();
+		Long gp = cash;
+		Ledger.Capital parts = Ledger.capital(ledger, 0, s.slots, 0);
+		if (config.useDetectedStack() && gp != null)
+		{
+			s.bankroll = StackDetect.bankroll(gp, parts);
+		}
+		runCash = gp;
 
 		PanelModel m = new PanelModel();
 		m.tradeFile = tradeFile;
@@ -191,6 +216,7 @@ class Advisor implements OfferShortcuts.Advice
 				push(q);
 			});
 			fill(m, r, ledger, now);
+			m.stackNote = StackDetect.note(config.useDetectedStack(), gp, config.bankroll(), parts);
 			lastBar = r.barTs;
 			lastResult = r;
 			m.error = null;
