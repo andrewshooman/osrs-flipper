@@ -3,7 +3,7 @@
    ============================================================ */
 (function (OSF) {
   "use strict";
-  const { util: U, ledger: L, model: M, engine: E, store: ST, api: A, config: C, charts: CH } = OSF;
+  const { util: U, ledger: L, model: M, engine: E, store: ST, api: A, config: C, charts: CH, tradefile: TF } = OSF;
 
   const S = {
     state: ST.load(),
@@ -36,7 +36,11 @@
     const u = iconUrl(id);
     return u ? `<img class="icon" src="${u}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : `<span class="icon"></span>`;
   };
-  function save() { ST.save(S.state); }
+  function save() {
+    S.state.savedAt = Date.now();
+    ST.save(S.state);
+    TF.schedule(S.state);
+  }
   function toast(msg, ms = 4000) {
     const t = document.createElement("div");
     t.className = "toast";
@@ -509,6 +513,69 @@
         </tbody></table></div></div>`;
   }
 
+  // ---------------------------------------------------------------- trade file on your PC
+  /** Compares this browser's copy with the file's and restores, asks, or updates the file. */
+  async function syncTradeFile() {
+    let file;
+    try { file = await TF.read(); } catch (e) { toast("Couldn't read your trade file: " + esc(e.message)); return; }
+    const r = TF.reconcile(S.state, file);
+    const ago = file && file.savedAt ? ` (saved ${U.ago(file.savedAt)})` : "";
+    if (r.action === "restore"
+      || (r.action === "ask" && confirm(`Your trade file${ago} is newer than this browser's copy.\n\nFile: ${r.file} trades and offers\nThis browser: ${r.local}\n\nOK loads the file. Cancel keeps this browser's copy and saves it over the file.`))) {
+      S.state = file;
+      ST.save(S.state);
+      renderAll();
+      refresh({ quiet: true });
+      toast(`Restored your trade history from ${esc(TF.fileName())} (${r.file} entr${r.file === 1 ? "y" : "ies"})`);
+      return;
+    }
+    TF.schedule(S.state, 0); // bring the file up to date
+  }
+
+  function renderFileBanner() {
+    const el = $("#file-banner");
+    if (!el) return;
+    const st = TF.T.status;
+    const show = st === "needs-permission" || st === "error";
+    el.classList.toggle("hidden", !show);
+    el.innerHTML = !show ? "" : st === "needs-permission"
+      ? `<div><span class="grow">Your trades aren't being saved to <b>${esc(TF.fileName())}</b> this visit: the browser needs your OK again.</span><button class="btn sm primary" id="tf-reconnect">Reconnect file</button></div>`
+      : `<div><span class="grow">Couldn't save to your trade file: ${esc(TF.T.error || "unknown error")}. Your trades are still saved in this browser.</span><button class="btn sm" id="tf-reconnect">Try again</button></div>`;
+  }
+
+  function tradeFileCard() {
+    const st = TF.T.status;
+    const intro = `<p class="small secondary" style="margin-top:0">Keep a copy of every trade in a file on your computer, on any drive (for example <b>D:\\GE-Flipper</b>). It's rewritten every time you log something, and if this browser's data is ever cleared, the app loads your trades back from it.</p>`;
+    if (st === "unsupported")
+      return `<div class="card">${intro}<p class="small" style="margin-bottom:0">This browser can't save to a file by itself. That works in <b>Chrome</b> or <b>Edge</b> on a computer. Here, use <b>Export backup</b> below now and then.</p></div>`;
+    if (st === "off")
+      return `<div class="card">${intro}<div class="row"><button class="btn primary" id="tf-create">Save trades to a file…</button><button class="btn" id="tf-open">Use an existing file…</button></div></div>`;
+    const when = TF.T.lastWrite ? `last saved ${U.ago(TF.T.lastWrite)}` : "connected";
+    const line = st === "ok" ? `<span class="good">●</span> Saving to <b>${esc(TF.fileName())}</b>, ${when}.`
+      : st === "needs-permission" ? `<span class="bad">●</span> Paused: the browser needs your OK to keep writing <b>${esc(TF.fileName())}</b>.`
+      : `<span class="bad">●</span> ${esc(TF.T.error || "Couldn't write the file")}.`;
+    return `<div class="card">${intro}<p class="small" style="margin:0 0 8px">${line}</p><div class="row">
+      ${st !== "ok" ? `<button class="btn primary" id="tf-reconnect">Reconnect file</button>` : ""}
+      <button class="btn" id="tf-create">Use a different file…</button><span class="spacer"></span><button class="btn danger" id="tf-stop">Stop saving to the file</button></div></div>`;
+  }
+
+  async function tradeFileAction(id) {
+    try {
+      if (id === "tf-create") await TF.create();
+      else if (id === "tf-open") await TF.openExisting();
+      else if (id === "tf-reconnect") await TF.reconnect();
+      else if (id === "tf-stop") {
+        if (!confirm(`Stop saving to ${TF.fileName()}? The file stays on your computer; it just won't be updated.`)) return;
+        await TF.disconnect();
+        return toast("Stopped saving to the file");
+      }
+      if (TF.T.status === "ok") await syncTradeFile();
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // closed the file dialog
+      toast("Trade file: " + esc((e && e.message) || e));
+    }
+  }
+
   // ---------------------------------------------------------------- settings
   function renderSettings() {
     const s = settings();
@@ -534,8 +601,10 @@
       </div></div>
       <div class="section-head"><h2>Hidden items</h2></div>
       <div class="card">${(s.excludedIds || []).length ? s.excludedIds.map((id) => `<div class="row" style="padding:4px 0"><span class="grow">${esc(itemName(id))}</span><button class="btn sm" data-unexclude="${id}">Show again</button></div>`).join("") : `<span class="muted small">None. Use "Never suggest" on an item's detail page.</span>`}</div>
+      <div class="section-head"><h2>Trade file on your PC</h2></div>
+      ${tradeFileCard()}
       <div class="section-head"><h2>Backup</h2></div>
-      <div class="card"><p class="small secondary" style="margin-top:0">Everything is saved in this browser only. Export a backup to keep it safe or move it to another device.</p>
+      <div class="card"><p class="small secondary" style="margin-top:0">Everything is also saved in this browser. Export a backup to keep a dated copy or move to another device.</p>
         <div class="row"><button class="btn" id="export-json">Export backup</button>
         <label class="btn">Import backup<input type="file" accept=".json,application/json" id="import-json" hidden></label>
         <span class="spacer"></span>
@@ -835,6 +904,7 @@
       if (d.unexclude) { settings().excludedIds = settings().excludedIds.filter((x) => x !== +d.unexclude); save(); renderSettings(); refresh({ quiet: true }); return; }
       if (d.item && !t.matches("button.btn.primary")) return itemDialog(+d.item);
       switch (t.id) {
+        case "tf-create": case "tf-open": case "tf-reconnect": case "tf-stop": return tradeFileAction(t.id);
         case "bot-refresh": return fetchBot();
         case "orders-refresh": return loadOrders();
         case "refresh": case "retry": return refresh({ force: true });
@@ -872,7 +942,8 @@
         } catch (err) { toast("Import failed: " + esc(err.message)); }
       }
     });
-    document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh({ quiet: true }); });
+    document.addEventListener("visibilitychange", () => { if (document.hidden) TF.flush(); else refresh({ quiet: true }); });
+    window.addEventListener("pagehide", () => TF.flush());
     window.addEventListener("resize", () => { if (S.view === "profit") renderProfit(); });
   }
 
@@ -888,6 +959,8 @@
   function init() {
     bind();
     renderAll();
+    TF.init(() => { renderFileBanner(); if (S.view === "settings") renderSettings(); })
+      .then((st) => (st === "ok" ? syncTradeFile() : null));
     S.state.mode = "real";
     fetchBot();
     refresh();
