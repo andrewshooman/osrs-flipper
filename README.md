@@ -19,10 +19,10 @@ work before you risk real gold.
 | --- | --- |
 | **Bot** | The paper-trading bot: mock 11M stack, its open offers, holdings, closed trades and profit. |
 | **Orders** | Your to-do list for this check-in: what to do with items you hold, offers to tidy up, and new buy offers sized to your stack. One tap logs each order you place. |
-| **Slots** | Your 8 GE slots and the offers in them. |
+| **Slots** | Your GE slots and the offers in them. The tool plans for 7, so one stays free for your own trades. |
 | **Holdings** | What you own, cost basis after tax, and live advice. |
 | **Profit** | Realised profit after tax, win rate, ROI, a daily chart, and how your results compare with what the model predicted. |
-| **Settings** | Stack size (default 11M), cash reserve (default 50%), slots, members, backup and restore. |
+| **Settings** | Stack size (default 11M), cash reserve (default 50%), how many GE slots the tool uses (default 7 of 8), members, backup and restore. |
 
 Prices come straight from the
 [OSRS Wiki real-time prices API](https://oldschool.runescape.wiki/w/RuneScape:Real-time_Prices).

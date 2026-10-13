@@ -523,7 +523,7 @@
       <label class="check"><input type="checkbox" data-set="members" ${s.members ? "checked" : ""}> Members account</label></div>
       <div class="section-head"><h2>Risk & filters</h2></div>
       <div class="card"><div class="grid2">
-        ${num("slots", "GE slots", 1, 1)}
+        ${num("slots", "GE slots the tool uses", 1, 1, "of 8; the rest stay free for your own trades")}
         ${num("stopLossPct", "Stop-loss", 1, 100, "%")}
         ${num("maxHoldHours", "Max hold time", 1, 1, "hours")}
         ${num("minRoiPct", "Min return after tax", 0.1, 1, "%")}

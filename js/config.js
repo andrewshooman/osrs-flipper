@@ -70,7 +70,8 @@
     practiceBankroll: 11_000_000,
     cashReservePct: 0.5,        // keep half the stack untouched
     maxPerItemPct: 0.25,        // of the deployable capital
-    slots: 8,
+    slots: 7,                   // GE slots the tool plans for; the 8th stays free for your own trades
+    slotsDefault7: true,        // marks settings that already got the 7-slot default (see store.js)
     stopLossPct: 0.03,
     maxHoldHours: 12,
     strategy: "active",
