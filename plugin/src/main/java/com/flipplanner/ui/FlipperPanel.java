@@ -326,6 +326,11 @@ public class FlipperPanel extends PluginPanel
 		}
 
 		body.add(section("Profit"));
+		if (m.sessionHours > 0.05)
+		{
+			body.add(note(String.format(Locale.US, "This session %s in %s (%s/h)", signed(m.sessionProfit), hours(m.sessionHours),
+				signed(m.sessionProfit / Math.max(m.sessionHours, 0.25))), Color.WHITE));
+		}
 		body.add(note("Today " + signed(m.profitToday) + " · all time " + signed(m.profitTotal)
 			+ " · " + m.flips + " flips" + (Double.isFinite(m.winRate) ? String.format(Locale.US, " · %.0f%% won", m.winRate * 100) : ""), Color.WHITE));
 		if (!m.tradeFile.isEmpty())
