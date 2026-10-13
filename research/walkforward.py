@@ -72,6 +72,13 @@ ROUNDS = {
         "checkin_minret3": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10, "min_exp_ret": 0.003},
         "checkin_cap07": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.07},
     }, ["checkin", "checkin_wait12"]),
+    # Round 10: how much check-in frequency is worth (UTC hours; 12 = 8am US Eastern).
+    "r10": ({
+        "checkin_2x": {**PROD, "checkin_hours": [12, 23], "max_item_frac": 0.10},
+        "checkin_3x": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
+        "checkin_4x": {**PROD, "checkin_hours": [12, 16, 20, 0], "max_item_frac": 0.10},
+        "checkin_6x": {**PROD, "checkin_hours": [12, 15, 18, 21, 0, 3], "max_item_frac": 0.10},
+    }, []),
     # Round 6: the current presets, for model tuning (--leaves, --lr, --rounds).
     "r6": ({
         "production": {**PROD, "sell_priority": True},

@@ -63,8 +63,11 @@ you can double-check it in-game.
   - 4-hour and 12-hour forward-return quantiles, which drive the hold, sell and cut
     decisions
 - **Decisions:**
-  - **Sizing:** quarter-Kelly, from expected return vs. forecast spread, at most 10–15%
-    of free gp in one item. Your cash reserve is never touched.
+  - **Sizing:** at most 10% of free gp per item in Orders (15% for the bot), and
+    no more than the buy limit or what the market can fill in about 4 hours.
+    The Kelly formula (edge vs. forecast spread) is in the code, but this cap
+    binds first: in walk-forward round 9, Kelly fractions from 0.10 to 0.25 gave
+    identical results. Your cash reserve is never touched.
   - **Ranking:** expected gp per hour, divided by the larger share of gp or GE slots
     the order uses.
   - **Pump-and-dump guard:** skips items with margins over 15%, a jump of more than 25%

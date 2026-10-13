@@ -1,0 +1,85 @@
+panel 8789 bars x 3429 items
+features ready (142s)
+fold 2025-12-11: baseline_top_margin=-341,806/d  baseline_v0_1=-470,978/d  checkin=+109,645/d  checkin_kelly25=+109,645/d  checkin_kelly10=+109,645/d  checkin_wait12=+125,352/d  checkin_minret3=+109,645/d  checkin_cap07=+124,899/d  checkin@5%=+111,963/d  checkin_wait12@5%=+99,612/d  (166s)
+fold 2026-01-08: baseline_top_margin=-346,872/d  baseline_v0_1=-457,739/d  checkin=+126,163/d  checkin_kelly25=+126,163/d  checkin_kelly10=+126,163/d  checkin_wait12=+110,027/d  checkin_minret3=+126,163/d  checkin_cap07=+92,285/d  checkin@5%=+76,166/d  checkin_wait12@5%=+88,727/d  (188s)
+fold 2026-02-05: baseline_top_margin=-115,409/d  baseline_v0_1=-168,396/d  checkin=+76,660/d  checkin_kelly25=+76,660/d  checkin_kelly10=+76,660/d  checkin_wait12=+68,941/d  checkin_minret3=+76,660/d  checkin_cap07=+60,557/d  checkin@5%=+31,168/d  checkin_wait12@5%=+10,710/d  (209s)
+fold 2026-03-05: baseline_top_margin=-143,628/d  baseline_v0_1=-214,335/d  checkin=+60,276/d  checkin_kelly25=+60,276/d  checkin_kelly10=+60,276/d  checkin_wait12=+46,814/d  checkin_minret3=+60,276/d  checkin_cap07=+73,139/d  checkin@5%=+48,900/d  checkin_wait12@5%=+38,567/d  (233s)
+fold 2026-04-02: baseline_top_margin=-175,370/d  baseline_v0_1=-289,275/d  checkin=+98,500/d  checkin_kelly25=+98,500/d  checkin_kelly10=+98,500/d  checkin_wait12=+80,146/d  checkin_minret3=+98,500/d  checkin_cap07=+70,995/d  checkin@5%=+75,362/d  checkin_wait12@5%=+68,545/d  (255s)
+fold 2026-04-30: baseline_top_margin=-125,114/d  baseline_v0_1=-203,844/d  checkin=+63,689/d  checkin_kelly25=+63,689/d  checkin_kelly10=+63,689/d  checkin_wait12=+57,883/d  checkin_minret3=+63,689/d  checkin_cap07=+36,877/d  checkin@5%=+17,578/d  checkin_wait12@5%=+25,900/d  (278s)
+fold 2026-05-28: baseline_top_margin=-171,550/d  baseline_v0_1=-200,352/d  checkin=+232,423/d  checkin_kelly25=+232,423/d  checkin_kelly10=+232,423/d  checkin_wait12=+217,918/d  checkin_minret3=+232,423/d  checkin_cap07=+40,247/d  checkin@5%=+112,925/d  checkin_wait12@5%=+115,328/d  (298s)
+fold 2026-06-25: baseline_top_margin=-128,870/d  baseline_v0_1=-209,776/d  checkin=+38,228/d  checkin_kelly25=+38,228/d  checkin_kelly10=+38,228/d  checkin_wait12=+12,202/d  checkin_minret3=+38,228/d  checkin_cap07=+43,075/d  checkin@5%=+10,454/d  checkin_wait12@5%=+395/d  (320s)
+fold 2026-07-23: baseline_top_margin=-190,312/d  baseline_v0_1=-212,770/d  checkin=+100,359/d  checkin_kelly25=+100,359/d  checkin_kelly10=+100,359/d  checkin_wait12=+93,444/d  checkin_minret3=+100,359/d  checkin_cap07=+72,161/d  checkin@5%=+56,323/d  checkin_wait12@5%=+57,716/d  (344s)
+fold 2026-08-20: baseline_top_margin=-101,908/d  baseline_v0_1=-84,606/d  checkin=+34,905/d  checkin_kelly25=+34,905/d  checkin_kelly10=+34,905/d  checkin_wait12=+28,643/d  checkin_minret3=+34,905/d  checkin_cap07=+38,497/d  checkin@5%=+14,591/d  checkin_wait12@5%=+21,839/d  (366s)
+fold 2026-09-17: baseline_top_margin=-215,884/d  baseline_v0_1=-197,726/d  checkin=+49,083/d  checkin_kelly25=+49,083/d  checkin_kelly10=+49,083/d  checkin_wait12=+39,745/d  checkin_minret3=+49,083/d  checkin_cap07=+55,594/d  checkin@5%=+11,398/d  checkin_wait12@5%=+26,232/d  (389s)
+{
+ "baseline_top_margin": {
+  "mean_profit_per_day": -186974,
+  "median_profit_per_day": -171550,
+  "folds_positive": "0/11",
+  "worst_fold": -346872,
+  "max_drawdown": 5494101
+ },
+ "baseline_v0_1": {
+  "mean_profit_per_day": -246345,
+  "median_profit_per_day": -209776,
+  "folds_positive": "0/11",
+  "worst_fold": -470978,
+  "max_drawdown": 7198917
+ },
+ "checkin": {
+  "mean_profit_per_day": 89993,
+  "median_profit_per_day": 76660,
+  "folds_positive": "11/11",
+  "worst_fold": 34905,
+  "max_drawdown": 471826
+ },
+ "checkin_kelly25": {
+  "mean_profit_per_day": 89993,
+  "median_profit_per_day": 76660,
+  "folds_positive": "11/11",
+  "worst_fold": 34905,
+  "max_drawdown": 471826
+ },
+ "checkin_kelly10": {
+  "mean_profit_per_day": 89993,
+  "median_profit_per_day": 76660,
+  "folds_positive": "11/11",
+  "worst_fold": 34905,
+  "max_drawdown": 471826
+ },
+ "checkin_wait12": {
+  "mean_profit_per_day": 80101,
+  "median_profit_per_day": 68941,
+  "folds_positive": "11/11",
+  "worst_fold": 12202,
+  "max_drawdown": 533834
+ },
+ "checkin_minret3": {
+  "mean_profit_per_day": 89993,
+  "median_profit_per_day": 76660,
+  "folds_positive": "11/11",
+  "worst_fold": 34905,
+  "max_drawdown": 471826
+ },
+ "checkin_cap07": {
+  "mean_profit_per_day": 64393,
+  "median_profit_per_day": 60557,
+  "folds_positive": "11/11",
+  "worst_fold": 36877,
+  "max_drawdown": 1663817
+ },
+ "checkin@5%": {
+  "mean_profit_per_day": 51529,
+  "median_profit_per_day": 48900,
+  "folds_positive": "11/11",
+  "worst_fold": 10454,
+  "max_drawdown": 1663340
+ },
+ "checkin_wait12@5%": {
+  "mean_profit_per_day": 50324,
+  "median_profit_per_day": 38567,
+  "folds_positive": "11/11",
+  "worst_fold": 395,
+  "max_drawdown": 1665314
+ }
+}
