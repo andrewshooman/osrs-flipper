@@ -298,7 +298,7 @@ function series(n, stepSec, fn, now = Date.now()) {
     const r = D.buyPlan(items, { deployable: 5_500_000, slotsFree: 8 }, 0);
     ok(r.plan.length <= 8, "never more orders than free slots");
     ok(U.sum(r.plan.map((x) => x.cost)) <= 5_500_000, "never more than deployable gp");
-    ok(r.plan.every((x) => x.cost <= 5_500_000 * 0.15 + 1001), "per-item cap 15%");
+    ok(r.plan.every((x) => x.cost <= 5_500_000 * 0.10 + 1001), "per-item cap 10%");
     ok(r.plan.every((x) => x.qty <= 5000), "buy limit respected");
     ok(r.plan[0].buy === 1001, "bid = hourly instant-sell + 1");
     const half = D.buyPlan(items, { deployable: 5_500_000, slotsFree: 8 }, -0.05);

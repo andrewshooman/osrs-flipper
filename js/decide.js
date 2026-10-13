@@ -10,9 +10,12 @@
   "use strict";
   const U = OSF.util;
 
-  const P = {               // must match research/strategy_model.py PRESETS["production"]
+  // Matches research/strategy_model.py PRESETS["checkin"]: the production preset
+  // with a 10% per-item cap, which won for a player who checks in ~3x a day
+  // (walk-forward round 3: +90k/day on 5.5M, 11/11 two-week folds positive).
+  const P = {
     kellyFrac: 0.15,
-    maxItemFrac: 0.15,
+    maxItemFrac: 0.10,
     minExpRet: 0.005,
     buyWaitHours: 6,        // patient offers: leave them up for ~6h, then cancel the rest
     captureShare: 0.10,     // share of real volume we expect to get

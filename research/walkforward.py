@@ -49,8 +49,8 @@ ROUNDS = {
     # Round 4: same strategies, model retrained on labels that match them (see --wait-h).
     "r4": ({
         "prod_hourly": PROD,
-        "prod_checkin3": {**PROD, "checkin_hours": CHECKINS},
-    }, ["prod_hourly", "prod_checkin3"]),
+        "prod_checkin3_cap10": {**PROD, "checkin_hours": CHECKINS, "max_item_frac": 0.10},
+    }, ["prod_hourly", "prod_checkin3_cap10"]),
 }
 
 
@@ -64,6 +64,8 @@ def main():
     ap.add_argument("--min-trade-frac", type=float, default=0.2)
     ap.add_argument("--share", type=float, default=0.10)
     ap.add_argument("--round", default="r2", choices=["r2", "r3", "r4"])
+    ap.add_argument("--leaves", type=int, default=63, help="LightGBM num_leaves")
+    ap.add_argument("--lr", type=float, default=0.05, help="LightGBM learning rate")
     ap.add_argument("--wait-h", type=float, default=2.0, help="label: how long the bid may wait to fill")
     ap.add_argument("--hold-h", type=float, default=24.0, help="label: max hold before dumping")
     ap.add_argument("--before", default=None, help="only use hourly data before this date (YYYY-MM-DD)")
@@ -96,12 +98,14 @@ def main():
         tm[start - embargo:] = False
         # Trained fold models are cached: variant re-runs only re-simulate.
         lab = "" if (a.wait_h, a.hold_h) == (2.0, 24.0) else f"-w{a.wait_h:g}h{a.hold_h:g}"
+        if (a.leaves, a.lr) != (63, 0.05):
+            lab += f"-l{a.leaves}lr{a.lr:g}"
         cache = ROOT / "models" / "wf-cache" / f"{a.min_trade_frac}-{a.rounds}{lab}-{int(P.ts[start])}"
         if (cache / "meta.json").exists():
             from train import FlipModel
             model = FlipModel.load(cache)
         else:
-            model = fit(F, Y, Q, tm, names, rounds=a.rounds)
+            model = fit(F, Y, Q, tm, names, rounds=a.rounds, params={"num_leaves": a.leaves, "learning_rate": a.lr})
             model.save(cache)
         warm = start - 8 * bars_day
         test = P.slice(warm, end)
