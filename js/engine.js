@@ -160,7 +160,7 @@
     const busy = new Set(open.map((o) => o.itemId));
     const buyItems = short.filter((x) => !busy.has(x.id) && !holdings.has(x.id) && scored.get(x.id))
       .map((x) => ({ id: x.id, name: x.item.name, limitLeft: L.remainingLimit(ledger, x.id, x.item.limit), ...scored.get(x.id) }));
-    const plan = OSF.decide.buyPlan(buyItems, { ...cap, slotsFree: buySlots }, ctx.mkt_ret_24h);
+    const plan = OSF.decide.buyPlan(buyItems, { ...cap, slotsFree: buySlots }, ctx.mkt_ret_24h, { minExpectedGp: s.minOrderProfit || 0 });
     // Prices are from the last hourly close; flag orders whose live price has moved since.
     const lt = await A.latest().catch(() => ({}));
     for (const r of plan.plan) {

@@ -359,6 +359,11 @@ function series(n, stepSec, fn, now = Date.now()) {
     ok(r.plan.every((x) => x.cost <= 5_500_000 * 0.10 + 1001), "per-item cap 10%");
     ok(r.plan.every((x) => x.qty <= 5000), "buy limit respected");
     ok(r.plan[0].buy === 1001, "bid = hourly instant-sell + 1");
+    const big = D.buyPlan(items, { deployable: 5_500_000, slotsFree: 8 }, 0, { minExpectedGp: 12_000 });
+    ok(big.plan.length > 0 && big.plan.length < r.plan.length, "a minimum profit per order leaves out the small ones");
+    ok(big.plan.every((x) => x.expected >= 12_000), "every order clears the minimum");
+    eq(D.buyPlan(items, { deployable: 5_500_000, slotsFree: 8 }, 0, { minExpectedGp: 1e9 }).plan.length, 0, "nothing clears a huge minimum: no orders (slots stay empty)");
+    eq(D.buyPlan(items, { deployable: 5_500_000, slotsFree: 8 }, 0, {}).plan.length, r.plan.length, "no minimum: same plan as before");
     const half = D.buyPlan(items, { deployable: 5_500_000, slotsFree: 8 }, -0.05);
     ok(U.sum(half.plan.map((x) => x.cost)) <= 2_750_000 + 1, "market brake halves the gp used");
     const bar = { ah: 1100, al: 1050 };

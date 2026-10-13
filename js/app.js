@@ -362,7 +362,7 @@
         using ${U.gp(d.plan.deployUsed)}. Check back in about ${U.duration(Math.min(6, Math.max(...plan.map((r) => r.hours))))}
         (around ${new Date(Date.now() + Math.min(6, Math.max(...plan.map((r) => r.hours))) * 36e5).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}) to list what filled.</div>` : ""}
       <div class="section-head"><h2>New buy offers</h2><span class="small muted">${plan.length} for ${d.buySlots ?? d.cap.slotsFree} free slots${d.buySlots < d.cap.slotsFree ? " (the rest are kept for selling)" : ""} · ${U.gp(d.plan.deployUsed)} of ${U.gp(d.cap.deployable)} free gp${d.ctx.mkt_ret_24h < -0.03 ? " · market falling: half size" : ""}</span></div>
-      <div class="card">${buyRows || `<div class="empty-state">${(d.buySlots ?? d.cap.slotsFree) ? "Nothing worth buying right now — the model only trades when the edge clears tax and risk." : "No free slots for new buys: list what you hold first."}</div>`}</div>`;
+      <div class="card">${buyRows || `<div class="empty-state">${(d.buySlots ?? d.cap.slotsFree) ? `Nothing worth buying right now: no order is expected to make ${U.gp(settings().minOrderProfit || 0)} or more. Empty slots are fine; check back later.` : "No free slots for new buys: list what you hold first."}</div>`}</div>`;
   }
 
   function orderBuy(id) {
@@ -580,7 +580,7 @@
   function renderSettings() {
     const s = settings();
     const num = (k, label, step, scale = 1, suffix = "") => `<label class="field">${label}${suffix ? ` <span class="muted">(${suffix})</span>` : ""}
-      <input type="text" inputmode="decimal" data-set="${k}" data-scale="${scale}" value="${scale === 1 ? (k.includes("ankroll") ? U.gp(s[k]).toLowerCase() : s[k]) : +(s[k] * scale).toFixed(4)}" data-step="${step}"></label>`;
+      <input type="text" inputmode="decimal" data-set="${k}" data-scale="${scale}" value="${scale === 1 ? (k.includes("ankroll") || k === "minOrderProfit" ? U.gp(s[k]).toLowerCase() : s[k]) : +(s[k] * scale).toFixed(4)}" data-step="${step}"></label>`;
     $("#view-settings").innerHTML = `
       <div class="section-head"><h2>Money</h2></div>
       <div class="card"><div class="grid2">
@@ -593,6 +593,7 @@
       <div class="section-head"><h2>Risk & filters</h2></div>
       <div class="card"><div class="grid2">
         ${num("slots", "GE slots the tool uses", 1, 1, "of 8; the rest stay free for your own trades")}
+        ${num("minOrderProfit", "Min profit per order", 1, 1, "gp expected; smaller orders aren't suggested")}
         ${num("stopLossPct", "Stop-loss", 1, 100, "%")}
         ${num("maxHoldHours", "Max hold time", 1, 1, "hours")}
         ${num("minRoiPct", "Min return after tax", 0.1, 1, "%")}
@@ -862,6 +863,8 @@
       if (k === "slots") s.slots = Math.max(1, Math.min(8, Math.round(s.slots)));
       if (k === "cashReservePct" || k === "maxPerItemPct") s[k] = U.clamp(s[k], 0, 1);
     }
+    // Settings that change the plan: rebuild Orders next time it's opened.
+    if (["minOrderProfit", "slots", "bankroll", "cashReservePct", "members"].includes(k) && S.orders.data) S.orders.data.at = 0;
     save();
     renderCapital();
     restartTimer();
