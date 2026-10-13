@@ -24,7 +24,9 @@
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const ledger = () => E.activeLedger(S.state);
   const settings = () => S.state.settings;
-  const isPractice = () => S.state.mode === "practice";
+  // Practice trading was removed: the app tracks your real trades only (the
+  // paper-trading bot is the test bed). Old practice data stays in storage.
+  const isPractice = () => false;
   const itemName = (id) => (S.items.get(id) || {}).name || `Item ${id}`;
   const iconUrl = (id) => {
     const it = S.items.get(id);
@@ -51,7 +53,7 @@
     if (!quiet) { S.progress = "Loading…"; renderPicks(); }
     try {
       if (!S.items.size) S.items = await A.mapping();
-      if (isPractice() || L.openOffers(S.state.ledgers.practice).length) {
+      if (isPractice()) {
         const fills = await E.syncPractice(S.state);
         for (const f of fills) {
           toast(`Practice ${f.trade.side} filled: ${U.full(f.trade.qty)} × ${esc(itemName(f.trade.itemId))} @ ${U.full(f.trade.price)}`);
@@ -72,14 +74,12 @@
   // ---------------------------------------------------------------- shell
   function renderAll() {
     document.documentElement.dataset.mode = S.state.mode;
-    document.querySelectorAll(".mode-switch button").forEach((b) => b.classList.toggle("on", b.dataset.mode === S.state.mode));
-    $("#practice-banner").classList.toggle("hidden", !isPractice());
+
     document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("on", b.dataset.view === S.view));
     document.querySelectorAll(".view").forEach((v) => v.classList.toggle("on", v.id === "view-" + S.view));
     const botView = S.view === "bot";
     $("#capital").classList.toggle("hidden", botView);
-    if (botView) $("#practice-banner").classList.add("hidden");
-    $(".mode-switch").classList.toggle("hidden", botView); // the bot has its own mock stack
+
     renderCapital();
     renderBadges();
     ({ bot: renderBot, orders: renderOrders, picks: renderPicks, slots: renderSlots, holdings: renderHoldings, profit: renderProfit, settings: renderSettings })[S.view]();
@@ -277,7 +277,7 @@
     if (S.view !== "orders") return;
     const d = S.orders.data;
     const head = `<div class="section-head"><h2>Do this now</h2>
-        <span class="small muted">${d ? `prices from the ${new Date((d.barTs + 3600) * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} hourly close · ${isPractice() ? "practice" : "real"} stack` : ""}</span>
+        <span class="small muted">${d ? `prices from the ${new Date((d.barTs + 3600) * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} hourly close` : ""}</span>
         <span class="spacer"></span>
         ${S.orders.loading ? `<span class="small muted"><span class="spinner"></span> ${esc(S.orders.progress)}</span>` : ""}
         <button class="btn sm" id="orders-refresh" ${S.orders.loading ? "disabled" : ""}>Refresh</button></div>
@@ -295,9 +295,19 @@
         ${icon(h.itemId)}
         <div style="min-width:0"><div class="name" data-item="${h.itemId}">${esc(h.name || itemName(h.itemId))}</div>
           <div class="line">You hold ${U.full(h.qty)} @ ${U.full(Math.round(h.avgCost))} · held ${U.duration(h.heldHours)}</div></div>
-        <div class="right"><div class="advice ${h.act.tone}" style="max-width:260px">${esc(h.act.label)}</div></div>
-        <div class="actions">${h.act.price ? `<button class="btn sm primary ${isPractice() ? "practice" : ""}" data-order-sell="${h.itemId}" data-price="${h.act.price}">${h.act.action === "cut" ? "I sold it" : "I listed it"}</button>` : ""}</div>
+        <div class="right"></div>
+        <div class="advice ${h.act.tone}" style="grid-column:2 / -1">${esc(h.act.label)}</div>
+        <div class="actions">${h.act.price ? (h.act.action === "cut"
+          ? `<button class="btn sm primary" data-log-trade="1" data-item-id="${h.itemId}" data-side="sell" data-qty="${h.qty}" data-price="${h.act.price}">I sold it</button>`
+          : `<button class="btn sm primary" data-order-sell="${h.itemId}" data-price="${h.act.price}">I listed it</button>
+             <button class="btn sm" data-log-trade="1" data-item-id="${h.itemId}" data-side="sell" data-qty="${h.qty}" data-price="${h.act.price}">Already sold</button>`) : ""}</div>
       </div>`).join("");
+    const openRows = L.openOffers(ledger()).sort((a, b) => a.placedAt - b.placedAt).map((o) => `<div class="row" style="padding:8px 0;border-top:1px solid var(--border)">
+        <span class="side ${o.side}">${o.side.toUpperCase()}</span>
+        <span class="grow"><b data-item="${o.itemId}" style="cursor:pointer">${esc(itemName(o.itemId))}</b>
+          <span class="small muted">${U.full(o.filled)}/${U.full(o.qty)} @ ${U.full(o.price)} · ${U.ago(o.placedAt)}</span></span>
+        <button class="btn sm" data-fill="${o.id}">Record fill</button>
+        <button class="btn sm danger" data-cancel="${o.id}">${o.filled ? "Close" : "Cancel"}</button></div>`).join("");
     const buyRows = plan.map((r) => `<div class="pick">
         ${icon(r.id)}
         <div style="min-width:0"><div class="name" data-item="${r.id}">${esc(r.name)}</div>
@@ -312,6 +322,8 @@
           <button class="btn sm" data-cancel="${o.id}">Cancelled it</button></div>`).join("")}</div>` : ""}
       <div class="section-head"><h2>Your items</h2><span class="small muted">${holds.length ? "sell, hold or cut" : ""}</span></div>
       <div class="card">${sellRows || `<div class="empty-state">Nothing held.</div>`}</div>
+      <div class="section-head"><h2>Your open GE offers</h2><span class="small muted">update these when they fill</span></div>
+      <div class="card">${openRows || `<div class="empty-state">No open offers recorded.</div>`}</div>
       <div class="section-head"><h2>New buy offers</h2><span class="small muted">${plan.length} for ${d.cap.slotsFree} free slots · ${U.gp(d.plan.deployUsed)} of ${U.gp(d.cap.deployable)} free gp${d.ctx.mkt_ret_24h < -0.03 ? " · market falling: half size" : ""}</span></div>
       <div class="card">${buyRows || `<div class="empty-state">${d.cap.slotsFree ? "Nothing worth buying right now — the model only trades when the edge clears tax and risk." : "All GE slots are busy."}</div>`}</div>`;
   }
@@ -597,8 +609,8 @@
       <div class="suggest hidden" id="t-suggest"></div>
       <div class="seg" style="margin-bottom:10px"><button data-side="buy" class="${side === "buy" ? "on" : ""}">Bought</button><button data-side="sell" class="${side === "sell" ? "on" : ""}">Sold</button></div>
       <div class="grid2">
-        <label class="field">Price each<input id="t-price" inputmode="decimal" placeholder="e.g. 1.2k"></label>
-        <label class="field">Quantity<input id="t-qty" inputmode="decimal"></label>
+        <label class="field">Price each<input id="t-price" inputmode="decimal" placeholder="e.g. 1.2k" value="${pre.price || ""}"></label>
+        <label class="field">Quantity<input id="t-qty" inputmode="decimal" value="${pre.qty || ""}"></label>
       </div>
       <label class="field">When<input id="t-when" type="datetime-local" value="${local}"></label>
       <div class="row"><span class="spacer"></span><button class="btn" data-close>Cancel</button><button class="btn primary" id="t-save">Save trade</button></div>`,
@@ -613,6 +625,7 @@
         if (!itemId) return toast("Pick an item first");
         if (!(price > 0) || !(qty > 0)) return toast("Enter a price and quantity");
         L.addTrade(ledger(), { itemId, side, qty, price, ts });
+        if (S.orders.data && side === "sell") S.orders.data.holds = S.orders.data.holds.filter((h) => h.itemId !== itemId);
         save(); close(); renderAll(); toast("Trade logged");
       });
     });
@@ -758,11 +771,11 @@
       if (d.place) { document.querySelectorAll(".overlay").forEach((o) => o.remove()); placeFromRec(+d.place); return; }
       if (d.fill) return fillDialog(d.fill);
       if (d.editOffer) return offerDialog({ offerId: d.editOffer });
-      if (d.cancel) { L.cancelOffer(ledger(), d.cancel); save(); renderAll(); return; }
+      if (d.cancel) { L.cancelOffer(ledger(), d.cancel); save(); renderAll(); if (S.view === "orders") renderOrders(); return; }
       if (d.newOffer) return offerDialog({});
       if (d.sell) return sellFromHolding(+d.sell);
       if (d.alch) return alchHolding(+d.alch);
-      if (d.logTrade) return tradeDialog({ itemId: d.itemId ? +d.itemId : null, side: d.side });
+      if (d.logTrade) return tradeDialog({ itemId: d.itemId ? +d.itemId : null, side: d.side, qty: d.qty, price: d.price });
       if (d.delTrade) {
         if (confirm("Delete this trade?")) { L.removeTrade(ledger(), d.delTrade); save(); renderAll(); }
         return;
@@ -819,6 +832,7 @@
   function init() {
     bind();
     renderAll();
+    S.state.mode = "real";
     fetchBot();
     refresh();
     restartTimer();

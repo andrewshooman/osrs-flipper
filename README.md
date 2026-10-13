@@ -10,7 +10,24 @@ after tax.
 
 ---
 
-## Run it
+## Run it on your PC (bot + app, keeps running without any cloud session)
+
+1. Install **Python 3.11+** from https://www.python.org/downloads/. On Windows, tick
+   **"Add python.exe to PATH"** during setup.
+2. On this repo's GitHub page: **Code → Download ZIP**. Unzip it anywhere, for example
+   `D:\GE-Flipper` if you'd rather keep it off the C drive.
+3. **Windows:** double-click **`Start GE Flipper.bat`**. **Mac/Linux:** run `./start.sh`.
+
+The first run installs the Python packages and downloads the validated model (about 7 MB).
+Then the paper-trading bot trades a mock 11M stack against the live GE every 5 minutes, and
+your browser opens **http://localhost:8765**. The **Bot** tab shows this bot, and **Orders**
+shows what to buy, sell, hold or cut for your own stack.
+
+Leave the window open to keep it running; close it to stop, and run it again to resume. The
+bot's data lives in `bot-data/` inside that folder. No real gold is traded and nothing touches
+the game client.
+
+## Run it (app only)
 
 It's a static web app with **no build step**.
 

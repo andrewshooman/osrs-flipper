@@ -9,8 +9,11 @@
 
   OSF.config = {
     API_BASE: "https://prices.runescape.wiki/api/v1/osrs",
-    // Published by research/live.py (paper-trading bot) to the repo's `live` branch.
-    BOT_STATE_URL: "https://raw.githubusercontent.com/andrewshooman/osrs-flipper/live/state.json",
+    // Paper-trading bot state. Served locally by research/run_bot.py when the app
+    // runs on your own computer; otherwise the copy published to the `live` branch.
+    BOT_STATE_URL: typeof location !== "undefined" && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)
+      ? "bot-data/live/state.json"
+      : "https://raw.githubusercontent.com/andrewshooman/osrs-flipper/live/state.json",
 
     // Grand Exchange tax (since 29 May 2025): 2% of the sell price, per item,
     // rounded down, capped at 5M per item. A handful of items are exempt.
