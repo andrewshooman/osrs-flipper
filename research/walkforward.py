@@ -46,6 +46,11 @@ ROUNDS = {
         "prod_checkin3_minret8": {**PROD, "checkin_hours": CHECKINS, "min_exp_ret": 0.008},
         "prod_checkin2": {**PROD, "checkin_hours": [12, 23]},
     }, ["prod_checkin3"]),
+    # Round 4: same strategies, model retrained on labels that match them (see --wait-h).
+    "r4": ({
+        "prod_hourly": PROD,
+        "prod_checkin3": {**PROD, "checkin_hours": CHECKINS},
+    }, ["prod_hourly", "prod_checkin3"]),
 }
 
 
@@ -58,7 +63,9 @@ def main():
     ap.add_argument("--rounds", type=int, default=200)
     ap.add_argument("--min-trade-frac", type=float, default=0.2)
     ap.add_argument("--share", type=float, default=0.10)
-    ap.add_argument("--round", default="r2", choices=["r2", "r3"])
+    ap.add_argument("--round", default="r2", choices=["r2", "r3", "r4"])
+    ap.add_argument("--wait-h", type=float, default=2.0, help="label: how long the bid may wait to fill")
+    ap.add_argument("--hold-h", type=float, default=24.0, help="label: max hold before dumping")
     ap.add_argument("--before", default=None, help="only use hourly data before this date (YYYY-MM-DD)")
     ap.add_argument("--out", default=str(ROOT / "reports" / "walkforward.json"))
     a = ap.parse_args()
@@ -75,7 +82,7 @@ def main():
     bars_day = int(86400 // P.step)
     print(f"panel {P.T} bars x {P.N} items", flush=True)
     F = features_chunked(P)
-    Y, Q = labels_chunked(P)
+    Y, Q = labels_chunked(P, wait_h=a.wait_h, hold_h=a.hold_h)
     names = sorted(F)
     mask = candidate_mask(P, F)
     embargo = int((2 + 24) * 3600 // P.step) + 1
@@ -88,7 +95,8 @@ def main():
         tm = mask.copy()
         tm[start - embargo:] = False
         # Trained fold models are cached: variant re-runs only re-simulate.
-        cache = ROOT / "models" / "wf-cache" / f"{a.min_trade_frac}-{a.rounds}-{int(P.ts[start])}"
+        lab = "" if (a.wait_h, a.hold_h) == (2.0, 24.0) else f"-w{a.wait_h:g}h{a.hold_h:g}"
+        cache = ROOT / "models" / "wf-cache" / f"{a.min_trade_frac}-{a.rounds}{lab}-{int(P.ts[start])}"
         if (cache / "meta.json").exists():
             from train import FlipModel
             model = FlipModel.load(cache)
