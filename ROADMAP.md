@@ -33,6 +33,9 @@ Record results in HANDOFF.md.
   every 2 minutes while logged in; notification, chat line, panel list, `fp` search
   and price hint.
 - 0.6.0: renamed to GE Tycoon (plugin, web app, standalone repo); GE search code `gt`.
+- 0.6.1: optional Venmo support link (panel, web app, READMEs; everything stays free);
+  Skip suggestion and Price graph keybinds (no fill-in key: RuneLite rejects plugins that
+  put text into the chatbox).
 - Re-pricing stale buys instead of cancelling them: tested in the 5-minute replay
   (r13), no gain (worse at a 5% share), so not shipped. See HANDOFF.md.
 

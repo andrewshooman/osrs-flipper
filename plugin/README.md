@@ -39,6 +39,7 @@ GE Tycoon brings the model behind the GE Tycoon web app (https://andrewshooman.g
 - **What to do with what you hold.** For each item you hold, the panel says list at a price, hold (with the breakeven price), sell now, or cut.
 - **Help in the GE:**
   - **Search:** type `gt` in the GE item search to list the suggested items.
+  - **Keybinds (optional):** set a *Skip suggestion key* and a *Price graph key* in the settings. They only work the plugin's own buttons; nothing is typed into the game.
   - **Price and quantity:** when the price or quantity box is open, a line in the chatbox shows the suggested number, for example *"GE Tycoon suggests: buy at 1,234 gp each"*. You type it in yourself. RuneLite doesn't allow plugins to type into the chatbox.
 - **Trade tracking.** Every GE offer you make is recorded with its fills and average prices, including fills that happened while you were logged out. Your profit after tax shows in the panel.
 - **Permanent history on your PC.** Trades are saved as you make them in RuneLite's data folder for the plugin: `.runelite/plugin-data/ge-tycoon/` in your home folder. **Export trades…** at the bottom of the panel saves a copy anywhere you choose (for example `D:\GE-Tycoon`). The web app's **Import RuneLite** button reads either file. If you tested the plugin under its earlier name, Flip Planner, move your files from `.runelite/plugin-data/flip-planner/` to `.runelite/plugin-data/ge-tycoon/`.
@@ -98,6 +99,10 @@ On Mac or Linux, run `start-runelite-ge-tycoon.sh` instead of the `.bat`.
       `%USERPROFILE%\.runelite\plugin-data\ge-tycoon\account-<number>.json`, counted once?
 
 To build `ge-tycoon.jar` yourself, you need JDK 11 or newer. Run `./gradlew jar` here, and the jar is in `build/libs/`.
+
+## Support
+
+GE Tycoon is free, and every feature stays free. If it makes you gp and you'd like to say thanks, you can send a tip on Venmo: [@Andrew-Shooman](https://venmo.com/u/Andrew-Shooman). Entirely optional.
 
 ## Development
 

@@ -45,6 +45,8 @@ import net.runelite.client.chat.ChatMessageBuilder;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.input.KeyManager;
+import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
@@ -125,6 +127,8 @@ public class GeTycoonPlugin extends Plugin
 	@Inject
 	private ConfigManager configManager;
 	@Inject
+	private KeyManager keyManager;
+	@Inject
 	private ChatMessageManager chatMessageManager;
 
 	private final Object lock = new Object();
@@ -200,12 +204,7 @@ public class GeTycoonPlugin extends Plugin
 			@Override
 			public void skip()
 			{
-				NextAction a = overlayState.action;
-				if (a != null && a.type == NextAction.Type.BUY)
-				{
-					skipped.add(a.itemId);
-					updateNext();
-				}
+				skipSuggestion();
 			}
 
 			@Override
@@ -242,6 +241,8 @@ public class GeTycoonPlugin extends Plugin
 		tooltipOverlay.setSources(() -> config.itemTooltips() && !paused ? tips : Collections.emptyMap(), () -> overlayState.slots);
 		overlayManager.add(tooltipOverlay);
 		overlayManager.add(gpDrop);
+		keyManager.registerKeyListener(skipHotkey);
+		keyManager.registerKeyListener(graphHotkey);
 		// New hourly prices land a few minutes after the hour; check every 5 minutes.
 		ticker = scheduler.scheduleWithFixedDelay(() -> refresh(false), 5, 300, TimeUnit.SECONDS);
 		// The wiki publishes a 5-minute bucket about a minute after it ends: checking every 2 minutes is plenty.
@@ -287,6 +288,8 @@ public class GeTycoonPlugin extends Plugin
 		overlayManager.remove(overlay);
 		overlayManager.remove(tooltipOverlay);
 		overlayManager.remove(gpDrop);
+		keyManager.unregisterKeyListener(skipHotkey);
+		keyManager.unregisterKeyListener(graphHotkey);
 		shortcuts.setAdvice(null);
 		clientToolbar.removeNavigation(nav);
 		saveNow();
@@ -852,6 +855,42 @@ public class GeTycoonPlugin extends Plugin
 		});
 		return a;
 	}
+
+	/** Skips the suggested buy (button or key): the next action moves on to another item. */
+	private void skipSuggestion()
+	{
+		NextAction a = overlayState.action;
+		if (a != null && a.type == NextAction.Type.BUY)
+		{
+			skipped.add(a.itemId);
+			updateNext();
+		}
+	}
+
+	// Keybinds only trigger the plugin's own actions; nothing is typed or sent to the game.
+	private final HotkeyListener skipHotkey = new HotkeyListener(() -> config.skipKey())
+	{
+		@Override
+		public void hotkeyPressed()
+		{
+			skipSuggestion();
+		}
+	};
+
+	private final HotkeyListener graphHotkey = new HotkeyListener(() -> config.graphKey())
+	{
+		@Override
+		public void hotkeyPressed()
+		{
+			NextAction a = overlayState.action;
+			if (a != null && a.itemId > 0)
+			{
+				Double[] marks = graphMarks(a.itemId);
+				String name = a.name != null ? a.name : advisor.names().getOrDefault(a.itemId, "Item " + a.itemId);
+				openGraph(client.getCanvas(), a.itemId, name, marks[0], marks[1]);
+			}
+		}
+	};
 
 	/** Adds an item to the "Never suggest" setting and re-plans. Swing thread. */
 	private void blockItem(String name)

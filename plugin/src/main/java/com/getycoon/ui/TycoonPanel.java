@@ -21,6 +21,7 @@ import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.materialtabs.MaterialTab;
 import net.runelite.client.ui.components.materialtabs.MaterialTabGroup;
+import net.runelite.client.util.LinkBrowser;
 import net.runelite.client.util.QuantityFormatter;
 
 /** The GE Tycoon side panel. Rebuilt from a {@link PanelModel} on the Swing thread. */
@@ -135,7 +136,11 @@ public class TycoonPanel extends PluginPanel
 		export.setFocusable(false);
 		export.setToolTipText("Save a copy of your trade history anywhere, e.g. on another drive");
 		export.addActionListener(e -> actions.export());
-		add(export, BorderLayout.SOUTH);
+		JPanel south = new JPanel(new BorderLayout(0, 4));
+		south.setOpaque(false);
+		south.add(export, BorderLayout.NORTH);
+		south.add(supportLink(), BorderLayout.SOUTH);
+		add(south, BorderLayout.SOUTH);
 		show(new PanelModel());
 	}
 
@@ -148,6 +153,27 @@ public class TycoonPanel extends PluginPanel
 		pause.setText(paused ? "Resume" : "Pause");
 		next.revalidate();
 		next.repaint();
+	}
+
+	/** GE Tycoon is free; this optional link opens the author's Venmo page in the browser. */
+	static final String SUPPORT_URL = "https://venmo.com/u/Andrew-Shooman";
+
+	private static JLabel supportLink()
+	{
+		JLabel l = new JLabel("<html>Free to use · <u>support on Venmo</u></html>", SwingConstants.CENTER);
+		l.setFont(FontManager.getRunescapeSmallFont());
+		l.setForeground(ColorScheme.LIGHT_GRAY_COLOR);
+		l.setToolTipText("Optional: if GE Tycoon makes you gp, you can say thanks on Venmo (@Andrew-Shooman). Nothing is locked.");
+		l.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+		l.addMouseListener(new java.awt.event.MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent e)
+			{
+				LinkBrowser.browse(SUPPORT_URL);
+			}
+		});
+		return l;
 	}
 
 	private void popup(JPanel card, int itemId, String name, Double buy, Double sell, boolean blockable)
