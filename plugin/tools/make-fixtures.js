@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ============================================================
-   Parity fixtures for the plugin's Java engine (com.flipplanner.engine), produced
+   Parity fixtures for the plugin's Java engine (com.getycoon.engine), produced
    by running the web app's own JS modules (loaded as tests/run.js does) on
    seeded synthetic inputs. The JUnit tests replay every case through the Java
    port and require the same numbers and strings.
@@ -8,7 +8,7 @@
      TZ=UTC node plugin/tools/make-fixtures.js           # (re)write the fixtures
      TZ=UTC node plugin/tools/make-fixtures.js --check   # exit 1 if they drifted from the JS
 
-   Output: plugin/src/test/resources/com/flipplanner/fixtures/*.json. Non-finite
+   Output: plugin/src/test/resources/com/getycoon/fixtures/*.json. Non-finite
    numbers and -0 are written as the strings "NaN", "Infinity", "-Infinity", "-0".
    ============================================================ */
 "use strict";
@@ -17,7 +17,7 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.join(__dirname, "..", "..");
-const OUT = path.join(ROOT, "plugin", "src", "test", "resources", "com", "flipplanner", "fixtures");
+const OUT = path.join(ROOT, "plugin", "src", "test", "resources", "com", "getycoon", "fixtures");
 const CHECK = process.argv.includes("--check");
 
 global.window = {};

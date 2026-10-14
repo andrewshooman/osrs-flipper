@@ -1,5 +1,5 @@
 /* ============================================================
-   OSRS FLIPPER — orchestration: fetch → screen → deepen → estimate → allocate,
+   GE TYCOON — orchestration: fetch → screen → deepen → estimate → allocate,
    and the practice-offer fill simulator loop.
    ============================================================ */
 (function (OSF) {

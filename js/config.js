@@ -1,5 +1,5 @@
 /* ============================================================
-   OSRS FLIPPER — constants & default settings
+   GE TYCOON — constants & default settings
    Every module attaches to window.OSF so the app runs from a plain
    <script> tag (works when index.html is opened directly from disk)
    and loads under Node for the test harness.

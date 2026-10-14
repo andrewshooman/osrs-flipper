@@ -72,17 +72,17 @@
     await idbSet(handle);
     set("ok");
   }
-  /** New file (Save dialog: pick any folder, e.g. D:\GE-Flipper). */
+  /** New file (Save dialog: pick any folder, e.g. D:\GE-Tycoon). */
   async function create() {
     const h = await W.showSaveFilePicker({
-      suggestedName: "ge-flipper-trades.json",
-      types: [{ description: "GE Flipper trades", accept: { "application/json": [".json"] } }],
+      suggestedName: "ge-tycoon-trades.json",
+      types: [{ description: "GE Tycoon trades", accept: { "application/json": [".json"] } }],
     });
     await adopt(h);
   }
   /** An existing file, e.g. after reinstalling the browser or on a new PC. */
   async function openExisting() {
-    const [h] = await W.showOpenFilePicker({ types: [{ description: "GE Flipper trades", accept: { "application/json": [".json"] } }] });
+    const [h] = await W.showOpenFilePicker({ types: [{ description: "GE Tycoon trades", accept: { "application/json": [".json"] } }] });
     await adopt(h);
   }
   async function reconnect() {

@@ -1,5 +1,5 @@
 /* ============================================================
-   OSRS FLIPPER — recommendation model
+   GE TYCOON — recommendation model
 
    Pipeline (each stage is a pure function, so every number is explainable):
      1. screen()    — cheap pass over the whole market using bulk endpoints:

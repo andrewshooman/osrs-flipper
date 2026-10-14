@@ -1,5 +1,7 @@
 # Handoff: where the project stands and what comes next
 
+*The tool is called **GE Tycoon** (web app and RuneLite plugin) since 2026-10-14. Before that the web app was "GE Flipper" and the plugin "Flip Planner". The main repo keeps its URL, `andrewshooman/osrs-flipper`.*
+
 *Last updated: 2026-10-13, 22:45 UTC.*
 
 **Goal:** use the GE tool to make the user coins by **flipping**: buying and
@@ -24,10 +26,11 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   - **Trade file on your PC** (Settings): the File System Access API keeps a JSON copy
     of everything in a file the user picks (Chrome/Edge). The app restores from it if
     browser storage is cleared (`js/tradefile.js`).
-  - **Import RuneLite** reads the GE Flipper plugin's trade file or a Flipping
+  - **Import RuneLite** reads the plugin's trade file or a Flipping
     Utilities save.
-- **RuneLite plugin "Flip Planner"** (`plugin/`; first test build `plugin-v0.1.0` was
-  still called GE Flipper, a name already taken on the Plugin Hub; renamed in 0.1.1):
+- **RuneLite plugin "GE Tycoon"** (`plugin/`, package `com.getycoon`). Earlier names: the
+  first test build `plugin-v0.1.0` was "GE Flipper" (taken on the Plugin Hub), then
+  "Flip Planner" from 0.1.1, then "GE Tycoon" from 0.6.0:
   - The Java engine (`engine/`) is a bit-identical port of the JS, checked by fixtures
     generated from the JS (`plugin/tools/make-fixtures.js --check` in CI).
   - `OfferTracker` and `TradeStore` keep a permanent per-account trade file in the
@@ -35,18 +38,18 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   - Side panel. GE help: a chatbox line shows the suggested price or quantity, which
     the player types in (the Plugin Hub forbids inserting chatbox text), plus the
     `fp` search code. 0.2.0 is Hub-ready:
-    - files go through RuneLite's `Filepath`, in `.runelite/plugin-data/flip-planner`,
+    - files go through RuneLite's `Filepath`, in `.runelite/plugin-data/ge-tycoon`,
       with an Export button
     - it uses the injected Gson and OkHttp, and makes no `Thread.interrupt` calls
-    - `internalName = flip-planner`, BSD-2 LICENSE, `icon.png`, `build=standard`
+    - `internalName = ge-tycoon`, BSD-2 LICENSE, `icon.png`, `build=standard`
   - It runs through `Launcher` with the player's own RuneLite install (`plugin/dist`
     start scripts) until it's on the Plugin Hub.
   - 0.3.0 added Copilot-style help: one next action at a time (collect, cancel, sell,
     buy, wait) with Skip and Pause, GE highlights and slot timers, notifications,
     a Stats tab, 7-day price graphs, sell-only mode and a block list.
   - 0.3.1: session profit per hour, optional game-chat messages with profit after tax.
-  - **Plugin Hub:** standalone repo `andrewshooman/flip-planner` (a copy of `plugin/`
-    made by `plugin/tools/sync-standalone.py`); the submission is branch `flip-planner`
+  - **Plugin Hub:** standalone repo `andrewshooman/ge-tycoon` (renamed from `flip-planner`; a copy of `plugin/`
+    made by `plugin/tools/sync-standalone.py`); the submission is runelite/plugin-hub#18515, from branch `flip-planner`
     of the user's fork `andrewshooman/plugin-hub`. The user opens the PR to
     runelite/plugin-hub from that branch; pushing the branch updates it.
   - **What's next for the plugin: `ROADMAP.md`.**
@@ -182,7 +185,7 @@ logging. Nothing places offers automatically, because that gets accounts banned.
 - **Walk-forward model cache:** `research/models/wf-cache/` holds the trained
   fold models. Re-running strategy variants with the same label settings only
   re-simulates (about 10 minutes, versus about 50 when training).
-- **Durable option:** the user's PC (`Start GE Flipper.bat`, see the README).
+- **Durable option:** the user's PC (`Start GE Tycoon.bat`, see the README).
 
 ## Next steps
 1. **The model looks well tuned for this data.** Different labels (r4), tree

@@ -1,5 +1,5 @@
 /* ============================================================
-   OSRS FLIPPER — ledger: trades, GE offers, FIFO profit, buy limits, capital
+   GE TYCOON — ledger: trades, GE offers, FIFO profit, buy limits, capital
 
    There are two independent ledgers with identical shape — "practice" (mock
    trades, simulated fills) and "real". Nothing here touches storage or the
@@ -223,16 +223,16 @@
     }
     return out.sort((a, b) => a.ts - b.ts);
   }
-  // ---- RuneLite: the Flip Planner plugin's trade file --------------------------
-  // (called GE Flipper in its first test build). <data folder>/<account>.json holds the plugin's ledger in this app's shape:
+  // ---- RuneLite: the GE Tycoon plugin's trade file --------------------------
+  // (app id "flip-planner-plugin" before the rename, "ge-flipper-plugin" in its first test build). <data folder>/<account>.json holds the plugin's ledger in this app's shape:
   // trades (fills, each with offerId) and offers (status open/done/cancelled).
   // Each finished offer becomes one imported offer at its average fill price,
   // so it lines up with an offer logged here and offers still running wait.
-  const PLUGIN_APPS = new Set(["flip-planner-plugin", "ge-flipper-plugin"]);
-  function fromGeFlipperPlugin(data) {
+  const PLUGIN_APPS = new Set(["ge-tycoon-plugin", "flip-planner-plugin", "ge-flipper-plugin"]);
+  function fromPluginFile(data) {
     const lg = data && data.ledger;
     if (!data || !PLUGIN_APPS.has(data.app) || !lg || !Array.isArray(lg.trades) || !Array.isArray(lg.offers))
-      throw new Error("Not a Flip Planner plugin trade file");
+      throw new Error("Not a GE Tycoon plugin trade file");
     const fills = new Map();
     const out = [];
     for (const t of lg.trades) {
@@ -250,8 +250,8 @@
     }
     return out.sort((a, b) => a.ts - b.ts);
   }
-  /** Either RuneLite file: the Flip Planner plugin's or Flipping Utilities'. */
-  const fromRuneLite = (data) => (data && PLUGIN_APPS.has(data.app) ? fromGeFlipperPlugin(data) : fromFlippingUtilities(data));
+  /** Either RuneLite file: the GE Tycoon plugin's or Flipping Utilities'. */
+  const fromRuneLite = (data) => (data && PLUGIN_APPS.has(data.app) ? fromPluginFile(data) : fromFlippingUtilities(data));
 
   /**
    * Adds imported offers to the ledger. Each fills the matching open offer you logged
@@ -284,6 +284,6 @@
   OSF.ledger = {
     emptyLedger, positions, buyLimitUsage, remainingLimit, openOffers, capital,
     addTrade, removeTrade, placeOffer, fillOffer, cancelOffer, stats, toCSV, fromCSV, dayKey,
-    fromFlippingUtilities, fromGeFlipperPlugin, fromRuneLite, importOffers,
+    fromFlippingUtilities, fromPluginFile, fromRuneLite, importOffers,
   };
 })(window.OSF = window.OSF || {});

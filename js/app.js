@@ -356,7 +356,7 @@
       <div class="section-head"><h2>Your items</h2><span class="small muted">${holds.length ? "sell, hold or cut" : ""}</span></div>
       <div class="card">${sellRows || `<div class="empty-state">Nothing held.</div>`}</div>
       <div class="section-head"><h2>Your open GE offers</h2><span class="small muted">update these when they fill</span><span class="spacer"></span>
-        <label class="btn sm" title="Import finished GE offers from RuneLite: the Flip Planner plugin or Flipping Utilities">Import RuneLite<input type="file" accept=".json,application/json" class="import-fu" hidden></label></div>
+        <label class="btn sm" title="Import finished GE offers from RuneLite: the GE Tycoon plugin or Flipping Utilities">Import RuneLite<input type="file" accept=".json,application/json" class="import-fu" hidden></label></div>
       <div class="card">${openRows || `<div class="empty-state">No open offers recorded.</div>`}</div>
       ${plan.length ? `<div class="card" style="margin-top:12px"><b class="good">${U.gp(U.sum(plan.map((r) => r.expected)), { plus: true })}</b> expected if these buy orders fill and sell,
         using ${U.gp(d.plan.deployUsed)}. Check back in about ${U.duration(Math.min(6, Math.max(...plan.map((r) => r.hours))))}
@@ -545,7 +545,7 @@
 
   function tradeFileCard() {
     const st = TF.T.status;
-    const intro = `<p class="small secondary" style="margin-top:0">Keep a copy of every trade in a file on your computer, on any drive (for example <b>D:\\GE-Flipper</b>). It's rewritten every time you log something, and if this browser's data is ever cleared, the app loads your trades back from it.</p>`;
+    const intro = `<p class="small secondary" style="margin-top:0">Keep a copy of every trade in a file on your computer, on any drive (for example <b>D:\\GE-Tycoon</b>). It's rewritten every time you log something, and if this browser's data is ever cleared, the app loads your trades back from it.</p>`;
     if (st === "unsupported")
       return `<div class="card">${intro}<p class="small" style="margin-bottom:0">This browser can't save to a file by itself. That works in <b>Chrome</b> or <b>Edge</b> on a computer. Here, use <b>Export backup</b> below now and then.</p></div>`;
     if (st === "off")
@@ -912,8 +912,8 @@
         case "orders-refresh": return loadOrders();
         case "refresh": case "retry": return refresh({ force: true });
         case "sync": return refresh({ quiet: true });
-        case "export-csv": return download(`ge-flipper-${S.state.mode}-trades.csv`, L.toCSV(ledger(), S.items), "text/csv");
-        case "export-json": return download(`ge-flipper-backup-${new Date().toISOString().slice(0, 10)}.json`, ST.exportJSON(S.state), "application/json");
+        case "export-csv": return download(`ge-tycoon-${S.state.mode}-trades.csv`, L.toCSV(ledger(), S.items), "text/csv");
+        case "export-json": return download(`ge-tycoon-backup-${new Date().toISOString().slice(0, 10)}.json`, ST.exportJSON(S.state), "application/json");
         case "reset-practice":
           if (confirm("Delete all practice trades and offers?")) { S.state.ledgers.practice = L.emptyLedger(); save(); renderAll(); refresh({ quiet: true }); }
           return;

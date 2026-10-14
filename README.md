@@ -1,4 +1,4 @@
-# GE Flipper
+# GE Tycoon
 
 **A Grand Exchange trading assistant for Old School RuneScape.** A machine-learning
 model picks what to buy, at what price and how many. It then tells you when to sell,
@@ -29,7 +29,7 @@ Prices come straight from the
 Trades, offers and settings are saved in your browser (`localStorage`).
 
 **Keep your trade history on your PC.** In **Settings → Trade file on your PC**, tap
-**Save trades to a file…** and pick a folder on any drive (for example `D:\GE-Flipper`).
+**Save trades to a file…** and pick a folder on any drive (for example `D:\GE-Tycoon`).
 From then on, every trade or offer you log is written to that file straight away.
 If the browser's data is ever cleared, or you set the app up again, tap
 **Use an existing file…** and your history comes back. This works in Chrome and Edge
@@ -58,7 +58,7 @@ The plan assumes you check in a few times a day, not every minute.
 
 ### Log trades automatically with RuneLite
 
-You don't have to type in your fills. The Flip Planner RuneLite plugin (download it from
+You don't have to type in your fills. The GE Tycoon RuneLite plugin (download it from
 [Releases](https://github.com/andrewshooman/osrs-flipper/releases); see `plugin/README.md`)
 or the free **Flipping Utilities** plugin records
 every GE offer you make:
@@ -155,8 +155,8 @@ prices. Start small and compare your Profit tab with the model's predictions.
 1. Install **Python 3.11+** from https://www.python.org/downloads/. On Windows, tick
    **"Add python.exe to PATH"** during setup.
 2. On this repo's GitHub page: **Code → Download ZIP**. Unzip it anywhere, for example
-   `D:\GE-Flipper` if you'd rather keep it off the C drive.
-3. **Windows:** double-click **`Start GE Flipper.bat`**. **Mac/Linux:** run `./start.sh`.
+   `D:\GE-Tycoon` if you'd rather keep it off the C drive.
+3. **Windows:** double-click **`Start GE Tycoon.bat`**. **Mac/Linux:** run `./start.sh`.
 
 The first run installs the Python packages and downloads the validated model (about 7 MB).
 Then the paper-trading bot trades a mock 11M stack against the live GE every 5 minutes, and

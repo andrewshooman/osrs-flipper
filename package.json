@@ -2,7 +2,7 @@
   "name": "osrs-flipper",
   "version": "0.1.0",
   "private": true,
-  "description": "GE Flipper — Grand Exchange flipping assistant. Static web app, no build step. The package manifest exists only to expose the Node test harness.",
+  "description": "GE Tycoon — Grand Exchange flipping assistant. Static web app, no build step. The package manifest exists only to expose the Node test harness.",
   "scripts": {
     "test": "node tests/run.js"
   },
