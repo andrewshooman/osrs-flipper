@@ -249,7 +249,7 @@ public class StatsPanel extends JPanel
 		text.add(line(squeezed(small(trade, ColorScheme.LIGHT_GRAY_COLOR)), small(ago(nowMs - c.sellTs), ColorScheme.LIGHT_GRAY_COLOR)));
 		card.add(text, BorderLayout.CENTER);
 		card.setToolTipText("<html>" + QuantityFormatter.formatNumber(c.qty) + " × " + QuantityFormatter.formatNumber(Math.round(c.buyPrice))
-			+ " → " + QuantityFormatter.formatNumber(c.sellPrice)
+			+ " → " + QuantityFormatter.formatNumber(Math.round(c.sellPrice))
 			+ "<br>" + signedFull(c.profit) + " (" + Fmt.pct(c.roi, 1) + ") after " + QuantityFormatter.formatNumber(Math.round(c.tax)) + " tax"
 			+ "<br>Held " + Fmt.duration(c.holdHours) + ", sold " + SOLD_AT.format(Instant.ofEpochMilli(c.sellTs).atZone(ZoneId.systemDefault()))
 			+ "</html>");

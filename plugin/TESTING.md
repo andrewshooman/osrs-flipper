@@ -5,8 +5,13 @@ feature once. You only need to note what's wrong: write down the section number 
 you saw (a screenshot helps).
 
 Start the client as in the README's *Testing it before it's on the Plugin Hub*, using the
-newest *GE Tycoon plugin* release. Leave every GE Tycoon setting at its default unless a
-step says otherwise.
+newest *GE Tycoon plugin* release. In GE Tycoon's settings, set *Stack (gp)* to your
+flipping stack if it isn't 11M. Leave everything else at its default unless a step says
+otherwise.
+
+Notifications: like RuneLite's own, they only pop up while RuneLite isn't the focused
+window, unless *Send notifications when focused* is on in RuneLite's *Notification
+settings*. While you play, the chat lines are what you'll see.
 
 For the test trade in section 4, pick something cheap that trades a lot, for example
 100 feathers or 1,000 air runes. You buy above the price and sell under it so both fill
@@ -44,8 +49,8 @@ At the GE, with at least one empty slot:
 ## 4. A test trade (8 min)
 Use the cheap item from the top of this page.
 - [ ] **Buy:** buy it at a few gp over its price so it fills straight away. You get a
-      notification and a chat line *"GE Tycoon: Bought …. Collect it and list it for
-      sale."* The slot turns blue. Collect it.
+      chat line *"GE Tycoon: Bought …. Collect it and list it for sale."* (and a
+      notification, see the top of this page). The slot turns blue. Collect it.
 - [ ] **Buy limit:** hover the item in your inventory. The tooltip shows what you paid,
       the breakeven and a line *"Buy limit: … of … left, resets in 3h 59m"*. Start a
       second buy of the same item and open **Enter quantity**: the same buy-limit line
@@ -53,12 +58,14 @@ Use the cheap item from the top of this page.
 - [ ] **Your items:** the item is listed with *"Worth … · +/-… (…%)"*, green for a
       profit and red for a loss, and a total for everything you hold.
 - [ ] **Sell:** sell it a few gp under its price so it fills straight away. You get a
-      notification, a chat line *"… for -… gp profit after tax"* and a red *"-… gp"*
-      floating at the right of the game view (gold when it's a profit).
+      chat line *"… for -… gp profit after tax"* (and a notification) and a red
+      *"-… gp"* floating at the right of the game view (gold when it's a profit).
 - [ ] **Collect to bank:** note the *Detected stack* line in *Profit*, then collect the
       coins with **Collect to bank** (not to the inventory). Within a few seconds the
       detected stack is back where it was, without opening the bank.
-- [ ] **Profit:** *Profit* in the panel and the **Stats** tab include the trade.
+- [ ] **Profit:** *Profit* in the panel and the **Stats** tab include the trade. The
+      loss should be what you really lost, to the gp: what you paid for the buy minus
+      what the sell brought in (the GE's *History* shows both totals).
 
 ## 5. Price graphs and tooltips (3 min)
 - [ ] Right-click any tradeable item in your inventory or bank. There's a
@@ -79,7 +86,7 @@ Use the cheap item from the top of this page.
       log back in. The offer is still tracked and its timer kept counting.
 - [ ] Your test trade from section 4 is counted once in *Profit*, not twice. It's also
       in `%USERPROFILE%\.runelite\plugin-data\ge-tycoon\account-<number>.json`.
-- [ ] Cancel the low buy.
+- [ ] Cancel the low buy. The card says *"Cancelled buy of …. Click Collect."* Collect it.
 
 ## 8. Optional, if you have time
 - [ ] **Dip alerts:** turn on **Dip alerts** (settings) and leave it on while you play.

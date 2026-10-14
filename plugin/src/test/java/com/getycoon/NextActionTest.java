@@ -45,6 +45,21 @@ public class NextActionTest
 	}
 
 	@Test
+	public void cancelledOffersSayCancelled()
+	{
+		NextAction.Input in = input();
+		in.slots[2] = slot(5, true, "CANCELLED_BUY", 100, 0, "o1");
+		NextAction a = NextAction.pick(in);
+		assertEquals(NextAction.Type.COLLECT, a.type);
+		assertTrue(a.detail, a.detail.startsWith("Cancelled buy of "));
+		assertTrue(a.detail, !a.detail.contains("("));
+		in.slots[2] = slot(5, false, "CANCELLED_SELL", 100, 40, "o1");
+		assertTrue(NextAction.pick(in).detail.contains("(40 sold)"));
+		in.slots[2] = slot(5, true, "BOUGHT", 100, 100, "o1");
+		assertTrue(NextAction.pick(in).detail.startsWith("Bought 100 "));
+	}
+
+	@Test
 	public void staleOrBlockingBuysAreCancelled()
 	{
 		NextAction.Input in = input();

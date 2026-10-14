@@ -42,6 +42,12 @@ Record results in HANDOFF.md.
   to free gp and what's left of the buy limit, a dip alert no longer lost during a model
   run, coins collected to a closed bank stay in the detected stack, no stacked chatbox
   hints, dip state reset when the plugin is turned off and on).
+- 0.7.1: fixes from a review for the first test session. The start scripts put the
+  current RuneLite jars first (RuneLite keeps older ones as patch sources) and use
+  RuneLite's own Java options (the Mac script now finds RuneLite's Java). Trades keep
+  the exact average price of each fill, so cheap items' profits are right to the gp.
+  Cancelled offers say "Cancelled" on the collect card. TESTING.md: notifications only
+  pop up while RuneLite isn't focused; set your stack first.
 - Re-pricing stale buys instead of cancelling them: tested in the 5-minute replay
   (r13), no gain (worse at a 5% share), so not shipped. See HANDOFF.md.
 

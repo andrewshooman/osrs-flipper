@@ -387,7 +387,7 @@ public class TycoonPanel extends PluginPanel
 				signed(m.sessionProfit / Math.max(m.sessionHours, 0.25))), Color.WHITE));
 		}
 		body.add(note("Today " + signed(m.profitToday) + " · all time " + signed(m.profitTotal)
-			+ " · " + m.flips + " flips" + (Double.isFinite(m.winRate) ? String.format(Locale.US, " · %.0f%% won", m.winRate * 100) : ""), Color.WHITE));
+			+ " · " + m.flips + (m.flips == 1 ? " flip" : " flips") + (Double.isFinite(m.winRate) ? String.format(Locale.US, " · %.0f%% won", m.winRate * 100) : ""), Color.WHITE));
 		if (!m.tradeFile.isEmpty())
 		{
 			JLabel saved = note("Trades are saved on your PC in .runelite / plugin-data / ge-tycoon. Export trades… makes a copy anywhere.", ColorScheme.LIGHT_GRAY_COLOR);
