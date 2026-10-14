@@ -1,5 +1,5 @@
 /* ============================================================
-   OSRS FLIPPER — persistence (localStorage) + JSON backup
+   GE TYCOON — persistence (localStorage) + JSON backup
    Data lives only in this browser. Use Settings → Export to back it up
    or move it between devices.
    ============================================================ */
@@ -43,7 +43,7 @@
   const exportJSON = (state) => JSON.stringify({ app: "osrs-flipper", exportedAt: new Date().toISOString(), ...state }, null, 1);
   function importJSON(text) {
     const parsed = JSON.parse(text);
-    if (!parsed || !parsed.ledgers) throw new Error("Not an OSRS Flipper backup");
+    if (!parsed || !parsed.ledgers) throw new Error("Not a GE Tycoon backup");
     return normalise(parsed);
   }
 

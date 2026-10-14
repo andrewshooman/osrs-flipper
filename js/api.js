@@ -1,5 +1,5 @@
 /* ============================================================
-   OSRS FLIPPER — OSRS Wiki real-time prices client
+   GE TYCOON — OSRS Wiki real-time prices client
    Docs: https://oldschool.runescape.wiki/w/RuneScape:Real-time_Prices
 
    Field meanings (wiki terminology):

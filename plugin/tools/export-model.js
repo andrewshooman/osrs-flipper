@@ -2,7 +2,7 @@
 /* ============================================================
    Writes the browser model (models/flip-model.js, which assigns
    window.OSF_MODEL) as plain JSON for the plugin:
-   plugin/src/main/resources/com/flipplanner/flip-model.json
+   plugin/src/main/resources/com/getycoon/flip-model.json
 
      node plugin/tools/export-model.js           # (re)write the resource
      node plugin/tools/export-model.js --check   # exit 1 if it is out of date
@@ -13,7 +13,7 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..", "..");
 const SRC = path.join(ROOT, "models", "flip-model.js");
-const OUT = path.join(ROOT, "plugin", "src", "main", "resources", "com", "flipplanner", "flip-model.json");
+const OUT = path.join(ROOT, "plugin", "src", "main", "resources", "com", "getycoon", "flip-model.json");
 
 global.window = {};
 require(SRC);

@@ -1,5 +1,5 @@
 /* ============================================================
-   OSRS FLIPPER — small helpers: GE tax, number formatting, statistics
+   GE TYCOON — small helpers: GE tax, number formatting, statistics
    ============================================================ */
 (function (OSF) {
   "use strict";

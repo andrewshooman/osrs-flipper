@@ -1,6 +1,6 @@
-"""Run GE Flipper on your own computer: the paper-trading bot + the app.
+"""Run GE Tycoon on your own computer: the paper-trading bot + the app.
 
-    python research/run_bot.py          (Windows: double-click "Start GE Flipper.bat")
+    python research/run_bot.py          (Windows: double-click "Start GE Tycoon.bat")
 
 - First run downloads the validated model from this repo's `live` branch.
 - The bot trades a mock 11M stack against the live GE every 5 minutes.
@@ -92,7 +92,7 @@ def main() -> None:
     bot = Live(DATA / "model", Config())
     serve()
     url = f"http://localhost:{PORT}/"
-    print(f"\nGE Flipper is running. App: {url}  (Bot tab = this bot)\nLeave this window open; close it to stop.\n", flush=True)
+    print(f"\nGE Tycoon is running. App: {url}  (Bot tab = this bot)\nLeave this window open; close it to stop.\n", flush=True)
     try:
         webbrowser.open(url)
     except Exception:

@@ -1,5 +1,5 @@
 /* ============================================================
-   OSRS FLIPPER — test harness (plain Node, no dependencies)
+   GE TYCOON — test harness (plain Node, no dependencies)
    Run with `node tests/run.js` (or `npm test`).
    Uses small synthetic markets — these test the arithmetic and the model's
    behaviour, not real prices.
@@ -307,7 +307,7 @@ function series(n, stepSec, fn, now = Date.now()) {
     let bad = false; try { L.fromFlippingUtilities({ foo: 1 }); } catch (e) { bad = true; }
     ok(bad, "rejects files that aren't Flipping Utilities saves");
 
-    // RuneLite import: the GE Flipper plugin's own trade file (same ledger shape as this app).
+    // RuneLite import: the GE Tycoon plugin's own trade file (same ledger shape as this app).
     const T0 = Date.parse("2026-10-13T10:00:00Z");
     const plug = { app: "ge-flipper-plugin", version: 1, ledger: {
       offers: [
@@ -331,8 +331,9 @@ function series(n, stepSec, fn, now = Date.now()) {
     const r2 = L.importOffers(pg, L.fromRuneLite(plug));
     eq(r2.added, 1, "the sell comes in once it's finished"); eq(r2.skipped, 1, "the buy isn't imported twice");
     eq(L.fromRuneLite(fu).length, 3, "fromRuneLite still reads Flipping Utilities files");
-    eq(L.fromRuneLite({ ...plug, app: "flip-planner-plugin" }).length, 2, "reads the plugin's file under its new name (Flip Planner)");
-    let badPlug = false; try { L.fromGeFlipperPlugin({ app: "other" }); } catch (e) { badPlug = true; }
+    eq(L.fromRuneLite({ ...plug, app: "ge-tycoon-plugin" }).length, 2, "reads the plugin's file under its new name (GE Tycoon)");
+    eq(L.fromRuneLite({ ...plug, app: "flip-planner-plugin" }).length, 2, "and under its previous name (Flip Planner)");
+    let badPlug = false; try { L.fromPluginFile({ app: "other" }); } catch (e) { badPlug = true; }
     ok(badPlug, "rejects files that aren't plugin trade files");
 
     // 7 GE slots by default (one left for your own trades); old saved defaults move once.
@@ -396,7 +397,7 @@ function series(n, stepSec, fn, now = Date.now()) {
 
     // Writes go through a FileSystemFileHandle; a fake one records them.
     const writes = [];
-    TF.T.handle = { name: "ge-flipper-trades.json", createWritable: async () => {
+    TF.T.handle = { name: "ge-tycoon-trades.json", createWritable: async () => {
       let buf = ""; return { write: async (t) => { buf += t; }, close: async () => { writes.push(buf); } };
     } };
     TF.T.status = "ok";
