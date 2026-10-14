@@ -179,4 +179,46 @@ public class StatsPanelTest
 		assertEquals("2d ago", StatsPanel.ago(50 * HOUR));
 		assertEquals("just now", StatsPanel.ago(-HOUR));
 	}
+
+	@Test
+	public void profitLineAddsUpFlipsInTimeOrderWithUnrealisedBelow() throws Exception
+	{
+		Ledger.Stats s = stats();
+		StatsPanel panel = new StatsPanel(null);
+		panel.show(s, names(), NOW, -12_345);
+		JPanel host = UiTestSupport.sidePanel(panel);
+		UiTestSupport.save(UiTestSupport.paint(host, PluginPanel.PANEL_WIDTH, host.getPreferredSize().height), "stats-line.png");
+		UiTestSupport.assertNoOverflow(host, PluginPanel.PANEL_WIDTH);
+		StatsPanel.ProfitLine line = UiTestSupport.find(panel, StatsPanel.ProfitLine.class);
+		assertNotNull(line);
+		assertEquals(0, line.total[0], 0);
+		assertEquals(s.profit, line.total[line.total.length - 1], 1e-6);
+		for (int i = 1; i < line.ts.length; i++)
+		{
+			assertTrue("time order", line.ts[i] >= line.ts[i - 1]);
+		}
+		assertTrue(UiTestSupport.texts(panel).stream().anyMatch(t -> t.contains("Plus -12,345 unrealised on the items you hold")));
+		String tip = line.getToolTipText(new MouseEvent(line, MouseEvent.MOUSE_MOVED, 0, 0, line.getWidth() - 5, 20, 0, false));
+		assertNotNull(tip);
+		assertTrue(tip, tip.contains(": "));
+	}
+
+	@Test
+	public void longHistoriesAreThinnedButKeepTheTotal()
+	{
+		List<Ledger.ClosedTrip> trips = new ArrayList<>(Ledger.stats(ledger(), ZONE, NOW).closed);
+		List<Ledger.ClosedTrip> many = new ArrayList<>();
+		for (int k = 0; k < 30; k++)
+		{
+			many.addAll(trips); // 1,200 trips
+		}
+		double sum = 0;
+		for (Ledger.ClosedTrip c : many)
+		{
+			sum += c.profit;
+		}
+		StatsPanel.ProfitLine line = StatsPanel.ProfitLine.of(many);
+		assertTrue("points " + line.total.length, line.total.length <= 402);
+		assertEquals(sum, line.total[line.total.length - 1], 1e-6);
+	}
 }
