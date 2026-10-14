@@ -36,6 +36,12 @@ Record results in HANDOFF.md.
 - 0.6.1: optional Venmo support link (panel, web app, READMEs; everything stays free);
   Skip suggestion and Price graph keybinds (no fill-in key: RuneLite rejects plugins that
   put text into the chatbox).
+- 0.7.0: buy-limit timers (tooltip and quantity box); portfolio-lite (worth now and
+  profit if sold per holding, with a total; a profit-over-time line in Stats);
+  `plugin/TESTING.md`, a 30-minute in-game checklist; review fixes (dip alerts sized
+  to free gp and what's left of the buy limit, a dip alert no longer lost during a model
+  run, coins collected to a closed bank stay in the detected stack, no stacked chatbox
+  hints, dip state reset when the plugin is turned off and on).
 - Re-pricing stale buys instead of cancelling them: tested in the 5-minute replay
   (r13), no gain (worse at a 5% share), so not shipped. See HANDOFF.md.
 
@@ -43,9 +49,9 @@ Record results in HANDOFF.md.
 1. **Weekly retrain.** Run `research/retrain.py`, export the model to
    `models/flip-model.js` and the plugin's `flip-model.json`, regenerate the parity
    fixtures, and release.
-2. **Keep iterating** on whatever the user reports from in-game testing. The GE
-   highlights, slot timers, tooltips, the menu option, the GP drop and dip alerts haven't been checked in-game
-   yet, so those reports come first.
+2. **Keep iterating** on whatever the user reports from in-game testing
+   (`plugin/TESTING.md`). Nothing since 0.3 has been checked in-game yet, so those
+   reports come first. The Plugin Hub entry stays on 0.6.0 until then.
 
 ## Rules to keep (RuneLite Plugin Hub)
 - Nothing types or clicks for the player. In particular, no inserting text into the

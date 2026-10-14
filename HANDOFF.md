@@ -2,7 +2,7 @@
 
 *The tool is called **GE Tycoon** (web app and RuneLite plugin) since 2026-10-14. Before that the web app was "GE Flipper" and the plugin "Flip Planner". The main repo keeps its URL, `andrewshooman/osrs-flipper`.*
 
-*Last updated: 2026-10-13, 22:45 UTC.*
+*Last updated: 2026-10-14, 05:10 UTC.*
 
 **Goal:** use the GE tool to make the user coins by **flipping**: buying and
 selling on the GE only. Decanting, processing and alching are money-making
@@ -37,7 +37,7 @@ logging. Nothing places offers automatically, because that gets accounts banned.
     web app's ledger shape.
   - Side panel. GE help: a chatbox line shows the suggested price or quantity, which
     the player types in (the Plugin Hub forbids inserting chatbox text), plus the
-    `fp` search code. 0.2.0 is Hub-ready:
+    GE search code (`gt` since 0.6.0, `fp` before). 0.2.0 is Hub-ready:
     - files go through RuneLite's `Filepath`, in `.runelite/plugin-data/ge-tycoon`,
       with an Export button
     - it uses the injected Gson and OkHttp, and makes no `Thread.interrupt` calls
@@ -53,7 +53,8 @@ logging. Nothing places offers automatically, because that gets accounts banned.
     of the user's fork `andrewshooman/plugin-hub`. The user opens the PR to
     runelite/plugin-hub from that branch; pushing the branch updates it.
   - **What's next for the plugin: `ROADMAP.md`.**
-  - **Not yet checked in-game.**
+  - **Not yet checked in-game.** `plugin/TESTING.md` is the checklist for the user's
+    first test session (0.7.0 or newer). The Hub entry stays on 0.6.0 until then.
   - New releases: run the "plugin release" workflow with a version. Tag pushes are
     refused from the cloud session.
   - GE tax uses the wiki's full exemption list (48 items).

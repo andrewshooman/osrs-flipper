@@ -66,17 +66,17 @@ class Advisor implements OfferShortcuts.Advice
 	synchronized void setError(String e)
 	{
 		error = e;
-		last = last.copy();
-		last.error = e;
-		push(last);
+		PanelModel m = last.copy();
+		m.error = e;
+		publish(m);
 	}
 
 	synchronized void setTradeFile(String f)
 	{
 		tradeFile = f;
-		last = last.copy();
-		last.tradeFile = f;
-		push(last);
+		PanelModel m = last.copy();
+		m.tradeFile = f;
+		publish(m);
 	}
 
 	/** Called on the worker thread after each successful run. */
@@ -110,10 +110,10 @@ class Advisor implements OfferShortcuts.Advice
 	synchronized void setDips(Map<Integer, long[]> buys, List<String> lines)
 	{
 		dipBuys = buys;
-		last = last.copy();
-		last.dips.clear();
-		last.dips.addAll(lines);
-		push(last);
+		PanelModel m = last.copy();
+		m.dips.clear();
+		m.dips.addAll(lines);
+		publish(m);
 	}
 
 	/** Where the buy-limit line for the GE quantity box comes from. */
@@ -187,6 +187,13 @@ class Advisor implements OfferShortcuts.Advice
 		return ids;
 	}
 
+	/** Makes m the current model and shows it. Callers hold the lock and have finished filling m. */
+	private void publish(PanelModel m)
+	{
+		last = m;
+		push(m);
+	}
+
 	private void push(PanelModel m)
 	{
 		SwingUtilities.invokeLater(() -> show.accept(m));
@@ -226,8 +233,6 @@ class Advisor implements OfferShortcuts.Advice
 		runCash = gp;
 
 		PanelModel m = new PanelModel();
-		m.tradeFile = tradeFile;
-		m.dips.addAll(last.dips);
 		try
 		{
 			if (recommender == null)
@@ -263,12 +268,18 @@ class Advisor implements OfferShortcuts.Advice
 			m.error = "Couldn't get prices: " + e.getMessage() + ". Try Refresh in a minute.";
 		}
 		m.loading = false;
-		if (m.error == null && error != null)
+		synchronized (this)
 		{
-			m.error = error;
+			// Dip alerts, the trade file or an error may have changed while the model ran.
+			m.tradeFile = tradeFile;
+			m.dips.clear();
+			m.dips.addAll(last.dips);
+			if (m.error == null && error != null)
+			{
+				m.error = error;
+			}
+			publish(m);
 		}
-		last = m;
-		push(m);
 		if (m.error == null)
 		{
 			onResult.run();

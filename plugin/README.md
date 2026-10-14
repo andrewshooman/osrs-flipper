@@ -34,6 +34,7 @@ GE Tycoon brings the model behind the GE Tycoon web app (https://andrewshooman.g
   - **What it does:** while you play, GE Tycoon checks the newest 5-minute prices every 2 minutes. When a liquid item suddenly trades well under its 24-hour average on heavy volume, you get a notification and a chat line, for example *"Rune platebody dipped 11% to 37,200. Buy up to 53 at 37,200, sell at 41,480 (+210K); sell anyway after 6h."*
   - **Where it shows:** the item also appears in the panel, in the `gt` search and in the price hint for 30 minutes.
   - **Testing:** in a replay of two months of real 5-minute trades, this made about +56k a day on the month it wasn't tuned on. The same trades at random moments lost money.
+  - **Sizing:** the quantity fits your free gp (above your reserve, not in offers or items) and what's left of the item's buy limit. With no free gp there's no alert.
   - **Catch:** it only pays if you act within about 20 minutes, and a single trade can lose money. Turn it on under *Dip alerts* in the settings.
 - **What to buy.** The side panel lists the model's buy orders for your stack: the item, price, quantity, where to sell, and the expected profit. Only orders worth the clicks are shown, so some check-ins have nothing to buy. That's fine.
 - **What to do with what you hold.** For each item you hold, the panel says list at a price, hold (with the breakeven price), sell now, or cut, plus what it's worth now and the profit or loss after tax if you sold it (with a total for everything you hold).

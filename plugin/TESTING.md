@@ -55,6 +55,9 @@ Use the cheap item from the top of this page.
 - [ ] **Sell:** sell it a few gp under its price so it fills straight away. You get a
       notification, a chat line *"… for -… gp profit after tax"* and a red *"-… gp"*
       floating at the right of the game view (gold when it's a profit).
+- [ ] **Collect to bank:** note the *Detected stack* line in *Profit*, then collect the
+      coins with **Collect to bank** (not to the inventory). Within a few seconds the
+      detected stack is back where it was, without opening the bank.
 - [ ] **Profit:** *Profit* in the panel and the **Stats** tab include the trade.
 
 ## 5. Price graphs and tooltips (3 min)
@@ -81,7 +84,8 @@ Use the cheap item from the top of this page.
 ## 8. Optional, if you have time
 - [ ] **Dip alerts:** turn on **Dip alerts** (settings) and leave it on while you play.
       If an alert comes, note whether the item really dipped and whether the suggested
-      sell price filled.
+      sell price filled. Alerts only come when you have free gp (above your reserve,
+      not in offers or items), so with all your slots busy there may be none.
 - [ ] **Export trades…** saves a copy of your trades wherever you choose (not on C:).
 - [ ] **Pause** hides the suggestions and highlights, and **Resume** brings them back.
 

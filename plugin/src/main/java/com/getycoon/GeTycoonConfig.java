@@ -153,7 +153,7 @@ public interface GeTycoonConfig extends Config
 		return true;
 	}
 
-	@ConfigItem(keyName = "dipAlerts", name = "Dip alerts", description = "While you play, check the newest 5-minute prices every 2 minutes and alert when a liquid item drops well under its 24h average on heavy volume. Act within about 20 minutes or skip it.",
+	@ConfigItem(keyName = "dipAlerts", name = "Dip alerts", description = "While you play, check the newest 5-minute prices every 2 minutes and alert when a liquid item drops well under its 24h average on heavy volume. Sized to your free gp (above the reserve, not in offers or items) and what's left of the buy limit; no free gp, no alert. Act within about 20 minutes or skip it.",
 		section = dips, position = 0)
 	default boolean dipAlerts()
 	{

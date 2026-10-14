@@ -74,6 +74,59 @@ final class StackDetect
 	}
 
 	/**
+	 * Coins collected from finished GE slots straight to the bank. The game doesn't send
+	 * the bank's contents while it's closed, so without this the coins would drop out of
+	 * the stack until the bank is next opened. Whatever left the slots and didn't reach the
+	 * inventory within two ticks went to the bank. Client thread.
+	 */
+	static final class Collects
+	{
+		private long pending;
+		private long invBefore;
+		private int due = -1;
+		private long since;
+
+		/**
+		 * gp left finished slots this tick.
+		 *
+		 * @param invAtLastTick inventory coins at the previous game tick, before this tick's changes
+		 */
+		void collected(long gp, long invAtLastTick, int tick, long nowMs)
+		{
+			if (gp <= 0 || invAtLastTick < 0)
+			{
+				return;
+			}
+			if (due < 0)
+			{
+				invBefore = invAtLastTick;
+				due = tick + 2; // the inventory update can come a tick or two later
+				since = nowMs;
+			}
+			pending += gp;
+		}
+
+		/** The gp that went to the bank, once the collection is two ticks old; otherwise 0. */
+		long settle(long invNow, int tick)
+		{
+			if (due < 0 || tick < due)
+			{
+				return 0;
+			}
+			long toBank = invNow < 0 ? 0 : Math.max(0, pending - Math.max(0, invNow - invBefore));
+			pending = 0;
+			due = -1;
+			return toBank;
+		}
+
+		/** When the collection being settled started (ms), so a bank seen since then wins. */
+		long since()
+		{
+			return since;
+		}
+	}
+
+	/**
 	 * The engine's bankroll is the stack before realised profit (equity = bankroll +
 	 * realised). For equity to equal the detected stack, pass this.
 	 */
