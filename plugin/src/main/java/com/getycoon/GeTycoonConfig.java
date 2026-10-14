@@ -169,6 +169,13 @@ public interface GeTycoonConfig extends Config
 		return 8;
 	}
 
+	@ConfigItem(keyName = "buyLimits", name = "Buy-limit timers", description = "Show how much of an item's 4-hour buy limit is left and when it resets, in item tooltips and the GE quantity box (from the trades GE Tycoon recorded)",
+		section = shortcuts, position = 12)
+	default boolean buyLimits()
+	{
+		return true;
+	}
+
 	@ConfigItem(keyName = "skipKey", name = "Skip suggestion key", description = "Skips the suggested buy and shows the next one (same as the Skip button)",
 		section = shortcuts, position = 10)
 	default Keybind skipKey()

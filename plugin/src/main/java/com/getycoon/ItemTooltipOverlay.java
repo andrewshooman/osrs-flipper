@@ -30,6 +30,7 @@ public class ItemTooltipOverlay extends Overlay
 	private final TooltipManager tooltipManager;
 	private Supplier<Map<Integer, String>> tips = Collections::emptyMap;
 	private Supplier<OfferTracker.SlotState[]> slots = () -> null;
+	private java.util.function.IntFunction<String> extra = id -> null;
 
 	@Inject
 	ItemTooltipOverlay(Client client, ItemManager itemManager, TooltipManager tooltipManager)
@@ -40,10 +41,13 @@ public class ItemTooltipOverlay extends Overlay
 		setPosition(OverlayPosition.DYNAMIC);
 	}
 
-	void setSources(Supplier<Map<Integer, String>> tips, Supplier<OfferTracker.SlotState[]> slots)
+	/** extra: one more line for any item (the buy-limit window), shown even for items without a tip. */
+	void setSources(Supplier<Map<Integer, String>> tips, Supplier<OfferTracker.SlotState[]> slots,
+		java.util.function.IntFunction<String> extra)
 	{
 		this.tips = tips;
 		this.slots = slots;
+		this.extra = extra;
 	}
 
 	@Override
@@ -54,10 +58,6 @@ public class ItemTooltipOverlay extends Overlay
 			return null;
 		}
 		Map<Integer, String> t = tips.get();
-		if (t == null || t.isEmpty())
-		{
-			return null;
-		}
 		MenuEntry[] entries = client.getMenu().getMenuEntries();
 		if (entries == null || entries.length == 0)
 		{
@@ -68,12 +68,23 @@ public class ItemTooltipOverlay extends Overlay
 		{
 			return null;
 		}
-		String text = t.get(itemManager.canonicalize(id));
+		int item = itemManager.canonicalize(id);
+		String text = combine(t == null ? null : t.get(item), extra.apply(item));
 		if (text != null)
 		{
 			tooltipManager.add(new Tooltip(text));
 		}
 		return null;
+	}
+
+	/** A tip plus an extra line; the extra line alone gets the title. Null when both are null. */
+	static String combine(String tip, String extra)
+	{
+		if (extra == null)
+		{
+			return tip;
+		}
+		return (tip != null ? tip : ItemTips.TITLE) + "</br>" + extra;
 	}
 
 	/**
