@@ -4,6 +4,7 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
+import net.runelite.client.config.Keybind;
 import net.runelite.client.config.Range;
 import net.runelite.client.config.Units;
 
@@ -166,5 +167,19 @@ public interface GeTycoonConfig extends Config
 	default int dipDrop()
 	{
 		return 8;
+	}
+
+	@ConfigItem(keyName = "skipKey", name = "Skip suggestion key", description = "Skips the suggested buy and shows the next one (same as the Skip button)",
+		section = shortcuts, position = 10)
+	default Keybind skipKey()
+	{
+		return Keybind.NOT_SET;
+	}
+
+	@ConfigItem(keyName = "graphKey", name = "Price graph key", description = "Opens the price graph of the item in the current suggestion",
+		section = shortcuts, position = 11)
+	default Keybind graphKey()
+	{
+		return Keybind.NOT_SET;
 	}
 }

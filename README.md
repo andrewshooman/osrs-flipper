@@ -207,3 +207,7 @@ python research/test_parity.py    # browser features/trees match Python exactly
 ```
 
 CI runs the app and research suites on every push and pull request.
+
+## Support
+
+GE Tycoon is free, and every feature stays free. If it makes you gp and you'd like to say thanks, you can send a tip on Venmo: [@Andrew-Shooman](https://venmo.com/u/Andrew-Shooman). Entirely optional.
