@@ -18,7 +18,7 @@ GE Tycoon brings the model behind the GE Tycoon web app (https://andrewshooman.g
   - then *Confirm*
 
   Each slot also shows how long its offer has been up: green while it's fine, amber when it's getting old, red when it should be cancelled, blue when it needs collecting.
-- **Notifications** when a buy or sell completes, and optionally when a new hourly plan has buys for your free slots. Optional game-chat messages too, with the profit after tax when a sell finishes, and a *GP drop*: a floating "+12.3K gp" at the right of the game view, like an XP drop.
+- **Notifications** when a buy or sell completes (like RuneLite's own, they pop up while RuneLite isn't the focused window), and optionally when a new hourly plan has buys for your free slots. Optional game-chat messages too, with the profit after tax when a sell finishes, and a *GP drop*: a floating "+12.3K gp" at the right of the game view, like an XP drop.
 - **Stats and price graphs.**
   - The Stats tab shows profit for today, the last 7 days and all time, plus flips, win rate, ROI, tax paid, a profit-over-time line (with the unrealised profit on what you hold), daily profit bars, best and worst items, and recent flips.
   - Profit and gp per hour for the current session, since you logged in.

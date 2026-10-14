@@ -35,10 +35,10 @@ public final class Ledger
 	public static final class Lot
 	{
 		public long qty;
-		public final long price;
+		public final double price;
 		public final long ts;
 
-		Lot(long qty, long price, long ts)
+		Lot(long qty, double price, long ts)
 		{
 			this.qty = qty;
 			this.price = price;
@@ -75,7 +75,7 @@ public final class Ledger
 		public final int itemId;
 		public final long qty;
 		public final double buyPrice;
-		public final long sellPrice;
+		public final double sellPrice;
 		public final double cost;
 		public final double proceeds;
 		public final double tax;
@@ -85,7 +85,7 @@ public final class Ledger
 		public final long sellTs;
 		public final double holdHours;
 
-		ClosedTrip(String tradeId, int itemId, long qty, double buyPrice, long sellPrice, double cost, double proceeds,
+		ClosedTrip(String tradeId, int itemId, long qty, double buyPrice, double sellPrice, double cost, double proceeds,
 			double tax, long buyTs, long sellTs)
 		{
 			this.tradeId = tradeId;
@@ -110,10 +110,10 @@ public final class Ledger
 		public final String tradeId;
 		public final int itemId;
 		public final long qty;
-		public final long price;
+		public final double price;
 		public final long ts;
 
-		Unmatched(String tradeId, int itemId, long qty, long price, long ts)
+		Unmatched(String tradeId, int itemId, long qty, double price, long ts)
 		{
 			this.tradeId = tradeId;
 			this.itemId = itemId;

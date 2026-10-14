@@ -392,7 +392,8 @@ public class GeTycoonPlugin extends Plugin
 	}
 
 	/** Writes offers and fills into the ledger (called under lock). */
-	private static class LedgerSink implements OfferTracker.Sink
+	/** Turns offer updates into the ledger's offers and trades. Trades keep the exact average price of each fill. */
+	static class LedgerSink implements OfferTracker.Sink
 	{
 		private final LedgerData ledger;
 
@@ -425,7 +426,7 @@ public class GeTycoonPlugin extends Plugin
 		@Override
 		public void fill(String offerId, int itemId, boolean buy, int qty, double price, long ts)
 		{
-			Trade t = new Trade(UUID.randomUUID().toString(), itemId, buy ? "buy" : "sell", qty, Math.max(1, Math.round(price)), ts);
+			Trade t = new Trade(UUID.randomUUID().toString(), itemId, buy ? "buy" : "sell", qty, Math.max(1, price), ts);
 			t.offerId = offerId;
 			ledger.trades.add(t);
 			Offer o = find(offerId);

@@ -147,9 +147,12 @@ public final class NextAction
 			if (finished(slots[i]))
 			{
 				OfferTracker.SlotState s = slots[i];
-				return new NextAction(Type.COLLECT, s.itemId, in.nameOf(s.itemId), i, 0, s.filled,
-					"Collect from the GE",
-					(s.buy ? "Bought " : "Sold ") + n(s.filled) + " " + in.nameOf(s.itemId) + ". Click Collect.");
+				String name = in.nameOf(s.itemId);
+				boolean cancelled = s.state != null && s.state.startsWith("CANCELLED");
+				String what = !cancelled ? (s.buy ? "Bought " : "Sold ") + n(s.filled) + " " + name
+					: "Cancelled " + (s.buy ? "buy" : "sell") + " of " + name
+					+ (s.filled > 0 ? " (" + n(s.filled) + (s.buy ? " bought)" : " sold)") : "");
+				return new NextAction(Type.COLLECT, s.itemId, name, i, 0, s.filled, "Collect from the GE", what + ". Click Collect.");
 			}
 		}
 

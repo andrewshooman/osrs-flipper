@@ -8,7 +8,8 @@ public final class Trade
 	/** "buy" or "sell". */
 	public String side;
 	public long qty;
-	public long price;
+	/** Average price each, before tax. Not always whole: a fill can match several prices. */
+	public double price;
 	/** Unix milliseconds. */
 	public long ts;
 	/** The offer this fill belongs to, if it was logged as one. */
@@ -21,7 +22,7 @@ public final class Trade
 	{
 	}
 
-	public Trade(String id, int itemId, String side, long qty, long price, long ts)
+	public Trade(String id, int itemId, String side, long qty, double price, long ts)
 	{
 		this.id = id;
 		this.itemId = itemId;
