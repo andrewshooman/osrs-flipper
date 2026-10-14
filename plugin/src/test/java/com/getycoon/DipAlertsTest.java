@@ -72,6 +72,11 @@ public class DipAlertsTest
 		m.put(1, new ItemMeta(1, "Thing", true, 100, 0, 0));
 		assertEquals(100, DipAlerts.find(Collections.singletonMap(1, five), Collections.singletonMap(1, DAY), m,
 			Collections.emptySet(), true, 0.08, 50e6).get(0).qty);
+		// Only what's left of the buy limit (bought earlier in the window, or in open buy offers).
+		assertEquals(40, DipAlerts.find(Collections.singletonMap(1, five), Collections.singletonMap(1, DAY), m,
+			Collections.emptySet(), true, 0.08, 50e6, (id, limit) -> limit - 60).get(0).qty);
+		assertTrue(DipAlerts.find(Collections.singletonMap(1, five), Collections.singletonMap(1, DAY), m,
+			Collections.emptySet(), true, 0.08, 50e6, (id, limit) -> 0).isEmpty());
 	}
 
 	@Test

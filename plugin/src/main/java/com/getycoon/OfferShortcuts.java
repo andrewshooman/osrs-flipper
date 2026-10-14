@@ -125,6 +125,15 @@ public class OfferShortcuts
 		{
 			return;
 		}
+		// Lines from an earlier box, in case the game didn't clear the layer, or the same box shown twice.
+		Widget[] old = parent.getDynamicChildren();
+		for (Widget w : old == null ? new Widget[0] : old)
+		{
+			if (w != null && HINT.equals(w.getName()))
+			{
+				w.setHidden(true);
+			}
+		}
 		if (value > 0)
 		{
 			addLine(parent, "GE Tycoon suggests: " + (buying ? "buy " : "sell ")
@@ -136,10 +145,14 @@ public class OfferShortcuts
 		}
 	}
 
+	/** Names the hint lines, so a later box can find them. */
+	private static final String HINT = "GE Tycoon hint";
+
 	/** A line of text in the chatbox layer, y pixels above its bottom edge. */
 	private static void addLine(Widget parent, String text, int y)
 	{
 		Widget hint = parent.createChild(-1, WidgetType.TEXT);
+		hint.setName(HINT);
 		hint.setText(text);
 		hint.setFontId(FontID.PLAIN_12);
 		hint.setTextColor(TEXT_COLOR);

@@ -34,6 +34,7 @@ GE Tycoon brings the model behind the GE Tycoon web app (https://andrewshooman.g
   - **What it does:** while you play, GE Tycoon checks the newest 5-minute prices every 2 minutes. When a liquid item suddenly trades well under its 24-hour average on heavy volume, you get a notification and a chat line, for example *"Rune platebody dipped 11% to 37,200. Buy up to 53 at 37,200, sell at 41,480 (+210K); sell anyway after 6h."*
   - **Where it shows:** the item also appears in the panel, in the `gt` search and in the price hint for 30 minutes.
   - **Testing:** in a replay of two months of real 5-minute trades, this made about +56k a day on the month it wasn't tuned on. The same trades at random moments lost money.
+  - **Sizing:** the quantity fits your free gp (above your reserve, not in offers or items) and what's left of the item's buy limit. With no free gp there's no alert.
   - **Catch:** it only pays if you act within about 20 minutes, and a single trade can lose money. Turn it on under *Dip alerts* in the settings.
 - **What to buy.** The side panel lists the model's buy orders for your stack: the item, price, quantity, where to sell, and the expected profit. Only orders worth the clicks are shown, so some check-ins have nothing to buy. That's fine.
 - **What to do with what you hold.** For each item you hold, the panel says list at a price, hold (with the breakeven price), sell now, or cut, plus what it's worth now and the profit or loss after tax if you sold it (with a total for everything you hold).
@@ -77,8 +78,8 @@ work as usual. GE Tycoon can run next to the Plugin Hub's "GE Flipper" plugin
       out, delete it, or use *End sessions* in your Jagex account settings.
 
    Old-style (non-Jagex) accounts skip this and log in normally.
-4. **Close any running RuneLite**, then double-click **Start RuneLite with Flip
-   Planner.bat**.
+4. **Close any running RuneLite**, then double-click **Start RuneLite with GE
+   Tycoon.bat**.
    - A black window opens with RuneLite's log, then RuneLite itself.
    - Keep the black window open while you play; closing it closes RuneLite.
    - If something fails, the window stays open: copy the last lines and send them over.
@@ -89,15 +90,8 @@ work as usual. GE Tycoon can run next to the Plugin Hub's "GE Flipper" plugin
 On Mac or Linux, run `start-runelite-ge-tycoon.sh` instead of the `.bat`.
 
 ### What to try, and what to report back
-- [ ] The side panel fills in within about 10 seconds of opening it: buy orders, then
-      your items, then profit.
-- [ ] Type `gt` in the GE item search. Do the suggested items show up as the results?
-- [ ] Start a buy for a suggested item and click **Enter price**. Does a line
-      *"GE Tycoon suggests: buy at … gp each"* appear in the chatbox?
-- [ ] The same for **Enter quantity**.
-- [ ] Place an offer, let it fill (or partly fill), and log out and back in. Is the trade
-      in the panel's profit and in
-      `%USERPROFILE%\.runelite\plugin-data\ge-tycoon\account-<number>.json`, counted once?
+[TESTING.md](TESTING.md) is a checklist for one session of about 30 minutes. It checks each
+feature once and says what to send back.
 
 To build `ge-tycoon.jar` yourself, you need JDK 11 or newer. Run `./gradlew jar` here, and the jar is in `build/libs/`.
 

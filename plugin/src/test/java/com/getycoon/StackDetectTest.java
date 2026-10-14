@@ -89,4 +89,25 @@ public class StackDetectTest
 		assertEquals(61_000 + 19_600_000, StackDetect.uncollected(slots));
 		assertEquals(0, StackDetect.uncollected(null));
 	}
+
+	@Test
+	public void coinsCollectedToTheBankAreAddedToIt()
+	{
+		StackDetect.Collects c = new StackDetect.Collects();
+		// Collected 2M to the bank: the inventory didn't move.
+		c.collected(2_000_000, 500_000, 10, 0);
+		assertEquals(0, c.settle(500_000, 11));
+		assertEquals(2_000_000, c.settle(500_000, 12));
+		assertEquals(0, c.settle(500_000, 13)); // settled once
+		// To the inventory, even when its update comes a tick later: nothing for the bank.
+		c.collected(2_000_000, 500_000, 20, 0);
+		assertEquals(0, c.settle(2_500_000, 22));
+		// Two slots in one tick, one to each.
+		c.collected(1_000_000, 0, 30, 0);
+		c.collected(3_000_000, 0, 30, 0);
+		assertEquals(3_000_000, c.settle(1_000_000, 32));
+		// Inventory not known yet: nothing is guessed.
+		c.collected(1_000_000, -1, 40, 0);
+		assertEquals(0, c.settle(0, 42));
+	}
 }

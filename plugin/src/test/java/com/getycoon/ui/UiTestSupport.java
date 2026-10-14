@@ -21,8 +21,8 @@ import static org.junit.Assert.assertTrue;
 /** Headless layout and painting for the UI tests, plus PNG snapshots for a human to look at. */
 final class UiTestSupport
 {
-	/** Snapshots are written only when the FLIP_PLANNER_PNG_DIR environment variable names an existing directory. */
-	private static final String PNG_DIR = System.getenv("FLIP_PLANNER_PNG_DIR");
+	/** Snapshots are written only when the GE_TYCOON_PNG_DIR environment variable names an existing directory. */
+	private static final String PNG_DIR = System.getenv("GE_TYCOON_PNG_DIR");
 
 	static
 	{

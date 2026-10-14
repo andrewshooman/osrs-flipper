@@ -32,6 +32,7 @@ import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.WorldType;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.GameTick;
 import net.runelite.api.events.GrandExchangeOfferChanged;
 import net.runelite.api.events.GrandExchangeSearched;
 import net.runelite.api.events.ItemContainerChanged;
@@ -160,6 +161,10 @@ public class GeTycoonPlugin extends Plugin
 	private volatile long sessionStart;
 	/** Coins and platinum in the inventory; -1 until seen after login. */
 	private volatile long invCoins = -1;
+	/** invCoins at the last game tick; -1 until seen. Client thread. */
+	private long invAtTick = -1;
+	/** Coins collected from GE slots to the (closed) bank. Client thread. */
+	private final StackDetect.Collects collects = new StackDetect.Collects();
 
 	// Guarded by lock.
 	private long account = -1;
@@ -176,6 +181,10 @@ public class GeTycoonPlugin extends Plugin
 	@Override
 	protected void startUp()
 	{
+		// Dip alerts from before the plugin was last turned off belong to the old panel.
+		liveDips.clear();
+		dipAlerted.clear();
+		lastDipBucket = 0;
 		worker = Executors.newSingleThreadExecutor(r ->
 		{
 			Thread t = new Thread(r, "ge-tycoon");
@@ -296,8 +305,8 @@ public class GeTycoonPlugin extends Plugin
 		shortcuts.setAdvice(null);
 		clientToolbar.removeNavigation(nav);
 		saveNow();
-		worker.shutdown();
-		side.shutdown();
+		worker.shutdown(); // lets the save finish
+		side.shutdownNow(); // price graphs and dip checks: nothing to finish
 		overlayState = new GeOverlay.State();
 		tips = Collections.emptyMap();
 		synchronized (lock)
@@ -519,8 +528,15 @@ public class GeTycoonPlugin extends Plugin
 			{
 				return; // shut down meanwhile
 			}
+			long waiting = StackDetect.uncollected(new OfferTracker.SlotState[]{tracker.slot(slot)});
 			changed = tracker.onOffer(slot, o.getItemId(), o.getPrice(), o.getTotalQuantity(), o.getQuantitySold(),
 				o.getSpent(), o.getState(), now);
+			if (live && o.getState() == GrandExchangeOfferState.EMPTY)
+			{
+				// Collected: the coins went to the inventory or the bank (see onGameTick).
+				collects.collected(waiting - StackDetect.uncollected(new OfferTracker.SlotState[]{tracker.slot(slot)}),
+					invAtTick, client.getTickCount(), now);
+			}
 			s = store;
 		}
 		RawOffer raw = new RawOffer();
@@ -619,6 +635,29 @@ public class GeTycoonPlugin extends Plugin
 					scheduleSave();
 				}
 			}
+		}
+		updateCash(true);
+	}
+
+	/** Adds coins collected from GE slots to the bank's count when they didn't reach the inventory. */
+	@Subscribe
+	public void onGameTick(GameTick e)
+	{
+		long toBank = collects.settle(invCoins, client.getTickCount());
+		invAtTick = invCoins;
+		if (toBank <= 0)
+		{
+			return;
+		}
+		synchronized (lock)
+		{
+			// A bank update since the collection already has the coins.
+			if (data == null || data.bankCoins == null || data.bankSeenAt >= collects.since())
+			{
+				return;
+			}
+			data.bankCoins += toBank;
+			scheduleSave();
 		}
 		updateCash(true);
 	}
@@ -956,9 +995,16 @@ public class GeTycoonPlugin extends Plugin
 			Set<Integer> skip = new java.util.HashSet<>(advisor.blocked());
 			skip.addAll(dipAlerted.keySet());
 			Recommender.Result r = advisor.lastResult();
-			double free = r != null ? r.capital.deployable : DipAlerts.CAP;
+			// Free gp: above the reserve and not in offers or items (before the first plan, the stack less the reserve).
+			double free = r != null ? r.capital.deployable : config.bankroll() * (1 - config.reservePercent() / 100.0);
+			LedgerData ledger;
+			synchronized (lock)
+			{
+				ledger = data == null ? null : gson.fromJson(gson.toJson(data.ledger), LedgerData.class);
+			}
 			java.util.List<DipAlerts.Alert> found = DipAlerts.find(five, src.avg24h(), src.mapping(), skip, config.members(),
-				config.dipDrop() / 100.0, free);
+				config.dipDrop() / 100.0, free, (id, limit) -> ledger == null ? (limit > 0 ? limit : Double.POSITIVE_INFINITY)
+					: com.getycoon.engine.Ledger.remainingLimit(ledger, id, limit, now));
 			for (DipAlerts.Alert a : found.subList(0, Math.min(2, found.size())))
 			{
 				dipAlerted.put(a.itemId, now);
@@ -992,7 +1038,7 @@ public class GeTycoonPlugin extends Plugin
 		{
 			return;
 		}
-		java.util.Map<Integer, long[]> buys = new java.util.HashMap<>();
+		java.util.Map<Integer, long[]> buys = new java.util.LinkedHashMap<>(); // newest first, for the search code
 		java.util.List<String> lines = new java.util.ArrayList<>();
 		java.time.format.DateTimeFormatter hm = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
 		for (Object[] d : liveDips)

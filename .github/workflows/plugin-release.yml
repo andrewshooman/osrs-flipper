@@ -31,7 +31,7 @@ jobs:
       - name: Package
         run: |
           mkdir -p out/GE-Tycoon-plugin
-          cp plugin/build/libs/ge-tycoon.jar plugin/dist/* plugin/README.md out/GE-Tycoon-plugin/
+          cp plugin/build/libs/ge-tycoon.jar plugin/dist/* plugin/README.md plugin/TESTING.md out/GE-Tycoon-plugin/
           (cd out && zip -r GE-Tycoon-plugin.zip GE-Tycoon-plugin)
       - name: Publish release
         env:

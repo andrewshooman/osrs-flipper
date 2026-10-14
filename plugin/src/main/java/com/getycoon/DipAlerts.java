@@ -87,6 +87,19 @@ final class DipAlerts
 	static List<Alert> find(Map<Integer, HourPoint> fiveMin, Map<Integer, HourPoint> day, Map<Integer, ItemMeta> meta,
 		Set<Integer> skip, boolean members, double drop, double freeGp)
 	{
+		return find(fiveMin, day, meta, skip, members, drop, freeGp, (id, limit) -> limit > 0 ? limit : Double.POSITIVE_INFINITY);
+	}
+
+	/** How much of an item's buy limit is left (limit 0 = unknown). */
+	interface LimitLeft
+	{
+		double of(int itemId, int limit);
+	}
+
+	/** As above, with each item's quantity capped at what's left of its buy limit. */
+	static List<Alert> find(Map<Integer, HourPoint> fiveMin, Map<Integer, HourPoint> day, Map<Integer, ItemMeta> meta,
+		Set<Integer> skip, boolean members, double drop, double freeGp, LimitLeft limitLeft)
+	{
 		List<Alert> out = new ArrayList<>();
 		if (fiveMin == null || day == null || meta == null)
 		{
@@ -125,8 +138,8 @@ final class DipAlerts
 			{
 				continue;
 			}
-			long limit = m.limit > 0 ? m.limit : Long.MAX_VALUE;
-			long qty = Math.min(limit, (long) Math.floor(Math.min(CAP, Math.max(0, freeGp)) / price));
+			double left = limitLeft.of(id, m.limit);
+			long qty = (long) Math.min(left, Math.floor(Math.min(CAP, Math.max(0, freeGp)) / price));
 			if (qty < 1)
 			{
 				continue;
