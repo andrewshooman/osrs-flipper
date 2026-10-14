@@ -77,8 +77,8 @@ work as usual. GE Tycoon can run next to the Plugin Hub's "GE Flipper" plugin
       out, delete it, or use *End sessions* in your Jagex account settings.
 
    Old-style (non-Jagex) accounts skip this and log in normally.
-4. **Close any running RuneLite**, then double-click **Start RuneLite with Flip
-   Planner.bat**.
+4. **Close any running RuneLite**, then double-click **Start RuneLite with GE
+   Tycoon.bat**.
    - A black window opens with RuneLite's log, then RuneLite itself.
    - Keep the black window open while you play; closing it closes RuneLite.
    - If something fails, the window stays open: copy the last lines and send them over.
@@ -89,15 +89,8 @@ work as usual. GE Tycoon can run next to the Plugin Hub's "GE Flipper" plugin
 On Mac or Linux, run `start-runelite-ge-tycoon.sh` instead of the `.bat`.
 
 ### What to try, and what to report back
-- [ ] The side panel fills in within about 10 seconds of opening it: buy orders, then
-      your items, then profit.
-- [ ] Type `gt` in the GE item search. Do the suggested items show up as the results?
-- [ ] Start a buy for a suggested item and click **Enter price**. Does a line
-      *"GE Tycoon suggests: buy at … gp each"* appear in the chatbox?
-- [ ] The same for **Enter quantity**.
-- [ ] Place an offer, let it fill (or partly fill), and log out and back in. Is the trade
-      in the panel's profit and in
-      `%USERPROFILE%\.runelite\plugin-data\ge-tycoon\account-<number>.json`, counted once?
+[TESTING.md](TESTING.md) is a checklist for one session of about 30 minutes. It checks each
+feature once and says what to send back.
 
 To build `ge-tycoon.jar` yourself, you need JDK 11 or newer. Run `./gradlew jar` here, and the jar is in `build/libs/`.
 

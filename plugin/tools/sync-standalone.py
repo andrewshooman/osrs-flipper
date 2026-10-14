@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Copy plugin/ (minus tools/ and dist/) into the standalone ge-tycoon repo for the
+"""Copy plugin/ (minus tools/, dist/ and TESTING.md) into the standalone ge-tycoon repo for the
 RuneLite Plugin Hub, commit it, and point the Plugin Hub submission at that commit.
 
     python plugin/tools/sync-standalone.py --src <osrs-flipper checkout> \
         --dest <ge-tycoon checkout> [--hub <plugin-hub fork checkout>] [--push]
 
 The standalone README gets a header pointing back here, and drops the pre-Hub
-start-script section (those files only exist in this repo).
+start-script and test-checklist section (those files only exist in this repo).
 """
 import argparse, os, re, shutil, subprocess, sys
 
@@ -21,7 +21,7 @@ ap.add_argument("--push", action="store_true")
 a = ap.parse_args()
 
 plugin = os.path.join(a.src, "plugin")
-files = [f for f in run(["git", "ls-files"], plugin).splitlines() if not f.startswith(("tools/", "dist/"))]
+files = [f for f in run(["git", "ls-files"], plugin).splitlines() if not f.startswith(("tools/", "dist/")) and f != "TESTING.md"]
 version = re.search(r"^version=(.+)$", open(os.path.join(plugin, "runelite-plugin.properties")).read(), re.M).group(1).strip()
 src_sha = run(["git", "rev-parse", "--short", "HEAD"], a.src)
 
@@ -38,9 +38,9 @@ with open(os.path.join(a.dest, ".gitignore"), "w") as g:
 readme = os.path.join(a.dest, "README.md")
 s = open(readme).read()
 s = s.replace("# GE Tycoon: RuneLite plugin\n", "# GE Tycoon: RuneLite plugin\n\n*Developed in [andrewshooman/osrs-flipper](https://github.com/andrewshooman/osrs-flipper) (`plugin/`), together with the GE Tycoon web app and the research that trained and tested the model. This repository is the plugin on its own, for the RuneLite Plugin Hub.*\n", 1)
-i, j = s.find("## Testing it before it's on the Plugin Hub"), s.find("### What to try, and what to report back")
+i, j = s.find("## Testing it before it's on the Plugin Hub"), s.find("To build `ge-tycoon.jar`")
 if i >= 0 and j > i:
-    s = s[:i] + s[j:].replace("### What to try", "## What to try", 1)
+    s = s[:i] + s[j:]
 s = s.replace("(`tools/make-fixtures.js`)", "(`plugin/tools/make-fixtures.js` in osrs-flipper)")
 open(readme, "w").write(s)
 

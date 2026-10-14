@@ -6,7 +6,7 @@ import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 import org.junit.Test;
 
-/** Paints the side panel off-screen (and saves a PNG when FLIP_PLANNER_PNG_DIR names a folder). */
+/** Paints the side panel off-screen (and saves a PNG when GE_TYCOON_PNG_DIR names a folder). */
 public class TycoonPanelRenderTest
 {
 	private static final TycoonPanel.Actions NOOP = new TycoonPanel.Actions()
@@ -85,7 +85,7 @@ public class TycoonPanelRenderTest
 			layout(p);
 			BufferedImage img = new BufferedImage(242, 900, BufferedImage.TYPE_INT_ARGB);
 			p.paint(img.getGraphics());
-			String out = System.getenv("FLIP_PLANNER_PNG_DIR");
+			String out = System.getenv("GE_TYCOON_PNG_DIR");
 			File dir = out == null ? null : new File(out);
 			if (dir != null && dir.isDirectory())
 			{
