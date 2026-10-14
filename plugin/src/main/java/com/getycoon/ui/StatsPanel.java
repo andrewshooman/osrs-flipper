@@ -64,6 +64,12 @@ public class StatsPanel extends JPanel
 	/** Rebuilds the panel. Call on the Swing thread; {@code names} may miss ids. */
 	public void show(Ledger.Stats stats, Map<Integer, String> names, long nowMs)
 	{
+		show(stats, names, nowMs, Double.NaN);
+	}
+
+	/** As above; {@code unrealised} is the profit after tax if what you hold sold now (NaN: unknown). */
+	public void show(Ledger.Stats stats, Map<Integer, String> names, long nowMs, double unrealised)
+	{
 		content.removeAll();
 		if (stats == null || stats.closed == null || stats.closed.isEmpty())
 		{
@@ -75,6 +81,8 @@ public class StatsPanel extends JPanel
 			LocalDate today = Instant.ofEpochMilli(nowMs).atZone(ZoneId.systemDefault()).toLocalDate();
 			content.add(section("Profit", true));
 			content.add(summary(stats, today));
+			content.add(section("Profit over time", false));
+			content.add(overTime(stats.closed, unrealised));
 			content.add(section("Daily profit", false));
 			content.add(daily(stats, today));
 			if (!stats.byItem.isEmpty())
@@ -130,6 +138,30 @@ public class StatsPanel extends JPanel
 		v.setFont(FontManager.getRunescapeBoldFont());
 		v.setForeground(color);
 		p.add(v, BorderLayout.CENTER);
+		return p;
+	}
+
+	private JPanel overTime(List<Ledger.ClosedTrip> closed, double unrealised)
+	{
+		ProfitLine line = ProfitLine.of(closed);
+		JPanel p = new JPanel(new BorderLayout(0, 2));
+		p.setOpaque(false);
+		p.setAlignmentX(Component.LEFT_ALIGNMENT);
+		p.add(line, BorderLayout.CENTER);
+		JPanel axis = new JPanel(new BorderLayout());
+		axis.setOpaque(false);
+		axis.add(small(AXIS_DAY.format(Instant.ofEpochMilli(line.ts[0]).atZone(ZoneId.systemDefault())), ColorScheme.LIGHT_GRAY_COLOR), BorderLayout.WEST);
+		axis.add(small("Now", ColorScheme.LIGHT_GRAY_COLOR), BorderLayout.EAST);
+		p.add(axis, BorderLayout.SOUTH);
+		if (Double.isFinite(unrealised))
+		{
+			JPanel both = new JPanel(new BorderLayout(0, 2));
+			both.setOpaque(false);
+			both.setAlignmentX(Component.LEFT_ALIGNMENT);
+			both.add(p, BorderLayout.CENTER);
+			both.add(wrapped("Plus " + signedFull(unrealised) + " unrealised on the items you hold", tone(unrealised)), BorderLayout.SOUTH);
+			return both;
+		}
 		return p;
 	}
 
@@ -382,6 +414,122 @@ public class StatsPanel extends JPanel
 		}
 		long h = m / 60;
 		return h < 24 ? h + "h ago" : h / 24 + "d ago";
+	}
+
+	/** Realised profit added up flip by flip, oldest first, as a line above or below zero. */
+	static final class ProfitLine extends JComponent
+	{
+		private static final int PAD = 4;
+		private static final int MAX_POINTS = 400;
+		/** Sell times (ms) and the running total after each; starts with a 0 at the first sale. */
+		final long[] ts;
+		final double[] total;
+
+		ProfitLine(long[] ts, double[] total)
+		{
+			this.ts = ts;
+			this.total = total;
+			setPreferredSize(new Dimension(ts.length, 60));
+			setToolTipText("");
+		}
+
+		/** From closed trips in any order; long histories are thinned to at most MAX_POINTS points, keeping the last. */
+		static ProfitLine of(List<Ledger.ClosedTrip> closed)
+		{
+			List<Ledger.ClosedTrip> byTime = new ArrayList<>(closed);
+			byTime.sort((a, b) -> Long.compare(a.sellTs, b.sellTs));
+			int n = byTime.size();
+			int step = Math.max(1, (n + MAX_POINTS - 1) / MAX_POINTS);
+			List<long[]> pts = new ArrayList<>();
+			double run = 0;
+			List<Double> totals = new ArrayList<>();
+			pts.add(new long[]{n == 0 ? 0 : byTime.get(0).sellTs});
+			totals.add(0.0);
+			for (int i = 0; i < n; i++)
+			{
+				run += byTime.get(i).profit;
+				if ((i + 1) % step == 0 || i == n - 1)
+				{
+					pts.add(new long[]{byTime.get(i).sellTs});
+					totals.add(run);
+				}
+			}
+			long[] ts = new long[pts.size()];
+			double[] total = new double[pts.size()];
+			for (int i = 0; i < ts.length; i++)
+			{
+				ts[i] = pts.get(i)[0];
+				total[i] = totals.get(i);
+			}
+			return new ProfitLine(ts, total);
+		}
+
+		int indexAt(int x)
+		{
+			int w = getWidth() - 2 * PAD;
+			if (w <= 0 || total.length == 0)
+			{
+				return -1;
+			}
+			int i = (int) Math.round((double) (x - PAD) * (total.length - 1) / Math.max(1, w));
+			return Math.max(0, Math.min(total.length - 1, i));
+		}
+
+		@Override
+		public String getToolTipText(MouseEvent e)
+		{
+			int i = indexAt(e.getX());
+			if (i < 0)
+			{
+				return null;
+			}
+			return SOLD_AT.format(Instant.ofEpochMilli(ts[i]).atZone(ZoneId.systemDefault())) + ": " + signedFull(total[i]);
+		}
+
+		@Override
+		protected void paintComponent(Graphics g0)
+		{
+			Graphics2D g = (Graphics2D) g0.create();
+			try
+			{
+				int w = getWidth();
+				int h = getHeight();
+				g.setColor(ColorScheme.DARKER_GRAY_COLOR);
+				g.fillRect(0, 0, w, h);
+				double hi = 0;
+				double lo = 0;
+				for (double v : total)
+				{
+					hi = Math.max(hi, v);
+					lo = Math.min(lo, v);
+				}
+				int span = h - 2 * PAD - 1;
+				double range = hi - lo;
+				int zero = range > 0 ? PAD + (int) Math.round(span * hi / range) : PAD + span / 2;
+				g.setColor(ColorScheme.MEDIUM_GRAY_COLOR);
+				g.drawLine(PAD, zero, w - PAD - 1, zero);
+				if (range <= 0 || total.length < 2)
+				{
+					return;
+				}
+				g.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+				g.setColor(total[total.length - 1] >= 0 ? GOOD : BAD);
+				g.setStroke(new java.awt.BasicStroke(1.5f));
+				double dx = (w - 2.0 * PAD - 1) / (total.length - 1);
+				for (int i = 1; i < total.length; i++)
+				{
+					int x0 = PAD + (int) Math.round((i - 1) * dx);
+					int x1 = PAD + (int) Math.round(i * dx);
+					int y0 = PAD + (int) Math.round(span * (hi - total[i - 1]) / range);
+					int y1 = PAD + (int) Math.round(span * (hi - total[i]) / range);
+					g.drawLine(x0, y0, x1, y1);
+				}
+			}
+			finally
+			{
+				g.dispose();
+			}
+		}
 	}
 
 	/** Profit per day, oldest first: green bars up and red bars down from a zero line. */

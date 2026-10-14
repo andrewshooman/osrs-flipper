@@ -29,6 +29,10 @@ public class PanelModel
 		public String advice;
 		/** good | warn | bad | muted */
 		public String tone;
+		/** What it cost, what it would sell for now (instant-buy price - 1) and the profit after tax at that price; NaN without a price. */
+		public double cost;
+		public double value = Double.NaN;
+		public double pnl = Double.NaN;
 	}
 
 	public String status = "";
@@ -49,6 +53,11 @@ public class PanelModel
 	/** Realised profit since logging in, and how long ago that was. */
 	public double sessionProfit;
 	public double sessionHours;
+	/** Totals over the items held: value at the current sell price and profit after tax if sold there; NaN without prices. */
+	public double holdValue = Double.NaN;
+	public double unrealised = Double.NaN;
+	/** What those priced items cost. */
+	public double holdCost;
 	public double winRate = Double.NaN;
 	public String tradeFile = "";
 	/** The detected stack and its parts, or a hint to open the bank; null to show nothing. */
@@ -76,6 +85,9 @@ public class PanelModel
 		m.flips = flips;
 		m.sessionProfit = sessionProfit;
 		m.sessionHours = sessionHours;
+		m.holdValue = holdValue;
+		m.unrealised = unrealised;
+		m.holdCost = holdCost;
 		m.winRate = winRate;
 		m.tradeFile = tradeFile;
 		m.stackNote = stackNote;

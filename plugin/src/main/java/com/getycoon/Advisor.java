@@ -322,6 +322,15 @@ class Advisor implements OfferShortcuts.Advice
 			row.qty = h.qty;
 			row.advice = h.action.label;
 			row.tone = h.action.tone;
+			row.cost = h.cost;
+			if (h.ask != null && h.pnl != null)
+			{
+				row.value = (double) h.ask * h.qty;
+				row.pnl = h.pnl;
+				m.holdValue = (Double.isNaN(m.holdValue) ? 0 : m.holdValue) + row.value;
+				m.unrealised = (Double.isNaN(m.unrealised) ? 0 : m.unrealised) + row.pnl;
+				m.holdCost += row.cost;
+			}
 			m.holds.add(row);
 			if (h.action.price != null && h.action.price > 0)
 			{

@@ -20,7 +20,7 @@ GE Tycoon brings the model behind the GE Tycoon web app (https://andrewshooman.g
   Each slot also shows how long its offer has been up: green while it's fine, amber when it's getting old, red when it should be cancelled, blue when it needs collecting.
 - **Notifications** when a buy or sell completes, and optionally when a new hourly plan has buys for your free slots. Optional game-chat messages too, with the profit after tax when a sell finishes, and a *GP drop*: a floating "+12.3K gp" at the right of the game view, like an XP drop.
 - **Stats and price graphs.**
-  - The Stats tab shows profit for today, the last 7 days and all time, plus flips, win rate, ROI, tax paid, daily profit bars, best and worst items, and recent flips.
+  - The Stats tab shows profit for today, the last 7 days and all time, plus flips, win rate, ROI, tax paid, a profit-over-time line (with the unrealised profit on what you hold), daily profit bars, best and worst items, and recent flips.
   - Profit and gp per hour for the current session, since you logged in.
   - Right-click a suggestion or a holding for a 7-day price graph with the suggested buy and sell prices marked.
   - In the game too: right-click any tradeable item in your inventory, bank or GE and pick **Price graph**. The option only opens the graph window; it does nothing in the game.
@@ -36,7 +36,7 @@ GE Tycoon brings the model behind the GE Tycoon web app (https://andrewshooman.g
   - **Testing:** in a replay of two months of real 5-minute trades, this made about +56k a day on the month it wasn't tuned on. The same trades at random moments lost money.
   - **Catch:** it only pays if you act within about 20 minutes, and a single trade can lose money. Turn it on under *Dip alerts* in the settings.
 - **What to buy.** The side panel lists the model's buy orders for your stack: the item, price, quantity, where to sell, and the expected profit. Only orders worth the clicks are shown, so some check-ins have nothing to buy. That's fine.
-- **What to do with what you hold.** For each item you hold, the panel says list at a price, hold (with the breakeven price), sell now, or cut.
+- **What to do with what you hold.** For each item you hold, the panel says list at a price, hold (with the breakeven price), sell now, or cut, plus what it's worth now and the profit or loss after tax if you sold it (with a total for everything you hold).
 - **Help in the GE:**
   - **Search:** type `gt` in the GE item search to list the suggested items.
   - **Buy-limit timers:** hover an item (or open the GE quantity box when buying) to see how much of its 4-hour buy limit is left and when it resets, for example *"Buy limit: 3,000 of 10,000 left, resets in 1h 20m"*. This counts the trades GE Tycoon recorded, so purchases made outside RuneLite aren't included.

@@ -66,6 +66,12 @@ public class TycoonPanelRenderTest
 			h.qty = 5000;
 			h.advice = "List at 259 (profit +520K)";
 			h.tone = "good";
+			h.cost = 5_000 * 155;
+			h.value = 5_000 * 259;
+			h.pnl = 494_100;
+			m.holdValue = h.value;
+			m.unrealised = h.pnl;
+			m.holdCost = h.cost;
 			m.holds.add(h);
 			m.tidy.add("Cancel your Coal buy: it's been up 7h and the price has likely moved.");
 			m.profitToday = 41_200;

@@ -202,6 +202,13 @@ public class TycoonPanel extends PluginPanel
 		return (n < 0 ? "-" : "") + s;
 	}
 
+	/** "+40.5K (+3.4%)" in green, or red for a loss; the percentage is of {@code cost}. */
+	static String pnlHtml(double pnl, double cost)
+	{
+		String pct = cost > 0 ? String.format(Locale.US, " (%s%.1f%%)", pnl > 0 ? "+" : "", 100 * pnl / cost) : "";
+		return "<font color='" + (pnl >= 0 ? "#4CC05A" : "#E05A4C") + "'>" + signed(pnl) + pct + "</font>";
+	}
+
 	private static String signed(double n)
 	{
 		return (n > 0 ? "+" : "") + gp(n);
@@ -307,7 +314,7 @@ public class TycoonPanel extends PluginPanel
 		{
 			// Status-only updates (model progress) keep the same stats: don't rebuild the Stats tab for those.
 			shownStats = m.stats;
-			statsPanel.show(m.stats, m.names, System.currentTimeMillis());
+			statsPanel.show(m.stats, m.names, System.currentTimeMillis(), m.unrealised);
 		}
 
 		if (m.error != null)
@@ -346,9 +353,15 @@ public class TycoonPanel extends PluginPanel
 		if (!m.holds.isEmpty())
 		{
 			body.add(section("Your items"));
+			if (Double.isFinite(m.holdValue) && Double.isFinite(m.unrealised))
+			{
+				body.add(note("Worth " + gp(m.holdValue) + " now · " + pnlHtml(m.unrealised, m.holdCost) + " if sold", ColorScheme.LIGHT_GRAY_COLOR));
+			}
 			for (PanelModel.Hold h : m.holds)
 			{
-				JPanel c = card(h.itemId, "<b>" + esc(h.name) + "</b> × " + QuantityFormatter.formatNumber(h.qty), esc(h.advice), tone(h.tone));
+				String worth = Double.isFinite(h.value) && Double.isFinite(h.pnl)
+					? "<br>Worth " + gp(h.value) + " · " + pnlHtml(h.pnl, h.cost) : "";
+				JPanel c = card(h.itemId, "<b>" + esc(h.name) + "</b> × " + QuantityFormatter.formatNumber(h.qty) + worth, esc(h.advice), tone(h.tone));
 				popup((JPanel) c.getComponent(0), h.itemId, h.name, null, null, false);
 				body.add(c);
 			}
