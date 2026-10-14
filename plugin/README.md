@@ -39,6 +39,7 @@ GE Tycoon brings the model behind the GE Tycoon web app (https://andrewshooman.g
 - **What to do with what you hold.** For each item you hold, the panel says list at a price, hold (with the breakeven price), sell now, or cut.
 - **Help in the GE:**
   - **Search:** type `gt` in the GE item search to list the suggested items.
+  - **Buy-limit timers:** hover an item (or open the GE quantity box when buying) to see how much of its 4-hour buy limit is left and when it resets, for example *"Buy limit: 3,000 of 10,000 left, resets in 1h 20m"*. This counts the trades GE Tycoon recorded, so purchases made outside RuneLite aren't included.
   - **Keybinds (optional):** set a *Skip suggestion key* and a *Price graph key* in the settings. They only work the plugin's own buttons; nothing is typed into the game.
   - **Price and quantity:** when the price or quantity box is open, a line in the chatbox shows the suggested number, for example *"GE Tycoon suggests: buy at 1,234 gp each"*. You type it in yourself. RuneLite doesn't allow plugins to type into the chatbox.
 - **Trade tracking.** Every GE offer you make is recorded with its fills and average prices, including fills that happened while you were logged out. Your profit after tax shows in the panel.

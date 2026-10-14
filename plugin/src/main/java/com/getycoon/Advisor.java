@@ -53,6 +53,7 @@ class Advisor implements OfferShortcuts.Advice
 	private volatile Long runCash;
 	/** Live dip alerts: item -> {price, qty}, and their panel lines, newest first. */
 	private volatile Map<Integer, long[]> dipBuys = Collections.emptyMap();
+	private volatile java.util.function.IntFunction<String> limits = id -> null;
 	private volatile PanelModel last = new PanelModel();
 
 	Advisor(OkHttpClient http, Gson gson, GeTycoonConfig config, Consumer<PanelModel> show)
@@ -113,6 +114,18 @@ class Advisor implements OfferShortcuts.Advice
 		last.dips.clear();
 		last.dips.addAll(lines);
 		push(last);
+	}
+
+	/** Where the buy-limit line for the GE quantity box comes from. */
+	void setLimits(java.util.function.IntFunction<String> limits)
+	{
+		this.limits = limits;
+	}
+
+	@Override
+	public String limitNote(int itemId)
+	{
+		return limits.apply(itemId);
 	}
 
 	Recommender.Result lastResult()

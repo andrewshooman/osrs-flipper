@@ -149,6 +149,7 @@ public class GeTycoonPlugin extends Plugin
 	private ScheduledFuture<?> pendingRefresh;
 	private volatile GeOverlay.State overlayState = new GeOverlay.State();
 	private volatile Map<Integer, String> tips = Collections.emptyMap();
+	private final BuyLimits buyLimits = new BuyLimits();
 	private volatile boolean paused;
 	private final Set<Integer> skipped = ConcurrentHashMap.newKeySet();
 	private volatile long skippedBar = -1;
@@ -238,7 +239,9 @@ public class GeTycoonPlugin extends Plugin
 		shortcuts.setAdvice(advisor);
 		overlay.setState(() -> overlayState);
 		overlayManager.add(overlay);
-		tooltipOverlay.setSources(() -> config.itemTooltips() && !paused ? tips : Collections.emptyMap(), () -> overlayState.slots);
+		tooltipOverlay.setSources(() -> config.itemTooltips() && !paused ? tips : Collections.emptyMap(), () -> overlayState.slots,
+			id -> config.itemTooltips() && config.buyLimits() ? buyLimits.line(id, System.currentTimeMillis()) : null);
+		advisor.setLimits(id -> config.buyLimits() ? buyLimits.line(id, System.currentTimeMillis()) : null);
 		overlayManager.add(tooltipOverlay);
 		overlayManager.add(gpDrop);
 		keyManager.registerKeyListener(skipHotkey);
@@ -374,6 +377,7 @@ public class GeTycoonPlugin extends Plugin
 			advisor.setTradeFile(s.file().toString());
 		}
 		updateCash(false);
+		worker.execute(this::refreshLimits);
 		refresh(true);
 		return true;
 	}
@@ -573,6 +577,7 @@ public class GeTycoonPlugin extends Plugin
 			updateNext();
 			scheduleSave();
 			updateCash(false); // coins waiting in finished slots count towards the stack
+			worker.execute(this::refreshLimits);
 			// Holdings changed: re-plan soon (prices are cached, so this is quick).
 			if (pendingRefresh == null || pendingRefresh.isDone())
 			{
@@ -854,6 +859,30 @@ public class GeTycoonPlugin extends Plugin
 			}
 		});
 		return a;
+	}
+
+	/** Recomputes the buy-limit windows from the recorded trades. Worker thread (the item list may need fetching). */
+	private void refreshLimits()
+	{
+		java.util.List<Trade> trades;
+		synchronized (lock)
+		{
+			if (data == null)
+			{
+				return;
+			}
+			trades = new java.util.ArrayList<>(data.ledger.trades);
+		}
+		java.util.Map<Integer, com.getycoon.engine.ItemMeta> meta;
+		try
+		{
+			meta = advisor.prices().mapping();
+		}
+		catch (IOException e)
+		{
+			meta = Collections.emptyMap();
+		}
+		buyLimits.update(trades, meta, System.currentTimeMillis());
 	}
 
 	/** Skips the suggested buy (button or key): the next action moves on to another item. */
