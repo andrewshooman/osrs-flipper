@@ -2,7 +2,7 @@
 
 *The tool is called **GE Tycoon** (web app and RuneLite plugin) since 2026-10-14. Before that the web app was "GE Flipper" and the plugin "Flip Planner". The main repo keeps its URL, `andrewshooman/osrs-flipper`.*
 
-*Last updated: 2026-10-14, 21:15 UTC.*
+*Last updated: 2026-10-19, 12:45 UTC.*
 
 **Goal:** use the GE tool to make the user coins by **flipping**: buying and
 selling on the GE only. Decanting, processing and alching are money-making
@@ -86,9 +86,18 @@ logging. Nothing places offers automatically, because that gets accounts banned.
   - `walkforward.py`: compares model variants plus a 5% fill check.
   - `strategy_model.py`: the strategy and its presets.
   - `live.py` and `bot_loop.sh`: paper-trading bot.
-  - `retrain.py`: refresh pipeline (tested 2026-10-13: about 15 minutes, holdout
-    +157k/day on the last 14 days). It updates the app model; the bot's model is
-    copied by hand.
+  - `retrain.py`: refresh pipeline (about 18 minutes). It updates the app model; the
+    bot's model is copied by hand (the bot still runs full-year-v1, so its record stays
+    one model's).
+    - 2026-10-13: holdout +157k/day on the last 14 days.
+    - 2026-10-19 (shipped in plugin 0.7.2): holdout +156k/day, 77% won, 679 trips,
+      max drawdown 472k. On the 6.3 days neither had seen (from 10-13 04:00), the bot's
+      full-year-v1 made +195k/day and this recipe trained without the last 14 days
+      +127k/day (284 vs 309 trips).
+    - Max drawdown is noisy: the backtest marks holdings at each hour's average
+      instant-sell price, so one bad hour shows as a drawdown (full-year-v1 showed
+      6.4M on those 6 days and still finished +195k/day). Compare profit and win rate,
+      not drawdown, until the mark is smoothed.
   - `test_research.py` and `test_parity.py`: tests.
 
 ## Validation
