@@ -8,17 +8,18 @@ the most useful parts of Flipping Copilot for free, while staying its own thing:
 - trade history is kept permanently, and the web app can import it
 
 Work the list top to bottom. Each item ends with tests, a PR with green CI, a merge,
-and (for plugin changes) a release plus an update of the Plugin Hub submission.
+and (for plugin changes) a test release.
 Record results in HANDOFF.md.
 
 ## Releasing the plugin
-1. Merge the plugin change into `main`.
-2. Copy `plugin/` without `tools/` and `dist/` into `andrewshooman/ge-tycoon`, as one
-   commit on `main`.
-3. Update `plugins/ge-tycoon` (the `commit=` line) on branch `ge-tycoon` of
-   `andrewshooman/plugin-hub`. That branch is the user's Plugin Hub pull request, so
-   pushing to it updates the submission.
-4. Optionally publish a test build: run the *plugin release* workflow with a version.
+1. Merge the plugin change into `main`, with the version bumped in
+   `plugin/build.gradle` and `plugin/runelite-plugin.properties`.
+2. Run the *plugin release* workflow with that version. The zip on the Releases page
+   (start scripts + `ge-tycoon.jar`) is how the plugin is installed.
+
+The Plugin Hub submission was withdrawn by the user on 2026-10-19. If that changes,
+`plugin/tools/sync-standalone.py` copies `plugin/` to `andrewshooman/ge-tycoon` and
+updates a Plugin Hub entry.
 
 ## Done
 - 0.3.1: session profit per hour, game-chat messages with profit after tax on sells.
@@ -49,18 +50,22 @@ Record results in HANDOFF.md.
   Cancelled offers say "Cancelled" on the collect card. TESTING.md: notifications only
   pop up while RuneLite isn't focused; set your stack first.
 - 0.7.2: model retrained on 2026-10-19 (weekly retrain; HANDOFF has the numbers).
+- 0.7.3: model retrained on 2026-10-26 on complete data (the collector now re-collects
+  days it first saw while in progress).
 - Re-pricing stale buys instead of cancelling them: tested in the 5-minute replay
   (r13), no gain (worse at a 5% share), so not shipped. See HANDOFF.md.
 
 ## Queue
 1. **Weekly retrain.** Run `research/retrain.py`, export the model to
-   `models/flip-model.js` and the plugin's `flip-model.json`, regenerate the parity
-   fixtures, and release.
+   `models/flip-model.js` and the plugin's `flip-model.json`
+   (`plugin/tools/export-model.js`), regenerate the parity fixtures
+   (`plugin/tools/make-fixtures.js`), and release. Judge the holdout on profit and win
+   rate, not max drawdown (HANDOFF).
 2. **Keep iterating** on whatever the user reports from in-game testing
    (`plugin/TESTING.md`). Nothing since 0.3 has been checked in-game yet, so those
-   reports come first. The Plugin Hub entry stays on 0.6.0 until then.
+   reports come first.
 
-## Rules to keep (RuneLite Plugin Hub)
+## Rules to keep (RuneLite's plugin rules, still followed off the Hub)
 - Nothing types or clicks for the player. In particular, no inserting text into the
   chatbox.
 - Files only through `Filepath` / `getPluginDirectory()`.

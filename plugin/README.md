@@ -50,9 +50,8 @@ Nothing is automated: you place every offer and type every number. Prices come f
 
 ## Installing
 
-Once it's accepted on the Plugin Hub: in RuneLite, open the wrench (Configuration) → **Plugin Hub** → search **GE Tycoon** → **Install**.
-
-## Testing it before it's on the Plugin Hub (optional)
+GE Tycoon isn't on the Plugin Hub. You run it with the start script from the newest
+release, which starts your own RuneLite with the plugin added.
 
 RuneLite only loads Plugin Hub plugins, unless the client is started outside the Jagex
 Launcher. The start script does that with your own RuneLite install: it uses RuneLite's

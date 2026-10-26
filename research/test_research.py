@@ -71,5 +71,17 @@ ok(not dips.simulate(P5, np.array([0]), ref_l, ref_h, np.zeros_like(sig), args, 
 vw = dips.rolling_vwap(P5.al, P5.lv, dips.DAY)
 ok(abs(vw[300, 0] - 100) < 1e-3 and np.isnan(vw[10, 0]), "24h volume-weighted reference")
 
+# collect.py re-collects a day that was first collected while still in progress.
+import tempfile as _tf
+from pathlib import Path as _Path
+import collect as _collect
+with _tf.TemporaryDirectory() as _d:
+    _f = _Path(_d) / "day.parquet"
+    _collect.write_day(_f, [(86400 + h * 3600, 1, 10.0, 1, 9.0, 1) for h in range(12)])
+    ok(not _collect.day_complete(_f, 86400, 3600), "a half day is collected again")
+    _collect.write_day(_f, [(86400 + h * 3600, 1, 10.0, 1, 9.0, 1) for h in range(24)])
+    ok(_collect.day_complete(_f, 86400, 3600), "a full day is kept")
+    ok(not _collect.day_complete(_Path(_d) / "missing.parquet", 86400, 3600), "a missing file is collected")
+
 print("research checks:", "OK" if not fails else "FAILED\n  " + "\n  ".join(fails))
 raise SystemExit(1 if fails else 0)

@@ -2,7 +2,7 @@
 
 *The tool is called **GE Tycoon** (web app and RuneLite plugin) since 2026-10-14. Before that the web app was "GE Flipper" and the plugin "Flip Planner". The main repo keeps its URL, `andrewshooman/osrs-flipper`.*
 
-*Last updated: 2026-10-19, 12:45 UTC.*
+*Last updated: 2026-10-26, 12:40 UTC.*
 
 **Goal:** use the GE tool to make the user coins by **flipping**: buying and
 selling on the GE only. Decanting, processing and alching are money-making
@@ -43,18 +43,18 @@ logging. Nothing places offers automatically, because that gets accounts banned.
     - it uses the injected Gson and OkHttp, and makes no `Thread.interrupt` calls
     - `internalName = ge-tycoon`, BSD-2 LICENSE, `icon.png`, `build=standard`
   - It runs through `Launcher` with the player's own RuneLite install (`plugin/dist`
-    start scripts) until it's on the Plugin Hub.
+    start scripts) from the release zip. It isn't on the Plugin Hub (see below).
   - 0.3.0 added Copilot-style help: one next action at a time (collect, cancel, sell,
     buy, wait) with Skip and Pause, GE highlights and slot timers, notifications,
     a Stats tab, 7-day price graphs, sell-only mode and a block list.
   - 0.3.1: session profit per hour, optional game-chat messages with profit after tax.
-  - **Plugin Hub:** standalone repo `andrewshooman/ge-tycoon` (renamed from `flip-planner`; a copy of `plugin/`
-    made by `plugin/tools/sync-standalone.py`); the submission is runelite/plugin-hub#18515, from branch `flip-planner`
-    of the user's fork `andrewshooman/plugin-hub`. The user opens the PR to
-    runelite/plugin-hub from that branch; pushing the branch updates it.
+  - **Plugin Hub: withdrawn.** The user closed runelite/plugin-hub#18515 on 2026-10-19
+    ("dropping as to not saturate runelite with too many ge plugins"). The standalone
+    repo `andrewshooman/ge-tycoon` and `plugin/tools/sync-standalone.py` stay in case
+    that changes, but releases no longer touch them.
   - **What's next for the plugin: `ROADMAP.md`.**
   - **Not yet checked in-game.** `plugin/TESTING.md` is the checklist for the user's
-    first test session (0.7.1 or newer). The Hub entry stays on 0.6.0 until then.
+    first test session (the newest release).
   - New releases: run the "plugin release" workflow with a version. Tag pushes are
     refused from the cloud session.
   - GE tax uses the wiki's full exemption list (48 items).
@@ -94,6 +94,10 @@ logging. Nothing places offers automatically, because that gets accounts banned.
       max drawdown 472k. On the 6.3 days neither had seen (from 10-13 04:00), the bot's
       full-year-v1 made +195k/day and this recipe trained without the last 14 days
       +127k/day (284 vs 309 trips).
+    - 2026-10-26 (plugin 0.7.3), the first with complete data: holdout +195k/day,
+      73% won, 751 trips, max drawdown 478k. Until then `collect.py` never re-collected
+      a day it first collected while in progress, so 10-12 (20 h), 10-13 (5 h) and
+      10-19 (12 h) were short in the two earlier retrains.
     - Max drawdown is noisy: the backtest marks holdings at each hour's average
       instant-sell price, so one bad hour shows as a drawdown (full-year-v1 showed
       6.4M on those 6 days and still finished +195k/day). Compare profit and win rate,

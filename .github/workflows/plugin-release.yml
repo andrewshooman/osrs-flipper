@@ -42,4 +42,4 @@ jobs:
           if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then TAG="plugin-v${VERSION}"; fi
           gh release create "$TAG" out/GE-Tycoon-plugin.zip plugin/build/libs/ge-tycoon.jar \
             --target "$GITHUB_SHA" --title "GE Tycoon plugin ${TAG#plugin-v}" --prerelease \
-            --notes "Download GE-Tycoon-plugin.zip, unzip it anywhere (for example D:\GE-Tycoon), and follow README.md inside: double-click 'Start RuneLite with GE Tycoon.bat'. Needs RuneLite installed and opened once. Test build: not on the Plugin Hub yet."
+            --notes "Download GE-Tycoon-plugin.zip, unzip it anywhere (for example D:\GE-Tycoon), and follow README.md inside: double-click 'Start RuneLite with GE Tycoon.bat'. Needs RuneLite installed and opened once. GE Tycoon isn't on the Plugin Hub; this is how it's installed."

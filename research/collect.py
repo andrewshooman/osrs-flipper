@@ -68,6 +68,18 @@ def write_day(path: Path, rows: list[tuple]) -> None:
     tmp.replace(path)
 
 
+def day_complete(path: Path, start: int, sec: int) -> bool:
+    """True when the file reaches the day's last bucket. A day first collected while it
+    was still in progress stops early and has to be collected again."""
+    import pandas as pd
+
+    try:
+        last = int(pd.read_parquet(path, columns=["ts"]).ts.max())
+    except Exception:
+        return False
+    return last >= start + 86400 - sec
+
+
 def collect(step: str, days: int, rate: float) -> None:
     sec = STEP_SECONDS[step]
     DATA.mkdir(parents=True, exist_ok=True)
@@ -78,9 +90,9 @@ def collect(step: str, days: int, rate: float) -> None:
     for d in range(days, -1, -1):
         day = today - timedelta(days=d)
         out = DATA / step / f"{day.isoformat()}.parquet"
-        if out.exists() and day != today:
-            continue
         start = int(datetime(day.year, day.month, day.day, tzinfo=timezone.utc).timestamp())
+        if out.exists() and day != today and day_complete(out, start, sec):
+            continue
         end = min(start + 86400, int(now.timestamp()) - sec)  # only completed buckets
         rows: list[tuple] = []
         t0 = time.time()
