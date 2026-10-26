@@ -50,6 +50,8 @@ updates a Plugin Hub entry.
   Cancelled offers say "Cancelled" on the collect card. TESTING.md: notifications only
   pop up while RuneLite isn't focused; set your stack first.
 - 0.7.2: model retrained on 2026-10-19 (weekly retrain; HANDOFF has the numbers).
+- 0.7.3: model retrained on 2026-10-26 on complete data (the collector now re-collects
+  days it first saw while in progress).
 - Re-pricing stale buys instead of cancelling them: tested in the 5-minute replay
   (r13), no gain (worse at a 5% share), so not shipped. See HANDOFF.md.
 

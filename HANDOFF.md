@@ -2,7 +2,7 @@
 
 *The tool is called **GE Tycoon** (web app and RuneLite plugin) since 2026-10-14. Before that the web app was "GE Flipper" and the plugin "Flip Planner". The main repo keeps its URL, `andrewshooman/osrs-flipper`.*
 
-*Last updated: 2026-10-19, 12:45 UTC.*
+*Last updated: 2026-10-26, 12:40 UTC.*
 
 **Goal:** use the GE tool to make the user coins by **flipping**: buying and
 selling on the GE only. Decanting, processing and alching are money-making
@@ -94,6 +94,10 @@ logging. Nothing places offers automatically, because that gets accounts banned.
       max drawdown 472k. On the 6.3 days neither had seen (from 10-13 04:00), the bot's
       full-year-v1 made +195k/day and this recipe trained without the last 14 days
       +127k/day (284 vs 309 trips).
+    - 2026-10-26 (plugin 0.7.3), the first with complete data: holdout +195k/day,
+      73% won, 751 trips, max drawdown 478k. Until then `collect.py` never re-collected
+      a day it first collected while in progress, so 10-12 (20 h), 10-13 (5 h) and
+      10-19 (12 h) were short in the two earlier retrains.
     - Max drawdown is noisy: the backtest marks holdings at each hour's average
       instant-sell price, so one bad hour shows as a drawdown (full-year-v1 showed
       6.4M on those 6 days and still finished +195k/day). Compare profit and win rate,
