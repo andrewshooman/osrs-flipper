@@ -38,7 +38,7 @@ with open(os.path.join(a.dest, ".gitignore"), "w") as g:
 readme = os.path.join(a.dest, "README.md")
 s = open(readme).read()
 s = s.replace("# GE Tycoon: RuneLite plugin\n", "# GE Tycoon: RuneLite plugin\n\n*Developed in [andrewshooman/osrs-flipper](https://github.com/andrewshooman/osrs-flipper) (`plugin/`), together with the GE Tycoon web app and the research that trained and tested the model. This repository is the plugin on its own, for the RuneLite Plugin Hub.*\n", 1)
-i, j = s.find("## Testing it before it's on the Plugin Hub"), s.find("To build `ge-tycoon.jar`")
+i, j = s.find("GE Tycoon isn't on the Plugin Hub."), s.find("To build `ge-tycoon.jar`")
 if i >= 0 and j > i:
     s = s[:i] + s[j:]
 s = s.replace("(`tools/make-fixtures.js`)", "(`plugin/tools/make-fixtures.js` in osrs-flipper)")

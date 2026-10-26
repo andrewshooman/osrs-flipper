@@ -4,7 +4,7 @@ One session of about 30 minutes, with a members account and some coins. It check
 feature once. You only need to note what's wrong: write down the section number and what
 you saw (a screenshot helps).
 
-Start the client as in the README's *Testing it before it's on the Plugin Hub*, using the
+Start the client as in the README's *Installing*, using the
 newest *GE Tycoon plugin* release. In GE Tycoon's settings, set *Stack (gp)* to your
 flipping stack if it isn't 11M. Leave everything else at its default unless a step says
 otherwise.

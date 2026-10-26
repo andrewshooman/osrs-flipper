@@ -43,18 +43,18 @@ logging. Nothing places offers automatically, because that gets accounts banned.
     - it uses the injected Gson and OkHttp, and makes no `Thread.interrupt` calls
     - `internalName = ge-tycoon`, BSD-2 LICENSE, `icon.png`, `build=standard`
   - It runs through `Launcher` with the player's own RuneLite install (`plugin/dist`
-    start scripts) until it's on the Plugin Hub.
+    start scripts) from the release zip. It isn't on the Plugin Hub (see below).
   - 0.3.0 added Copilot-style help: one next action at a time (collect, cancel, sell,
     buy, wait) with Skip and Pause, GE highlights and slot timers, notifications,
     a Stats tab, 7-day price graphs, sell-only mode and a block list.
   - 0.3.1: session profit per hour, optional game-chat messages with profit after tax.
-  - **Plugin Hub:** standalone repo `andrewshooman/ge-tycoon` (renamed from `flip-planner`; a copy of `plugin/`
-    made by `plugin/tools/sync-standalone.py`); the submission is runelite/plugin-hub#18515, from branch `flip-planner`
-    of the user's fork `andrewshooman/plugin-hub`. The user opens the PR to
-    runelite/plugin-hub from that branch; pushing the branch updates it.
+  - **Plugin Hub: withdrawn.** The user closed runelite/plugin-hub#18515 on 2026-10-19
+    ("dropping as to not saturate runelite with too many ge plugins"). The standalone
+    repo `andrewshooman/ge-tycoon` and `plugin/tools/sync-standalone.py` stay in case
+    that changes, but releases no longer touch them.
   - **What's next for the plugin: `ROADMAP.md`.**
   - **Not yet checked in-game.** `plugin/TESTING.md` is the checklist for the user's
-    first test session (0.7.1 or newer). The Hub entry stays on 0.6.0 until then.
+    first test session (the newest release).
   - New releases: run the "plugin release" workflow with a version. Tag pushes are
     refused from the cloud session.
   - GE tax uses the wiki's full exemption list (48 items).
